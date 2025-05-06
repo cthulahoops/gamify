@@ -1,0 +1,180 @@
+import {
+  fetchPondiverseCreation,
+  getPondiverseCreationImageUrl,
+  addPondiverseButton,
+} from "https://www.pondiverse.com/pondiverse.js";
+
+const GRID_SIZE = 60;
+const SQUARE_SIZE = 10;
+
+const canvas = document.getElementById("meme-canvas");
+const ctx = canvas.getContext("2d");
+canvas.width = GRID_SIZE * SQUARE_SIZE;
+canvas.height = GRID_SIZE * SQUARE_SIZE;
+
+let grid = [];
+let player = { x: 0, y: 0 };
+
+function getMostCommonColor(data, x0, y0, size, width) {
+  const colorCount = {};
+  for (let y = y0; y < y0 + size; y++) {
+    for (let x = x0; x < x0 + size; x++) {
+      const idx = (y * width + x) * 4;
+      const r = data[idx],
+        g = data[idx + 1],
+        b = data[idx + 2];
+      const key = `${r},${g},${b}`;
+      colorCount[key] = (colorCount[key] || 0) + 1;
+    }
+  }
+  let max = 0,
+    maxColor = "255,255,255";
+  for (const key in colorCount) {
+    if (colorCount[key] > max) {
+      max = colorCount[key];
+      maxColor = key;
+    }
+  }
+  return maxColor.split(",").map(Number);
+}
+
+function isLight([r, g, b]) {
+  return (r + g + b) / 3 > 200;
+}
+
+function extractGrid(img) {
+  const tempCanvas = document.createElement("canvas");
+  tempCanvas.width = img.width;
+  tempCanvas.height = img.height;
+  const tempCtx = tempCanvas.getContext("2d");
+  tempCtx.drawImage(img, 0, 0, img.width, img.height);
+  const imageData = tempCtx.getImageData(0, 0, img.width, img.height).data;
+
+  const cellW = Math.floor(img.width / GRID_SIZE);
+  const cellH = Math.floor(img.height / GRID_SIZE);
+
+  const result = [];
+  for (let y = 0; y < GRID_SIZE; y++) {
+    const row = [];
+    for (let x = 0; x < GRID_SIZE; x++) {
+      const color = getMostCommonColor(
+        imageData,
+        x * cellW,
+        y * cellH,
+        Math.min(cellW, cellH),
+        img.width,
+      );
+      row.push({
+        color,
+        empty: isLight(color),
+      });
+    }
+    result.push(row);
+  }
+  return result;
+}
+
+function drawGrid() {
+  for (let y = 0; y < GRID_SIZE; y++) {
+    for (let x = 0; x < GRID_SIZE; x++) {
+      const { color, empty } = grid[y][x];
+      ctx.fillStyle = `rgb(${color.join(",")})`;
+      ctx.fillRect(x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
+      if (!empty) {
+        ctx.strokeStyle = "rgba(0,0,0,0.2)";
+        ctx.strokeRect(
+          x * SQUARE_SIZE,
+          y * SQUARE_SIZE,
+          SQUARE_SIZE,
+          SQUARE_SIZE,
+        );
+      }
+    }
+  }
+  // Draw player
+  ctx.fillStyle = "red";
+  ctx.beginPath();
+  ctx.arc(
+    player.x * SQUARE_SIZE + SQUARE_SIZE / 2,
+    player.y * SQUARE_SIZE + SQUARE_SIZE / 2,
+    SQUARE_SIZE / 2.5,
+    0,
+    2 * Math.PI,
+  );
+  ctx.fill();
+}
+
+function findRandomEmpty() {
+  const empties = [];
+  for (let y = 0; y < GRID_SIZE; y++) {
+    for (let x = 0; x < GRID_SIZE; x++) {
+      if (grid[y][x].empty) empties.push({ x, y });
+    }
+  }
+  return empties[Math.floor(Math.random() * empties.length)];
+}
+
+function mod(n, m) {
+  return ((n % m) + m) % m;
+}
+
+function movePlayer(dx, dy) {
+  const nx = mod(player.x + dx, GRID_SIZE);
+  const ny = mod(player.y + dy, GRID_SIZE);
+  if (grid[ny][nx].empty) {
+    player.x = nx;
+    player.y = ny;
+    drawGrid();
+  }
+}
+
+function handleKey(e) {
+  switch (e.key) {
+    case "ArrowUp":
+      movePlayer(0, -1);
+      break;
+    case "ArrowDown":
+      movePlayer(0, 1);
+      break;
+    case "ArrowLeft":
+      movePlayer(-1, 0);
+      break;
+    case "ArrowRight":
+      movePlayer(1, 0);
+      break;
+  }
+}
+
+function setImageFromUrl(url) {
+  return new Promise((resolve) => {
+    const img = new window.Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.src = url;
+  });
+}
+
+function main() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const creationId = urlParams.get("creation");
+
+  if (!creationId) {
+    ctx.font = "20px sans-serif";
+    ctx.fillText("No creation specified in URL.", 20, 40);
+    return;
+  }
+
+  fetchPondiverseCreation(creationId).then((creation) => {
+    const imageUrl = getPondiverseCreationImageUrl(creation);
+    setImageFromUrl(imageUrl).then((img) => {
+      grid = extractGrid(img);
+      player = findRandomEmpty();
+      drawGrid();
+      window.addEventListener("keydown", handleKey);
+      document.getElementById("original").href =
+        "https://www.pondiverse.com/tool/?creation=" + creationId;
+    });
+  });
+}
+
+main();
