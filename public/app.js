@@ -11,6 +11,7 @@ const canvas = document.getElementById("meme-canvas");
 const ctx = canvas.getContext("2d");
 canvas.width = GRID_SIZE * SQUARE_SIZE;
 canvas.height = GRID_SIZE * SQUARE_SIZE;
+const colorStates = new Map();
 
 let grid = [];
 let player = { x: 0, y: 0 };
@@ -64,34 +65,30 @@ function extractGrid(img) {
         Math.min(cellW, cellH),
         img.width,
       );
-      row.push({
-        color,
-        empty: isLight(color),
-      });
+      row.push(color);
     }
     result.push(row);
   }
+
   return result;
 }
 
 function drawGrid() {
   for (let y = 0; y < GRID_SIZE; y++) {
     for (let x = 0; x < GRID_SIZE; x++) {
-      const { color, empty } = grid[y][x];
+      const color = grid[y][x];
       ctx.fillStyle = `rgb(${color.join(",")})`;
       ctx.fillRect(x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
-      if (!empty) {
-        ctx.strokeStyle = "rgba(0,0,0,0.2)";
-        ctx.strokeRect(
-          x * SQUARE_SIZE,
-          y * SQUARE_SIZE,
-          SQUARE_SIZE,
-          SQUARE_SIZE,
-        );
-      }
+      ctx.strokeStyle = "rgba(0,0,0,0.2)";
+      ctx.strokeRect(
+        x * SQUARE_SIZE,
+        y * SQUARE_SIZE,
+        SQUARE_SIZE,
+        SQUARE_SIZE,
+      );
     }
   }
-  // Draw player
+
   ctx.fillStyle = "red";
   ctx.beginPath();
   ctx.arc(
@@ -106,12 +103,19 @@ function drawGrid() {
 
 function findRandomEmpty() {
   const empties = [];
-  for (let y = 0; y < GRID_SIZE; y++) {
-    for (let x = 0; x < GRID_SIZE; x++) {
-      if (grid[y][x].empty) empties.push({ x, y });
+  for (let y = 0; y < grid.length; y++) {
+    for (let x = 0; x < grid[y].length; x++) {
+      if (isEmpty(grid[y][x])) {
+        empties.push({ x, y });
+      }
     }
   }
+  if (empties.length === 0) return null;
   return empties[Math.floor(Math.random() * empties.length)];
+}
+
+function isEmpty(color) {
+  return !colorStates.get(color.join(","));
 }
 
 function mod(n, m) {
@@ -121,7 +125,7 @@ function mod(n, m) {
 function movePlayer(dx, dy) {
   const nx = mod(player.x + dx, GRID_SIZE);
   const ny = mod(player.y + dy, GRID_SIZE);
-  if (grid[ny][nx].empty) {
+  if (isEmpty(grid[ny][nx])) {
     player.x = nx;
     player.y = ny;
     drawGrid();
@@ -143,6 +147,66 @@ function handleKey(e) {
       movePlayer(1, 0);
       break;
   }
+}
+
+function extractUniqueColors(grid) {
+  const seen = new Set();
+  const unique = [];
+  for (let y = 0; y < grid.length; y++) {
+    for (let x = 0; x < grid[y].length; x++) {
+      const color = grid[y][x];
+      const key = color.join(",");
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push(color);
+      }
+    }
+  }
+  return unique;
+}
+
+function colorKey(color) {
+  return color.join(",");
+}
+
+function setupColorControls(uniqueColors) {
+  const colorControls = document.getElementById("color-controls");
+  colorControls.innerHTML = "";
+  uniqueColors.forEach((color) => {
+    const key = colorKey(color);
+
+    // Initialize state if not already set
+    if (!colorStates.has(key)) {
+      colorStates.set(key, !isLight(color)); // solid if not light
+    }
+
+    const label = document.createElement("label");
+    label.style.display = "inline-flex";
+    label.style.alignItems = "center";
+    label.style.marginRight = "10px";
+    label.style.marginBottom = "5px";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = colorStates.get(key);
+    checkbox.addEventListener("change", () => {
+      colorStates.set(key, checkbox.checked);
+      drawGrid();
+    });
+
+    const swatch = document.createElement("span");
+    swatch.style.display = "inline-block";
+    swatch.style.width = "20px";
+    swatch.style.height = "20px";
+    swatch.style.background = `rgb(${color.join(",")})`;
+    swatch.style.border = "1px solid #888";
+    swatch.style.margin = "0 5px";
+
+    label.appendChild(checkbox);
+    label.appendChild(swatch);
+    label.appendChild(document.createTextNode(key));
+    colorControls.appendChild(label);
+  });
 }
 
 function setImageFromUrl(url) {
@@ -168,6 +232,8 @@ function main() {
     const imageUrl = getPondiverseCreationImageUrl(creation);
     setImageFromUrl(imageUrl).then((img) => {
       grid = extractGrid(img);
+      const uniqueColors = extractUniqueColors(grid);
+      setupColorControls(uniqueColors);
       player = findRandomEmpty();
       drawGrid();
       window.addEventListener("keydown", handleKey);
