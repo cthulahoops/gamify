@@ -118,16 +118,36 @@ function isEmpty(color) {
   return !colorStates.get(color.join(","));
 }
 
+function addVector(v1, v2) {
+  return { x: mod(v1.x + v2.x, GRID_SIZE), y: mod(v1.y + v2.y, GRID_SIZE) };
+}
+
 function mod(n, m) {
   return ((n % m) + m) % m;
 }
 
-function movePlayer(dx, dy) {
-  const nx = mod(player.x + dx, GRID_SIZE);
-  const ny = mod(player.y + dy, GRID_SIZE);
-  if (isEmpty(grid[ny][nx])) {
-    player.x = nx;
-    player.y = ny;
+function getGridPos(pos) {
+  return grid[pos.y][pos.x];
+}
+
+function setGridPos(pos, color) {
+  grid[pos.y][pos.x] = color;
+}
+
+function movePlayer(delta) {
+  const newPos = addVector(player, delta);
+  if (isEmpty(getGridPos(newPos))) {
+    player = newPos;
+    drawGrid();
+  } else if (isEmpty(getGridPos(addVector(newPos, delta)))) {
+    player = newPos;
+    const targetPos = addVector(newPos, delta);
+    const movingColor = getGridPos(newPos);
+    const targetColor = getGridPos(targetPos);
+
+    setGridPos(newPos, targetColor);
+    setGridPos(targetPos, movingColor);
+
     drawGrid();
   }
 }
