@@ -39,10 +39,6 @@ function getMostCommonColor(data, x0, y0, size, width) {
   return maxColor.split(",").map(Number);
 }
 
-function isLight([r, g, b]) {
-  return (r + g + b) / 3 > 200;
-}
-
 function extractGrid(image) {
   grid = new Grid(GRID_SIZE);
   const tempCanvas = document.createElement("canvas");
@@ -67,6 +63,8 @@ function extractGrid(image) {
       grid.setCell({ x, y }, color);
     }
   }
+
+  grid.setupColorStates();
   return grid;
 }
 
@@ -161,18 +159,14 @@ function colorKey(color) {
   return color.join(",");
 }
 
-function setupColorControls(uniqueColors) {
+function setupColorControls(grid) {
   const colorControls = document.getElementById("color-controls");
+  const uniqueColors = extractUniqueColors(grid);
   colorControls.innerHTML = "";
   uniqueColors.forEach((color) => {
     const key = colorKey(color);
 
     const colorStates = grid.colorStates;
-
-    // Initialize state if not already set
-    if (!colorStates.has(key)) {
-      colorStates.set(key, !isLight(color)); // solid if not light
-    }
 
     const label = document.createElement("label");
     label.style.display = "inline-flex";
@@ -226,8 +220,7 @@ function main() {
     const imageUrl = getPondiverseCreationImageUrl(creation);
     setImageFromUrl(imageUrl).then((img) => {
       grid = extractGrid(img);
-      const uniqueColors = extractUniqueColors(grid);
-      setupColorControls(uniqueColors);
+      setupColorControls(grid);
       player = findRandomEmpty(grid);
       drawGrid(grid);
       window.addEventListener("keydown", handleKey);

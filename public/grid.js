@@ -34,6 +34,15 @@ export class Grid {
     return uniqueColors;
   }
 
+  countColors() {
+    const colorCounts = new Map();
+    this.forEach(({ color }) => {
+      const key = color.join(",");
+      colorCounts.set(key, (colorCounts.get(key) || 0) + 1);
+    });
+    return colorCounts;
+  }
+
   addVector(v1, v2) {
     return {
       x: mod(v1.x + v2.x, this.gridSize),
@@ -42,10 +51,13 @@ export class Grid {
   }
 
   setupColorStates() {
-    const uniqueColors = this.extractUniqueColors();
-    uniqueColors.forEach((color) => {
-      const key = color.join(",");
-      this.colorStates.set(key, !isLight(color)); // Solid if not light
+    const counts = this.countColors();
+    const mostCommonColor = [...counts.entries()].reduce((a, b) =>
+      a[1] > b[1] ? a : b,
+    )[0];
+
+    counts.forEach((count, color) => {
+      this.colorStates.set(color, color !== mostCommonColor);
     });
   }
 
@@ -56,10 +68,6 @@ export class Grid {
       }
     }
   }
-}
-
-function isLight([r, g, b]) {
-  return (r + g + b) / 3 > 200; // Average brightness threshold
 }
 
 function mod(n, m) {
