@@ -3,6 +3,7 @@ import {
   getPondiverseCreationImageUrl,
   addPondiverseButton,
 } from "https://www.pondiverse.com/pondiverse.js";
+import { Grid } from "./grid.js";
 
 const GRID_SIZE = 60;
 const SQUARE_SIZE = 10;
@@ -11,9 +12,8 @@ const canvas = document.getElementById("meme-canvas");
 const ctx = canvas.getContext("2d");
 canvas.width = GRID_SIZE * SQUARE_SIZE;
 canvas.height = GRID_SIZE * SQUARE_SIZE;
-const colorStates = new Map();
 
-let grid = [];
+let grid;
 let player = { x: 0, y: 0 };
 
 function getMostCommonColor(data, x0, y0, size, width) {
@@ -43,40 +43,37 @@ function isLight([r, g, b]) {
   return (r + g + b) / 3 > 200;
 }
 
-function extractGrid(img) {
+function extractGrid(image) {
+  grid = new Grid(GRID_SIZE);
   const tempCanvas = document.createElement("canvas");
-  tempCanvas.width = img.width;
-  tempCanvas.height = img.height;
+  tempCanvas.width = image.width;
+  tempCanvas.height = image.height;
   const tempCtx = tempCanvas.getContext("2d");
-  tempCtx.drawImage(img, 0, 0, img.width, img.height);
-  const imageData = tempCtx.getImageData(0, 0, img.width, img.height).data;
+  tempCtx.drawImage(image, 0, 0, image.width, image.height);
+  const imageData = tempCtx.getImageData(0, 0, image.width, image.height).data;
 
-  const cellW = Math.floor(img.width / GRID_SIZE);
-  const cellH = Math.floor(img.height / GRID_SIZE);
+  const cellWidth = Math.floor(image.width / grid.gridSize);
+  const cellHeight = Math.floor(image.height / grid.gridSize);
 
-  const result = [];
-  for (let y = 0; y < GRID_SIZE; y++) {
-    const row = [];
-    for (let x = 0; x < GRID_SIZE; x++) {
+  for (let y = 0; y < grid.gridSize; y++) {
+    for (let x = 0; x < grid.gridSize; x++) {
       const color = getMostCommonColor(
         imageData,
-        x * cellW,
-        y * cellH,
-        Math.min(cellW, cellH),
-        img.width,
+        x * cellWidth,
+        y * cellHeight,
+        Math.min(cellWidth, cellHeight),
+        image.width,
       );
-      row.push(color);
+      grid.setCell({ x, y }, color);
     }
-    result.push(row);
   }
-
-  return result;
+  return grid;
 }
 
-function drawGrid() {
-  for (let y = 0; y < GRID_SIZE; y++) {
-    for (let x = 0; x < GRID_SIZE; x++) {
-      const color = grid[y][x];
+function drawGrid(grid) {
+  for (let y = 0; y < grid.gridSize; y++) {
+    for (let x = 0; x < grid.gridSize; x++) {
+      const color = grid.getCell({ x, y });
       ctx.fillStyle = `rgb(${color.join(",")})`;
       ctx.fillRect(x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
       ctx.strokeStyle = "rgba(0,0,0,0.2)";
@@ -101,70 +98,58 @@ function drawGrid() {
   ctx.fill();
 }
 
-function findRandomEmpty() {
-  const empties = [];
-  for (let y = 0; y < grid.length; y++) {
-    for (let x = 0; x < grid[y].length; x++) {
-      if (isEmpty(grid[y][x])) {
-        empties.push({ x, y });
+function findRandomEmpty(grid) {
+  const emptyCells = [];
+
+  for (let y = 0; y < grid.gridSize; y++) {
+    for (let x = 0; x < grid.gridSize; x++) {
+      if (grid.isEmpty({ x, y })) {
+        emptyCells.push({ x, y });
       }
     }
   }
-  if (empties.length === 0) return null;
-  return empties[Math.floor(Math.random() * empties.length)];
-}
 
-function isEmpty(color) {
-  return !colorStates.get(color.join(","));
-}
+  if (emptyCells.length === 0) return null; // No empty cells found
 
-function addVector(v1, v2) {
-  return { x: mod(v1.x + v2.x, GRID_SIZE), y: mod(v1.y + v2.y, GRID_SIZE) };
-}
-
-function mod(n, m) {
-  return ((n % m) + m) % m;
-}
-
-function getGridPos(pos) {
-  return grid[pos.y][pos.x];
-}
-
-function setGridPos(pos, color) {
-  grid[pos.y][pos.x] = color;
+  const randomIndex = Math.floor(Math.random() * emptyCells.length);
+  return emptyCells[randomIndex];
 }
 
 function movePlayer(delta) {
-  const newPos = addVector(player, delta);
-  if (isEmpty(getGridPos(newPos))) {
+  const newPos = grid.addVector(player, delta);
+  if (grid.isEmpty(newPos)) {
     player = newPos;
-    drawGrid();
-  } else if (isEmpty(getGridPos(addVector(newPos, delta)))) {
+    drawGrid(grid);
+  } else if (grid.isEmpty(grid.addVector(newPos, delta))) {
     player = newPos;
-    const targetPos = addVector(newPos, delta);
-    const movingColor = getGridPos(newPos);
-    const targetColor = getGridPos(targetPos);
+    const targetPos = grid.addVector(newPos, delta);
+    const movingColor = grid.getCell(newPos);
+    const targetColor = grid.getCell(targetPos);
 
-    setGridPos(newPos, targetColor);
-    setGridPos(targetPos, movingColor);
+    grid.setCell(newPos, targetColor);
+    grid.setCell(targetPos, movingColor);
 
-    drawGrid();
+    drawGrid(grid);
   }
 }
 
 function handleKey(e) {
   switch (e.key) {
     case "ArrowUp":
-      movePlayer(0, -1);
+      movePlayer({ x: 0, y: -1 });
+      e.preventDefault();
       break;
     case "ArrowDown":
-      movePlayer(0, 1);
+      movePlayer({ x: 0, y: 1 });
+      e.preventDefault();
       break;
     case "ArrowLeft":
-      movePlayer(-1, 0);
+      movePlayer({ x: -1, y: 0 });
+      e.preventDefault();
       break;
     case "ArrowRight":
-      movePlayer(1, 0);
+      movePlayer({ x: 1, y: 0 });
+      e.preventDefault();
       break;
   }
 }
@@ -172,9 +157,9 @@ function handleKey(e) {
 function extractUniqueColors(grid) {
   const seen = new Set();
   const unique = [];
-  for (let y = 0; y < grid.length; y++) {
-    for (let x = 0; x < grid[y].length; x++) {
-      const color = grid[y][x];
+  for (let y = 0; y < GRID_SIZE; y++) {
+    for (let x = 0; x < GRID_SIZE; x++) {
+      const color = grid.getCell({ x, y });
       const key = color.join(",");
       if (!seen.has(key)) {
         seen.add(key);
@@ -195,6 +180,8 @@ function setupColorControls(uniqueColors) {
   uniqueColors.forEach((color) => {
     const key = colorKey(color);
 
+    const colorStates = grid.colorStates;
+
     // Initialize state if not already set
     if (!colorStates.has(key)) {
       colorStates.set(key, !isLight(color)); // solid if not light
@@ -211,7 +198,7 @@ function setupColorControls(uniqueColors) {
     checkbox.checked = colorStates.get(key);
     checkbox.addEventListener("change", () => {
       colorStates.set(key, checkbox.checked);
-      drawGrid();
+      drawGrid(grid);
     });
 
     const swatch = document.createElement("span");
@@ -254,8 +241,8 @@ function main() {
       grid = extractGrid(img);
       const uniqueColors = extractUniqueColors(grid);
       setupColorControls(uniqueColors);
-      player = findRandomEmpty();
-      drawGrid();
+      player = findRandomEmpty(grid);
+      drawGrid(grid);
       window.addEventListener("keydown", handleKey);
       document.getElementById("original").href =
         "https://www.pondiverse.com/tool/?creation=" + creationId;
