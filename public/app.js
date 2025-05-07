@@ -71,20 +71,12 @@ function extractGrid(image) {
 }
 
 function drawGrid(grid) {
-  for (let y = 0; y < grid.gridSize; y++) {
-    for (let x = 0; x < grid.gridSize; x++) {
-      const color = grid.getCell({ x, y });
-      ctx.fillStyle = `rgb(${color.join(",")})`;
-      ctx.fillRect(x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
-      ctx.strokeStyle = "rgba(0,0,0,0.2)";
-      ctx.strokeRect(
-        x * SQUARE_SIZE,
-        y * SQUARE_SIZE,
-        SQUARE_SIZE,
-        SQUARE_SIZE,
-      );
-    }
-  }
+  grid.forEach(({ x, y, color }) => {
+    ctx.fillStyle = `rgb(${color.join(",")})`;
+    ctx.fillRect(x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
+    ctx.strokeStyle = "rgba(0,0,0,0.2)";
+    ctx.strokeRect(x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
+  });
 
   ctx.fillStyle = "red";
   ctx.beginPath();
@@ -101,13 +93,11 @@ function drawGrid(grid) {
 function findRandomEmpty(grid) {
   const emptyCells = [];
 
-  for (let y = 0; y < grid.gridSize; y++) {
-    for (let x = 0; x < grid.gridSize; x++) {
-      if (grid.isEmpty({ x, y })) {
-        emptyCells.push({ x, y });
-      }
+  grid.forEach(({ x, y }) => {
+    if (grid.isEmpty({ x, y })) {
+      emptyCells.push({ x, y });
     }
-  }
+  });
 
   if (emptyCells.length === 0) return null; // No empty cells found
 
@@ -157,16 +147,13 @@ function handleKey(e) {
 function extractUniqueColors(grid) {
   const seen = new Set();
   const unique = [];
-  for (let y = 0; y < GRID_SIZE; y++) {
-    for (let x = 0; x < GRID_SIZE; x++) {
-      const color = grid.getCell({ x, y });
-      const key = color.join(",");
-      if (!seen.has(key)) {
-        seen.add(key);
-        unique.push(color);
-      }
+  grid.forEach(({ x, y, color }) => {
+    const key = color.join(",");
+    if (!seen.has(key)) {
+      seen.add(key);
+      unique.push(color);
     }
-  }
+  });
   return unique;
 }
 

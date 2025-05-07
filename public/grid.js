@@ -24,16 +24,13 @@ export class Grid {
   extractUniqueColors() {
     const seen = new Set();
     const uniqueColors = [];
-    for (let y = 0; y < this.gridSize; y++) {
-      for (let x = 0; x < this.gridSize; x++) {
-        const color = this.grid[y][x];
-        const key = color.join(",");
-        if (!seen.has(key)) {
-          seen.add(key);
-          uniqueColors.push(color);
-        }
+    this.forEach(({ x, y, color }) => {
+      const key = color.join(",");
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniqueColors.push(color);
       }
-    }
+    });
     return uniqueColors;
   }
 
@@ -50,6 +47,14 @@ export class Grid {
       const key = color.join(",");
       this.colorStates.set(key, !isLight(color)); // Solid if not light
     });
+  }
+
+  forEach(callback) {
+    for (let y = 0; y < this.gridSize; y++) {
+      for (let x = 0; x < this.gridSize; x++) {
+        callback({ x, y, color: this.grid[y][x] });
+      }
+    }
   }
 }
 
