@@ -21,6 +21,16 @@ export class Grid {
     return !this.colorStates.get(key);
   }
 
+  setEmpty({ x, y }) {
+    for (const [color, isSolid] of this.colorStates.entries()) {
+      if (!isSolid) {
+        const colorArray = color.split(",").map(Number);
+        this.setCell({ x, y }, colorArray);
+        return;
+      }
+    }
+  }
+
   extractUniqueColors() {
     const seen = new Set();
     const uniqueColors = [];

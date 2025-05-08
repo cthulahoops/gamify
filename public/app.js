@@ -5,6 +5,8 @@ import {
 } from "https://www.pondiverse.com/pondiverse.js";
 import { Grid } from "./grid.js";
 
+import { applyRules } from "./rules.js";
+
 const GRID_SIZE = 60;
 const SQUARE_SIZE = 10;
 
@@ -104,21 +106,8 @@ function findRandomEmpty(grid) {
 }
 
 function movePlayer(delta) {
-  const newPos = grid.addVector(player, delta);
-  if (grid.isEmpty(newPos)) {
-    player = newPos;
-    drawGrid(grid);
-  } else if (grid.isEmpty(grid.addVector(newPos, delta))) {
-    player = newPos;
-    const targetPos = grid.addVector(newPos, delta);
-    const movingColor = grid.getCell(newPos);
-    const targetColor = grid.getCell(targetPos);
-
-    grid.setCell(newPos, targetColor);
-    grid.setCell(targetPos, movingColor);
-
-    drawGrid(grid);
-  }
+  applyRules(grid, player, delta);
+  drawGrid(grid);
 }
 
 function handleKey(e) {
