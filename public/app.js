@@ -7,6 +7,13 @@ import { Grid } from "./grid.js";
 
 import { applyRules } from "./rules.js";
 
+const DEFAULT_RULES = [
+  { match: "#> ", become: " #>" },
+  { match: "> ", become: " >" },
+  { match: "># ", become: " >#" },
+  { match: ">## ", become: " >##" },
+];
+
 const GRID_SIZE = 60;
 const SQUARE_SIZE = 10;
 
@@ -17,6 +24,7 @@ canvas.height = GRID_SIZE * SQUARE_SIZE;
 
 let grid;
 let player = { x: 0, y: 0 };
+let rules = DEFAULT_RULES;
 
 function getMostCommonColor(data, x0, y0, size, width) {
   const colorCount = {};
@@ -106,7 +114,7 @@ function findRandomEmpty(grid) {
 }
 
 function movePlayer(delta) {
-  applyRules(grid, player, delta);
+  applyRules(rules, grid, player, delta);
   drawGrid(grid);
 }
 
@@ -204,6 +212,19 @@ function main() {
     ctx.fillText("No creation specified in URL.", 20, 40);
     return;
   }
+
+  const rulesTextArea = document.getElementById("rules");
+  rulesTextArea.value = JSON.stringify(rules, null, 2);
+  rulesTextArea.addEventListener("input", () => {
+    let updatedRules;
+    try {
+      updatedRules = JSON.parse(rulesTextArea.value);
+    } catch (e) {
+      return;
+    }
+    console.log("updatedRules", updatedRules);
+    rules = updatedRules;
+  });
 
   fetchPondiverseCreation(creationId).then((creation) => {
     const imageUrl = getPondiverseCreationImageUrl(creation);

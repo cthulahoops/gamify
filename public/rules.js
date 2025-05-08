@@ -1,12 +1,5 @@
-const RULES = [
-  { match: "#> ", become: " #>" },
-  { match: "> ", become: " >" },
-  { match: "># ", become: " >#" },
-  { match: ">## ", become: " >##" },
-];
-
-export function applyRules(grid, player, delta) {
-  for (const rule of RULES) {
+export function applyRules(rules, grid, player, delta) {
+  for (const rule of rules) {
     const match = matchRule(grid, player, delta, rule);
     if (!match) {
       continue;
