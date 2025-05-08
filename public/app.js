@@ -119,6 +119,7 @@ function movePlayer(delta) {
 }
 
 function handleKey(e) {
+  if (document.activeElement.id === "rules") return;
   switch (e.key) {
     case "ArrowUp":
       movePlayer({ x: 0, y: -1 });
