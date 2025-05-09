@@ -62,6 +62,10 @@ function matchRule(grid, player, delta, rule) {
       continue;
     }
 
+    if (matchChar == grid.getCellCode(matchPos)) {
+      continue;
+    }
+
     return null;
   }
   return { matchStart: matchStart, solids: solids };
