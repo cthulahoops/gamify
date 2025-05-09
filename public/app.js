@@ -206,7 +206,6 @@ function main() {
     } catch (e) {
       return;
     }
-    console.log("updatedRules", updatedRules);
     rules = updatedRules;
   });
 

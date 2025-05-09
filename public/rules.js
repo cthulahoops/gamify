@@ -16,7 +16,11 @@ export function applyRules(rules, grid, player, delta) {
       } else if (becomeChar === ">") {
         player.x = becomePos.x;
         player.y = becomePos.y;
-        grid.setEmpty(becomePos);
+        if (!grid.isEmpty(becomePos)) {
+          grid.setEmpty(becomePos);
+        }
+      } else {
+        grid.setCellCode(becomePos, becomeChar);
       }
     }
     break;
