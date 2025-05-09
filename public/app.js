@@ -46,7 +46,7 @@ function getMostCommonColor(data, x0, y0, size, width) {
       maxColor = key;
     }
   }
-  return maxColor.split(",").map(Number);
+  return maxColor;
 }
 
 function extractGrid(image) {
@@ -79,8 +79,9 @@ function extractGrid(image) {
 }
 
 function drawGrid(grid) {
-  grid.forEach(({ x, y, color }) => {
-    ctx.fillStyle = `rgb(${color.join(",")})`;
+  grid.forEach(({ x, y, color: colorCode }) => {
+    const color = grid.palette.code_to_color.get(colorCode);
+    ctx.fillStyle = `rgb(${color})`;
     ctx.fillRect(x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
     ctx.strokeStyle = "rgba(0,0,0,0.2)";
     ctx.strokeRect(x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
@@ -140,29 +141,11 @@ function handleKey(e) {
   }
 }
 
-function extractUniqueColors(grid) {
-  const seen = new Set();
-  const unique = [];
-  grid.forEach(({ x, y, color }) => {
-    const key = color.join(",");
-    if (!seen.has(key)) {
-      seen.add(key);
-      unique.push(color);
-    }
-  });
-  return unique;
-}
-
-function colorKey(color) {
-  return color.join(",");
-}
-
 function setupColorControls(grid) {
   const colorControls = document.getElementById("color-controls");
-  const uniqueColors = extractUniqueColors(grid);
   colorControls.innerHTML = "";
-  uniqueColors.forEach((color) => {
-    const key = colorKey(color);
+  for (const [code, color] of grid.palette.code_to_color) {
+    const key = code;
 
     const colorStates = grid.colorStates;
 
@@ -184,7 +167,7 @@ function setupColorControls(grid) {
     swatch.style.display = "inline-block";
     swatch.style.width = "20px";
     swatch.style.height = "20px";
-    swatch.style.background = `rgb(${color.join(",")})`;
+    swatch.style.background = `rgb(${color})`;
     swatch.style.border = "1px solid #888";
     swatch.style.margin = "0 5px";
 
@@ -192,7 +175,7 @@ function setupColorControls(grid) {
     label.appendChild(swatch);
     label.appendChild(document.createTextNode(key));
     colorControls.appendChild(label);
-  });
+  }
 }
 
 function setImageFromUrl(url) {
@@ -238,6 +221,22 @@ function main() {
       document.getElementById("original").href =
         "https://www.pondiverse.com/tool/?creation=" + creationId;
     });
+  });
+
+  addPondiverseButton(() => {
+    const data = {
+      grid: grid.toJSON(),
+      player: player,
+      rules: rules,
+    };
+
+    console.log("data", data);
+    const creation = {
+      type: "gamified",
+      data: JSON.stringify(data),
+      image: canvas.toDataURL(),
+    };
+    return creation;
   });
 }
 

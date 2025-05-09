@@ -1,3 +1,36 @@
+class Palette {
+  constructor() {
+    this.color_to_code = new Map();
+    this.code_to_color = new Map();
+    this.nextColor = "A";
+  }
+
+  getColorCode(color) {
+    if (this.color_to_code.has(color)) {
+      return this.color_to_code.get(color);
+    }
+
+    const code = this.nextColor;
+    this.color_to_code.set(color, code);
+    this.code_to_color.set(code, color);
+    this.nextColor = String.fromCharCode(this.nextColor.charCodeAt(0) + 1);
+
+    return code;
+  }
+
+  getColor(code) {
+    if (this.code_to_color.has(code)) {
+      return this.code_to_color.get(code);
+    }
+  }
+
+  toJSON() {
+    return {
+      color_to_code: Array.from(this.code_to_color.entries()),
+    };
+  }
+}
+
 export class Grid {
   constructor(gridSize) {
     this.gridSize = gridSize;
@@ -5,50 +38,43 @@ export class Grid {
       Array.from({ length: gridSize }, () => [255, 255, 255]),
     );
     this.colorStates = new Map();
+    this.palette = new Palette();
   }
 
   getCell({ x, y }) {
+    return this.palette.getColor(this.grid[y][x]);
+  }
+
+  getCellCode({ x, y }) {
     return this.grid[y][x];
   }
 
   setCell({ x, y }, color) {
-    this.grid[y][x] = color;
+    this.grid[y][x] = this.palette.getColorCode(color);
+  }
+
+  setCellCode({ x, y }, colorCode) {
+    this.grid[y][x] = colorCode;
   }
 
   isEmpty({ x, y }) {
-    const color = this.getCell({ x, y });
-    const key = color.join(",");
-    return !this.colorStates.get(key);
+    const color = this.getCellCode({ x, y });
+    return !this.colorStates.get(color);
   }
 
   setEmpty({ x, y }) {
     for (const [color, isSolid] of this.colorStates.entries()) {
       if (!isSolid) {
-        const colorArray = color.split(",").map(Number);
-        this.setCell({ x, y }, colorArray);
+        this.setCellCode({ x, y }, color);
         return;
       }
     }
   }
 
-  extractUniqueColors() {
-    const seen = new Set();
-    const uniqueColors = [];
-    this.forEach(({ x, y, color }) => {
-      const key = color.join(",");
-      if (!seen.has(key)) {
-        seen.add(key);
-        uniqueColors.push(color);
-      }
-    });
-    return uniqueColors;
-  }
-
   countColors() {
     const colorCounts = new Map();
     this.forEach(({ color }) => {
-      const key = color.join(",");
-      colorCounts.set(key, (colorCounts.get(key) || 0) + 1);
+      colorCounts.set(color, (colorCounts.get(color) || 0) + 1);
     });
     return colorCounts;
   }
@@ -77,6 +103,14 @@ export class Grid {
         callback({ x, y, color: this.grid[y][x] });
       }
     }
+  }
+
+  toJSON() {
+    return {
+      gridSize: this.gridSize,
+      grid: this.grid,
+      palette: this.palette.toJSON(),
+    };
   }
 }
 

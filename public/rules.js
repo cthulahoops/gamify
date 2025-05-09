@@ -39,6 +39,14 @@ function matchRule(grid, player, delta, rule) {
     const matchPos = grid.addVector(matchStart, vectorMul(delta, i));
 
     const matchChar = rule.match[i];
+    if (
+      matchChar === ">" &&
+      player.x === matchPos.x &&
+      player.y === matchPos.y
+    ) {
+      continue;
+    }
+
     const isEmpty = grid.isEmpty(matchPos);
 
     if (isEmpty && matchChar === " ") {
@@ -50,13 +58,6 @@ function matchRule(grid, player, delta, rule) {
       continue;
     }
 
-    if (
-      matchChar === ">" &&
-      player.x === matchPos.x &&
-      player.y === matchPos.y
-    ) {
-      continue;
-    }
     return null;
   }
   return { matchStart: matchStart, solids: solids };
