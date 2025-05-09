@@ -63,6 +63,9 @@ export class Grid {
   }
 
   setEmpty({ x, y }) {
+    if (this.isEmpty({ x, y })) {
+      return;
+    }
     for (const [color, isSolid] of this.colorStates.entries()) {
       if (!isSolid) {
         this.setCellCode({ x, y }, color);
