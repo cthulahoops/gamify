@@ -110,6 +110,7 @@ export class Grid {
       gridSize: this.gridSize,
       grid: this.grid,
       palette: this.palette.toJSON(),
+      colorStates: Array.from(this.colorStates.entries()),
     };
   }
 }
