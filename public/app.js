@@ -22,10 +22,12 @@ const ctx = canvas.getContext("2d");
 canvas.width = GRID_SIZE * SQUARE_SIZE;
 canvas.height = GRID_SIZE * SQUARE_SIZE;
 
-let grid;
-let player = { x: 0, y: 0 };
-let rules = DEFAULT_RULES;
-let creation;
+const gameState = {
+  grid: null,
+  player: { x: 0, y: 0 },
+  rules: DEFAULT_RULES,
+  creation: null
+};
 
 function getMostCommonColor(data, x0, y0, size, width) {
   const colorCount = {};
@@ -51,7 +53,7 @@ function getMostCommonColor(data, x0, y0, size, width) {
 }
 
 function extractGrid(image) {
-  grid = new Grid(GRID_SIZE);
+  const grid = new Grid(GRID_SIZE);
   const tempCanvas = document.createElement("canvas");
   tempCanvas.width = image.width;
   tempCanvas.height = image.height;
@@ -91,8 +93,8 @@ function drawGrid(grid) {
   ctx.fillStyle = "red";
   ctx.beginPath();
   ctx.arc(
-    player.x * SQUARE_SIZE + SQUARE_SIZE / 2,
-    player.y * SQUARE_SIZE + SQUARE_SIZE / 2,
+    gameState.player.x * SQUARE_SIZE + SQUARE_SIZE / 2,
+    gameState.player.y * SQUARE_SIZE + SQUARE_SIZE / 2,
     SQUARE_SIZE / 2.5,
     0,
     2 * Math.PI,
@@ -116,8 +118,8 @@ function findRandomEmpty(grid) {
 }
 
 function movePlayer(delta) {
-  applyRules(rules, grid, player, delta);
-  drawGrid(grid);
+  applyRules(gameState.rules, gameState.grid, gameState.player, delta);
+  drawGrid(gameState.grid);
 }
 
 function handleKey(e) {
@@ -199,7 +201,7 @@ function main() {
   }
 
   const rulesTextArea = document.getElementById("rules");
-  rulesTextArea.value = JSON.stringify(rules, null, 2);
+  rulesTextArea.value = JSON.stringify(gameState.rules, null, 2);
   rulesTextArea.addEventListener("input", () => {
     let updatedRules;
     try {
@@ -209,7 +211,7 @@ function main() {
       document.getElementById("rules-errors").innerText = error.message;
       return;
     }
-    rules = updatedRules;
+    gameState.rules = updatedRules;
   });
   rulesTextArea.dispatchEvent(new Event('input'));
 
@@ -219,9 +221,9 @@ function main() {
 
   addPondiverseButton(() => {
     const data = {
-      grid: grid.toJSON(),
-      player: player,
-      rules: rules,
+      grid: gameState.grid.toJSON(),
+      player: gameState.player,
+      rules: gameState.rules,
     };
 
     console.log("data", data);
@@ -235,47 +237,47 @@ function main() {
 }
 
 async function resetGame() {
-  if (!creation) {
+  if (!gameState.creation) {
     return;
   }
-  if (creation.type === "gamified") {
-    const data = JSON.parse(creation.data);
-    grid = Grid.fromJSON(data.grid);
-    player = data.player;
+  if (gameState.creation.type === "gamified") {
+    const data = JSON.parse(gameState.creation.data);
+    gameState.grid = Grid.fromJSON(data.grid);
+    gameState.player = data.player;
   } else {
-    const imageUrl = getPondiverseCreationImageUrl(creation);
+    const imageUrl = getPondiverseCreationImageUrl(gameState.creation);
     const img = await setImageFromUrl(imageUrl);
-    grid = extractGrid(img);
-    player = findRandomEmpty(grid);
+    gameState.grid = extractGrid(img);
+    gameState.player = findRandomEmpty(gameState.grid);
   }
-  setupColorControls(grid);
-  drawGrid(grid);
+  setupColorControls(gameState.grid);
+  drawGrid(gameState.grid);
 }
 
 async function setupCreation(creation) {
   if (creation.type === "gamified") {
     const data = JSON.parse(creation.data);
-    grid = Grid.fromJSON(data.grid);
-    player = data.player;
-    rules = data.rules;
+    gameState.grid = Grid.fromJSON(data.grid);
+    gameState.player = data.player;
+    gameState.rules = data.rules;
     const rulesTextArea = document.getElementById("rules");
-    rulesTextArea.value = JSON.stringify(rules, null, 2);
+    rulesTextArea.value = JSON.stringify(gameState.rules, null, 2);
     rulesTextArea.dispatchEvent(new Event('input'));
   } else {
     const imageUrl = getPondiverseCreationImageUrl(creation);
     const img = await setImageFromUrl(imageUrl);
-    grid = extractGrid(img);
-    player = findRandomEmpty(grid);
+    gameState.grid = extractGrid(img);
+    gameState.player = findRandomEmpty(gameState.grid);
   }
 
-  setupColorControls(grid);
-  drawGrid(grid);
+  setupColorControls(gameState.grid);
+  drawGrid(gameState.grid);
   window.addEventListener("keydown", handleKey);
 }
 
 async function loadCreation(creationId) {
-  creation = await fetchPondiverseCreation(creationId);
-  setupCreation(creation);
+  gameState.creation = await fetchPondiverseCreation(creationId);
+  setupCreation(gameState.creation);
 
   document.getElementById("original").href =
     "https://www.pondiverse.com/tool/?creation=" + creationId;
