@@ -111,7 +111,7 @@ export class Grid {
   toJSON() {
     return {
       gridSize: this.gridSize,
-      grid: this.grid,
+      grid: this.grid.map((row) => row.join("")),
       palette: this.palette.toJSON(),
       colorStates: Array.from(this.colorStates.entries()),
     };
