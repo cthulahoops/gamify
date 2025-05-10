@@ -269,13 +269,14 @@ async function setupCreation(creation) {
   setupColorControls(grid);
   drawGrid(grid);
   window.addEventListener("keydown", handleKey);
-  document.getElementById("original").href =
-    "https://www.pondiverse.com/tool/?creation=" + creationId;
 }
 
 async function loadCreation(creationId) {
   creation = await fetchPondiverseCreation(creationId);
   setupCreation(creation);
+
+  document.getElementById("original").href =
+    "https://www.pondiverse.com/tool/?creation=" + creationId;
 }
 
 main();
