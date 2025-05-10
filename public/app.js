@@ -211,6 +211,7 @@ function main() {
     }
     rules = updatedRules;
   });
+  rulesTextArea.dispatchEvent(new Event('input'));
 
   loadCreation(creationId);
 
@@ -259,6 +260,7 @@ async function setupCreation(creation) {
     rules = data.rules;
     const rulesTextArea = document.getElementById("rules");
     rulesTextArea.value = JSON.stringify(rules, null, 2);
+    rulesTextArea.dispatchEvent(new Event('input'));
   } else {
     const imageUrl = getPondiverseCreationImageUrl(creation);
     const img = await setImageFromUrl(imageUrl);
