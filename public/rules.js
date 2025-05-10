@@ -5,6 +5,9 @@ export function applyRules(rules, grid, player, delta) {
       continue;
     }
 
+    player.x = null;
+    player.y = null;
+
     for (let i = 0; i < rule.become.length; i++) {
       const becomeChar = rule.become[i];
       const becomePos = grid.addVector(match.matchStart, vectorMul(delta, i));
