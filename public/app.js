@@ -209,18 +209,7 @@ function main() {
     rules = updatedRules;
   });
 
-  fetchPondiverseCreation(creationId).then((creation) => {
-    const imageUrl = getPondiverseCreationImageUrl(creation);
-    setImageFromUrl(imageUrl).then((img) => {
-      grid = extractGrid(img);
-      setupColorControls(grid);
-      player = findRandomEmpty(grid);
-      drawGrid(grid);
-      window.addEventListener("keydown", handleKey);
-      document.getElementById("original").href =
-        "https://www.pondiverse.com/tool/?creation=" + creationId;
-    });
-  });
+  loadCreation(creationId);
 
   addPondiverseButton(() => {
     const data = {
@@ -237,6 +226,27 @@ function main() {
     };
     return creation;
   });
+}
+
+async function loadCreation(creationId) {
+  const creation = await fetchPondiverseCreation(creationId);
+  if (creation.type === "gamified") {
+    const data = JSON.parse(creation.data);
+    grid = Grid.fromJSON(data.grid);
+    player = data.player;
+    rules = data.rules;
+  } else {
+    const imageUrl = getPondiverseCreationImageUrl(creation);
+    const img = await setImageFromUrl(imageUrl);
+    grid = extractGrid(img);
+    player = findRandomEmpty(grid);
+  }
+
+  setupColorControls(grid);
+  drawGrid(grid);
+  window.addEventListener("keydown", handleKey);
+  document.getElementById("original").href =
+    "https://www.pondiverse.com/tool/?creation=" + creationId;
 }
 
 main();

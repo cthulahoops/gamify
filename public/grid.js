@@ -25,9 +25,20 @@ class Palette {
   }
 
   toJSON() {
-    return {
-      color_to_code: Array.from(this.code_to_color.entries()),
-    };
+    return Array.from(this.code_to_color.entries());
+  }
+
+  static fromJSON(json) {
+    const palette = new Palette();
+
+    const data = json.color_to_code ?? json;
+
+    palette.code_to_color = new Map(data);
+    palette.code_to_color = new Map(data.map(([code, color]) => [code, color]));
+    palette.nextColor = String.fromCharCode(
+      palette.nextColor.charCodeAt(0) + data.length,
+    );
+    return palette;
   }
 }
 
@@ -115,6 +126,15 @@ export class Grid {
       palette: this.palette.toJSON(),
       colorStates: Array.from(this.colorStates.entries()),
     };
+  }
+
+  static fromJSON(json) {
+    const grid = new Grid(json.gridSize);
+    grid.grid = json.grid.map((row) => row.split(""));
+    grid.palette = new Palette();
+    grid.palette = Palette.fromJSON(json.palette);
+    grid.colorStates = new Map(json.colorStates);
+    return grid;
   }
 }
 
