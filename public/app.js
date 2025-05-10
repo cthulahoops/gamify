@@ -26,8 +26,68 @@ const gameState = {
   grid: null,
   player: { x: 0, y: 0 },
   rules: DEFAULT_RULES,
-  creation: null
+  creation: null,
 };
+
+const symbolColors = {
+  "#": "55,55,55", // dark grey
+  ">": "255,0,0", // red
+  " ": "228,228,228", // light grey for space
+};
+
+function renderRulesGraphical(gameState) {
+  const rules = gameState.rules;
+  const palette = gameState?.grid?.palette;
+
+  const container = document.getElementById("rules-graphical");
+  if (!container) return;
+  container.innerHTML = ""; // clear
+
+  function getSymbolColor(sym) {
+    return palette?.getColor(sym) || symbolColors[sym] || "127,127,127";
+  }
+
+  for (const rule of rules) {
+    // left side squares (match)
+    const leftSide = document.createElement("div");
+    leftSide.style.display = "flex";
+    leftSide.style.marginRight = "10px";
+    for (const ch of rule.match) {
+      const square = document.createElement("div");
+      square.className = "rule-square";
+
+      square.textContent = ch;
+      square.style.backgroundColor = `rgb(${getSymbolColor(ch)})`;
+      square.style.color = ch === " " ? "#333333" : "#FFFFFF";
+      leftSide.appendChild(square);
+    }
+
+    // separator arrow
+    const arrow = document.createElement("div");
+    arrow.textContent = "→";
+    arrow.style.margin = "0 10px";
+    arrow.style.fontWeight = "bold";
+    arrow.style.color = "#888888";
+
+    // right side squares (become)
+    const rightSide = document.createElement("div");
+    rightSide.style.display = "flex";
+    for (const ch of rule.become) {
+      const square = document.createElement("div");
+      square.className = "rule-square";
+      square.textContent = ch;
+      square.style.backgroundColor = getSymbolColor(ch);
+      square.style.backgroundColor = `rgb(${getSymbolColor(ch)})`;
+      square.style.color = ch === " " ? "#333333" : "#FFFFFF";
+      leftSide.appendChild(square);
+      rightSide.appendChild(square);
+    }
+
+    container.appendChild(leftSide);
+    container.appendChild(arrow);
+    container.appendChild(rightSide);
+  }
+}
 
 function getMostCommonColor(data, x0, y0, size, width) {
   const colorCount = {};
@@ -212,8 +272,9 @@ function main() {
       return;
     }
     gameState.rules = updatedRules;
+    renderRulesGraphical(gameState);
   });
-  rulesTextArea.dispatchEvent(new Event('input'));
+  rulesTextArea.dispatchEvent(new Event("input"));
 
   loadCreation(creationId);
 
@@ -262,7 +323,7 @@ async function setupCreation(creation) {
     gameState.rules = data.rules;
     const rulesTextArea = document.getElementById("rules");
     rulesTextArea.value = JSON.stringify(gameState.rules, null, 2);
-    rulesTextArea.dispatchEvent(new Event('input'));
+    rulesTextArea.dispatchEvent(new Event("input"));
   } else {
     const imageUrl = getPondiverseCreationImageUrl(creation);
     const img = await setImageFromUrl(imageUrl);
