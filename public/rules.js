@@ -60,7 +60,7 @@ function matchRule(grid, player, delta, rule) {
       continue;
     }
 
-    if (matchChar === "*") {
+    if (matchChar === "?") {
       continue;
     }
 
