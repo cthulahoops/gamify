@@ -280,6 +280,16 @@ function main() {
   loadCreation(creationId);
 
   document.getElementById("reset").addEventListener("click", resetGame);
+  document.getElementById("color-picker").addEventListener("input", (e) => {
+    const color = e.target.value;
+    const r = parseInt(color.slice(1, 3), 16);
+    const g = parseInt(color.slice(3, 5), 16);
+    const b = parseInt(color.slice(5, 7), 16);
+    const rgbColor = `${r},${g},${b}`;
+
+    gameState.grid.palette.getColorCode(rgbColor);
+    setupColorControls(gameState.grid);
+  });
 
   addPondiverseButton(() => {
     const data = {
