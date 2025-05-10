@@ -25,6 +25,7 @@ canvas.height = GRID_SIZE * SQUARE_SIZE;
 let grid;
 let player = { x: 0, y: 0 };
 let rules = DEFAULT_RULES;
+let creation;
 
 function getMostCommonColor(data, x0, y0, size, width) {
   const colorCount = {};
@@ -203,13 +204,17 @@ function main() {
     let updatedRules;
     try {
       updatedRules = JSON.parse(rulesTextArea.value);
-    } catch (e) {
+      document.getElementById("rules-errors").innerText = "";
+    } catch (error) {
+      document.getElementById("rules-errors").innerText = error.message;
       return;
     }
     rules = updatedRules;
   });
 
   loadCreation(creationId);
+
+  document.getElementById("reset").addEventListener("click", resetGame);
 
   addPondiverseButton(() => {
     const data = {
@@ -228,13 +233,32 @@ function main() {
   });
 }
 
-async function loadCreation(creationId) {
-  const creation = await fetchPondiverseCreation(creationId);
+async function resetGame() {
+  if (!creation) {
+    return;
+  }
+  if (creation.type === "gamified") {
+    const data = JSON.parse(creation.data);
+    grid = Grid.fromJSON(data.grid);
+    player = data.player;
+  } else {
+    const imageUrl = getPondiverseCreationImageUrl(creation);
+    const img = await setImageFromUrl(imageUrl);
+    grid = extractGrid(img);
+    player = findRandomEmpty(grid);
+  }
+  setupColorControls(grid);
+  drawGrid(grid);
+}
+
+async function setupCreation(creation) {
   if (creation.type === "gamified") {
     const data = JSON.parse(creation.data);
     grid = Grid.fromJSON(data.grid);
     player = data.player;
     rules = data.rules;
+    const rulesTextArea = document.getElementById("rules");
+    rulesTextArea.value = JSON.stringify(rules, null, 2);
   } else {
     const imageUrl = getPondiverseCreationImageUrl(creation);
     const img = await setImageFromUrl(imageUrl);
@@ -247,6 +271,11 @@ async function loadCreation(creationId) {
   window.addEventListener("keydown", handleKey);
   document.getElementById("original").href =
     "https://www.pondiverse.com/tool/?creation=" + creationId;
+}
+
+async function loadCreation(creationId) {
+  creation = await fetchPondiverseCreation(creationId);
+  setupCreation(creation);
 }
 
 main();
