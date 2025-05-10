@@ -24,6 +24,14 @@ class Palette {
     }
   }
 
+  setColorCode(code, color) {
+    this.color_to_code.set(color, code);
+    this.code_to_color.set(code, color);
+    if (code > this.nextColor) {
+      this.nextColor = String.fromCharCode(code.charCodeAt(0) + 1);
+    }
+  }
+
   toJSON() {
     return Array.from(this.code_to_color.entries());
   }
@@ -33,11 +41,10 @@ class Palette {
 
     const data = json.color_to_code ?? json;
 
-    palette.code_to_color = new Map(data);
-    palette.code_to_color = new Map(data.map(([code, color]) => [code, color]));
-    palette.nextColor = String.fromCharCode(
-      palette.nextColor.charCodeAt(0) + data.length,
-    );
+    for (const [code, color] of data) {
+      palette.setColorCode(code, color);
+    }
+
     return palette;
   }
 }
