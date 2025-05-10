@@ -30,9 +30,10 @@ const gameState = {
 };
 
 const symbolColors = {
-  "#": "55,55,55", // dark grey
-  ">": "255,0,0", // red
-  " ": "228,228,228", // light grey for space
+  "#": "55,55,55",
+  ">": "255,0,0",
+  "*": "255,210,0",
+  " ": "228,228,228",
 };
 
 function renderRulesGraphical(gameState) {

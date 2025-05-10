@@ -60,6 +60,10 @@ function matchRule(grid, player, delta, rule) {
       continue;
     }
 
+    if (matchChar === "*") {
+      continue;
+    }
+
     if (matchChar == grid.getCellCode(matchPos)) {
       continue;
     }
