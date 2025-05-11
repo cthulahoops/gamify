@@ -22,13 +22,6 @@ const ctx = canvas.getContext("2d");
 canvas.width = GRID_SIZE * SQUARE_SIZE;
 canvas.height = GRID_SIZE * SQUARE_SIZE;
 
-const gameState = {
-  grid: null,
-  player: { x: 0, y: 0 },
-  rules: DEFAULT_RULES,
-  creation: null,
-};
-
 const symbolColors = {
   "#": "55,55,55",
   ">": "255,0,0",
@@ -142,7 +135,8 @@ function extractGrid(image) {
   return grid;
 }
 
-function drawGrid(grid) {
+function drawGrid(state) {
+  const { grid, player } = state;
   grid.forEach(({ x, y, color: colorCode }) => {
     const color = grid.palette.code_to_color.get(colorCode);
     ctx.fillStyle = `rgb(${color})`;
@@ -154,8 +148,8 @@ function drawGrid(grid) {
   ctx.fillStyle = "red";
   ctx.beginPath();
   ctx.arc(
-    gameState.player.x * SQUARE_SIZE + SQUARE_SIZE / 2,
-    gameState.player.y * SQUARE_SIZE + SQUARE_SIZE / 2,
+    player.x * SQUARE_SIZE + SQUARE_SIZE / 2,
+    player.y * SQUARE_SIZE + SQUARE_SIZE / 2,
     SQUARE_SIZE / 2.5,
     0,
     2 * Math.PI,
@@ -178,34 +172,35 @@ function findRandomEmpty(grid) {
   return emptyCells[randomIndex];
 }
 
-function movePlayer(delta) {
-  applyRules(gameState.rules, gameState.grid, gameState.player, delta);
-  drawGrid(gameState.grid);
+function movePlayer(state, delta) {
+  applyRules(state.rules, state.grid, state.player, delta);
+  drawGrid(state);
 }
 
-function handleKey(e) {
+function handleKey(state, e) {
   if (document.activeElement.id === "rules") return;
   switch (e.key) {
     case "ArrowUp":
-      movePlayer({ x: 0, y: -1 });
+      movePlayer(state, { x: 0, y: -1 });
       e.preventDefault();
       break;
     case "ArrowDown":
-      movePlayer({ x: 0, y: 1 });
+      movePlayer(state, { x: 0, y: 1 });
       e.preventDefault();
       break;
     case "ArrowLeft":
-      movePlayer({ x: -1, y: 0 });
+      movePlayer(state, { x: -1, y: 0 });
       e.preventDefault();
       break;
     case "ArrowRight":
-      movePlayer({ x: 1, y: 0 });
+      movePlayer(state, { x: 1, y: 0 });
       e.preventDefault();
       break;
   }
 }
 
-function setupColorControls(grid) {
+function setupColorControls(state) {
+  const { grid } = state;
   const colorControls = document.getElementById("color-controls");
   colorControls.innerHTML = "";
   for (const [code, color] of grid.palette.code_to_color) {
@@ -224,7 +219,7 @@ function setupColorControls(grid) {
     checkbox.checked = colorStates.get(key);
     checkbox.addEventListener("change", () => {
       colorStates.set(key, checkbox.checked);
-      drawGrid(grid);
+      drawGrid(state);
     });
 
     const swatch = document.createElement("span");
@@ -252,6 +247,13 @@ function setImageFromUrl(url) {
 }
 
 function main() {
+  const state = {
+    grid: null,
+    player: { x: 0, y: 0 },
+    rules: DEFAULT_RULES,
+    creation: null,
+  };
+
   const urlParams = new URLSearchParams(window.location.search);
   const creationId = urlParams.get("creation");
 
@@ -262,7 +264,7 @@ function main() {
   }
 
   const rulesTextArea = document.getElementById("rules");
-  rulesTextArea.value = JSON.stringify(gameState.rules, null, 2);
+  rulesTextArea.value = JSON.stringify(state.rules, null, 2);
   rulesTextArea.addEventListener("input", () => {
     let updatedRules;
     try {
@@ -272,14 +274,16 @@ function main() {
       document.getElementById("rules-errors").innerText = error.message;
       return;
     }
-    gameState.rules = updatedRules;
-    renderRulesGraphical(gameState);
+    state.rules = updatedRules;
+    renderRulesGraphical(state);
   });
   rulesTextArea.dispatchEvent(new Event("input"));
 
-  loadCreation(creationId);
+  loadCreation(state, creationId);
 
-  document.getElementById("reset").addEventListener("click", resetGame);
+  document
+    .getElementById("reset")
+    .addEventListener("click", () => resetGame(state));
   document.getElementById("color-picker").addEventListener("input", (e) => {
     const color = e.target.value;
     const r = parseInt(color.slice(1, 3), 16);
@@ -287,15 +291,15 @@ function main() {
     const b = parseInt(color.slice(5, 7), 16);
     const rgbColor = `${r},${g},${b}`;
 
-    gameState.grid.palette.getColorCode(rgbColor);
-    setupColorControls(gameState.grid);
+    state.grid.palette.getColorCode(rgbColor);
+    setupColorControls(state);
   });
 
   addPondiverseButton(() => {
     const data = {
-      grid: gameState.grid.toJSON(),
-      player: gameState.player,
-      rules: gameState.rules,
+      grid: state.grid.toJSON(),
+      player: state.player,
+      rules: state.rules,
     };
 
     console.log("data", data);
@@ -308,48 +312,48 @@ function main() {
   });
 }
 
-async function resetGame() {
-  if (!gameState.creation) {
+async function resetGame(state) {
+  if (!state.creation) {
     return;
   }
-  if (gameState.creation.type === "gamified") {
-    const data = JSON.parse(gameState.creation.data);
-    gameState.grid = Grid.fromJSON(data.grid);
-    gameState.player = data.player;
+  if (state.creation.type === "gamified") {
+    const data = JSON.parse(state.creation.data);
+    state.grid = Grid.fromJSON(data.grid);
+    state.player = data.player;
   } else {
-    const imageUrl = getPondiverseCreationImageUrl(gameState.creation);
+    const imageUrl = getPondiverseCreationImageUrl(state.creation);
     const img = await setImageFromUrl(imageUrl);
-    gameState.grid = extractGrid(img);
-    gameState.player = findRandomEmpty(gameState.grid);
+    state.grid = extractGrid(img);
+    state.player = findRandomEmpty(state.grid);
   }
-  setupColorControls(gameState.grid);
-  drawGrid(gameState.grid);
+  setupColorControls(state);
+  drawGrid(state);
 }
 
-async function setupCreation(creation) {
+async function setupCreation(state, creation) {
   if (creation.type === "gamified") {
     const data = JSON.parse(creation.data);
-    gameState.grid = Grid.fromJSON(data.grid);
-    gameState.player = data.player;
-    gameState.rules = data.rules;
+    state.grid = Grid.fromJSON(data.grid);
+    state.player = data.player;
+    state.rules = data.rules;
     const rulesTextArea = document.getElementById("rules");
-    rulesTextArea.value = JSON.stringify(gameState.rules, null, 2);
+    rulesTextArea.value = JSON.stringify(state.rules, null, 2);
     rulesTextArea.dispatchEvent(new Event("input"));
   } else {
     const imageUrl = getPondiverseCreationImageUrl(creation);
     const img = await setImageFromUrl(imageUrl);
-    gameState.grid = extractGrid(img);
-    gameState.player = findRandomEmpty(gameState.grid);
+    state.grid = extractGrid(img);
+    state.player = findRandomEmpty(state.grid);
   }
 
-  setupColorControls(gameState.grid);
-  drawGrid(gameState.grid);
-  window.addEventListener("keydown", handleKey);
+  setupColorControls(state);
+  drawGrid(state);
+  window.addEventListener("keydown", (e) => handleKey(state, e));
 }
 
-async function loadCreation(creationId) {
-  gameState.creation = await fetchPondiverseCreation(creationId);
-  setupCreation(gameState.creation);
+async function loadCreation(state, creationId) {
+  state.creation = await fetchPondiverseCreation(creationId);
+  setupCreation(state, state.creation);
 
   document.getElementById("original").href =
     "https://www.pondiverse.com/tool/?creation=" + creationId;
