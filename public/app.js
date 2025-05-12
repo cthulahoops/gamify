@@ -8,12 +8,21 @@ import { rgbToHex } from "./colors.js";
 
 import { applyRules } from "./rules.js";
 
-const DEFAULT_RULES = [
-  { match: "#> ", become: " #>" },
-  { match: "> ", become: " >" },
-  { match: "># ", become: " >#" },
-  { match: ">## ", become: " >##" },
-];
+const DEFAULT_GAME_STATE = {
+  rules: [
+    { match: "#> ", become: " #>" },
+    { match: "> ", become: " >" },
+    { match: "># ", become: " >#" },
+    { match: ">## ", become: " >##" },
+  ],
+  colors: {
+    properties: {
+      solid: [],
+      empty: [],
+    },
+    palette: {},
+  },
+};
 
 const GRID_SIZE = 60;
 const SQUARE_SIZE = 10;
@@ -23,7 +32,7 @@ const ctx = canvas.getContext("2d");
 canvas.width = GRID_SIZE * SQUARE_SIZE;
 canvas.height = GRID_SIZE * SQUARE_SIZE;
 
-const symbolColors = {
+const SYMBOL_DISPLAY_COLORS = {
   "#": "#373737",
   ">": "#FF0000",
   "?": "#FFD200",
@@ -39,7 +48,7 @@ function renderRulesGraphical(gameState) {
   container.innerHTML = ""; // clear
 
   function getSymbolColor(sym) {
-    return palette?.getColor(sym) || symbolColors[sym] || "#7F7F7F";
+    return palette?.getColor(sym) || SYMBOL_DISPLAY_COLORS[sym] || "#7F7F7F";
   }
 
   for (const rule of rules) {
@@ -135,6 +144,18 @@ function extractGrid(image) {
   return grid;
 }
 
+function updateRulesTextarea(state) {
+  if (!state.grid) return;
+
+  const gameState = {
+    rules: state.rules,
+    colors: state.grid.toJSON().colors,
+  };
+
+  const rulesTextArea = document.getElementById("rules");
+  rulesTextArea.value = JSON.stringify(gameState, null, 2);
+}
+
 function drawGrid(state) {
   const { grid, player } = state;
   grid.forEach(({ x, y, color: colorCode }) => {
@@ -216,6 +237,7 @@ function setupColorControls(state) {
     checkbox.addEventListener("change", () => {
       colorStates.set(key, checkbox.checked);
       drawGrid(state);
+      updateRulesTextarea(state);
     });
 
     const swatch = document.createElement("span");
@@ -242,7 +264,7 @@ function main() {
   const state = {
     grid: null,
     player: { x: 0, y: 0 },
-    rules: DEFAULT_RULES,
+    rules: DEFAULT_GAME_STATE.rules,
     creation: null,
   };
 
@@ -313,8 +335,10 @@ async function resetGame(state) {
     state.grid = extractGrid(img);
     state.player = findRandomEmpty(state.grid);
   }
+
   setupColorControls(state);
   drawGrid(state);
+  updateRulesTextarea(state);
 }
 
 async function setupCreation(state, creation) {
@@ -335,6 +359,7 @@ async function setupCreation(state, creation) {
 
   setupColorControls(state);
   drawGrid(state);
+  updateRulesTextarea(state); // Add this line
   window.addEventListener("keydown", (e) => handleKey(state, e));
 }
 

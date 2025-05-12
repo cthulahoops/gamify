@@ -78,11 +78,35 @@ export class Grid {
   }
 
   toJSON() {
+    // Create the colors structure
+    const colors = {
+      properties: {
+        solid: [],
+        empty: [],
+      },
+      palette: {},
+    };
+
+    // Populate the properties based on colorStates
+    this.colorStates.forEach((isSolid, code) => {
+      if (isSolid) {
+        colors.properties.solid.push(code);
+      } else {
+        colors.properties.empty.push(code);
+      }
+    });
+
+    // Populate the palette
+    this.palette.code_to_color.forEach((hexColor, code) => {
+      colors.palette[code] = hexColor;
+    });
+
     return {
       gridSize: this.gridSize,
       grid: this.grid,
       palette: this.palette.toJSON(),
       colorStates: Array.from(this.colorStates.entries()),
+      colors: colors, // Add the new colors structure
     };
   }
 
