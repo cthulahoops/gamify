@@ -44,12 +44,10 @@ function renderRulesGraphical(gameState) {
   for (const rule of rules) {
     // left side squares (match)
     const leftSide = document.createElement("div");
-    leftSide.style.display = "flex";
-    leftSide.style.marginRight = "10px";
+    leftSide.className = "rules-side";
     for (const ch of rule.match) {
       const square = document.createElement("div");
       square.className = "rule-square";
-
       square.textContent = ch;
       square.style.backgroundColor = getSymbolColor(ch);
       square.style.color = ch === " " ? "#333333" : "#FFFFFF";
@@ -59,13 +57,11 @@ function renderRulesGraphical(gameState) {
     // separator arrow
     const arrow = document.createElement("div");
     arrow.textContent = "→";
-    arrow.style.margin = "0 10px";
-    arrow.style.fontWeight = "bold";
-    arrow.style.color = "#888888";
+    arrow.className = "rule-arrow";
 
     // right side squares (become)
     const rightSide = document.createElement("div");
-    rightSide.style.display = "flex";
+    rightSide.className = "rules-side";
     for (const ch of rule.become) {
       const square = document.createElement("div");
       square.className = "rule-square";
@@ -208,14 +204,10 @@ function setupColorControls(state) {
   colorControls.innerHTML = "";
   for (const [code, color] of grid.palette.code_to_color) {
     const key = code;
-
     const colorStates = grid.colorStates;
 
     const label = document.createElement("label");
-    label.style.display = "inline-flex";
-    label.style.alignItems = "center";
-    label.style.marginRight = "10px";
-    label.style.marginBottom = "5px";
+    label.className = "color-label";
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
@@ -226,12 +218,8 @@ function setupColorControls(state) {
     });
 
     const swatch = document.createElement("span");
-    swatch.style.display = "inline-block";
-    swatch.style.width = "20px";
-    swatch.style.height = "20px";
+    swatch.className = "color-swatch";
     swatch.style.background = color;
-    swatch.style.border = "1px solid #888";
-    swatch.style.margin = "0 5px";
 
     label.appendChild(checkbox);
     label.appendChild(swatch);
