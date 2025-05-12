@@ -1,28 +1,28 @@
 #game-canvas {
-    border: 1px solid #888;
-    image-rendering: pixelated;
+  border: 1px solid #888;
+  image-rendering: pixelated;
 }
 
 #rules-graphical {
-    display: grid;
-    grid-template-columns: repeat(3, auto);
-    width: fit-content;
-    row-gap: 0.25rem;
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  width: fit-content;
+  row-gap: 0.25rem;
 }
 
 .rule-square {
-    width: 20px;
-    height: 20px;
-    border: 1px solid #666666;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: monospace;
-    font-weight: bold;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #666666;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: monospace;
+  font-weight: bold;
 }
 
 .rule-arrow {
-    margin: 0 10px;
-    font-weight: bold;
-    color: #888888;
+  margin: 0 10px;
+  font-weight: bold;
+  color: #888888;
 }
