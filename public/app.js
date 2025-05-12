@@ -4,6 +4,7 @@ import {
   addPondiverseButton,
 } from "https://www.pondiverse.com/pondiverse.js";
 import { Grid } from "./grid.js";
+import { rgbToHex } from "./colors.js";
 
 import { applyRules } from "./rules.js";
 
@@ -82,10 +83,10 @@ function getMostCommonColor(data, x0, y0, size, width) {
   for (let y = y0; y < y0 + size; y++) {
     for (let x = x0; x < x0 + size; x++) {
       const idx = (y * width + x) * 4;
-      const r = data[idx],
-        g = data[idx + 1],
-        b = data[idx + 2];
-      const hexColor = `#${componentToHex(r)}${componentToHex(g)}${componentToHex(b)}`;
+      const r = data[idx];
+      const g = data[idx + 1];
+      const b = data[idx + 2];
+      const hexColor = rgbToHex({ r, g, b });
       colorCount[hexColor] = (colorCount[hexColor] || 0) + 1;
     }
   }

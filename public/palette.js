@@ -1,3 +1,5 @@
+import { ensureHexFormat } from "./colors.js";
+
 export class Palette {
   constructor() {
     this.color_to_code = new Map();
@@ -6,7 +8,7 @@ export class Palette {
   }
 
   getColorCode(color) {
-    const hexColor = this.ensureHexFormat(color);
+    const hexColor = ensureHexFormat(color);
 
     if (this.color_to_code.has(hexColor)) {
       return this.color_to_code.get(hexColor);
@@ -27,7 +29,7 @@ export class Palette {
   }
 
   setColorCode(code, color) {
-    const hexColor = this.ensureHexFormat(color);
+    const hexColor = ensureHexFormat(color);
 
     this.color_to_code.set(hexColor, code);
     this.code_to_color.set(code, hexColor);
@@ -50,30 +52,5 @@ export class Palette {
     }
 
     return palette;
-  }
-
-  ensureHexFormat(color) {
-    if (typeof color === "string" && color.startsWith("#")) {
-      return color;
-    }
-
-    return this.rgbToHex(color);
-  }
-
-  rgbToHex(rgbString) {
-    const [r, g, b] = rgbString.split(",").map(Number);
-    return `#${this.componentToHex(r)}${this.componentToHex(g)}${this.componentToHex(b)}`;
-  }
-
-  hexToRgb(hexColor) {
-    const r = parseInt(hexColor.slice(1, 3), 16);
-    const g = parseInt(hexColor.slice(3, 5), 16);
-    const b = parseInt(hexColor.slice(5, 7), 16);
-    return `${r},${g},${b}`;
-  }
-
-  componentToHex(c) {
-    const hex = c.toString(16);
-    return hex.length === 1 ? "0" + hex : hex;
   }
 }
