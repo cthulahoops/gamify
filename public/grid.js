@@ -4,7 +4,7 @@ export class Grid {
   constructor(gridSize) {
     this.gridSize = gridSize;
     this.grid = Array.from({ length: gridSize }, () =>
-      Array.from({ length: gridSize }, () => [255, 255, 255]),
+      Array.from({ length: gridSize }, () => "#FFFFFF"),
     );
     this.colorStates = new Map();
     this.palette = new Palette();
@@ -80,7 +80,7 @@ export class Grid {
   toJSON() {
     return {
       gridSize: this.gridSize,
-      grid: this.grid.map((row) => row.join("")),
+      grid: this.grid,
       palette: this.palette.toJSON(),
       colorStates: Array.from(this.colorStates.entries()),
     };
@@ -88,7 +88,7 @@ export class Grid {
 
   static fromJSON(json) {
     const grid = new Grid(json.gridSize);
-    grid.grid = json.grid.map((row) => row.split(""));
+    grid.grid = json.grid;
     grid.palette = new Palette();
     grid.palette = Palette.fromJSON(json.palette);
     grid.colorStates = new Map(json.colorStates);

@@ -23,10 +23,10 @@ canvas.width = GRID_SIZE * SQUARE_SIZE;
 canvas.height = GRID_SIZE * SQUARE_SIZE;
 
 const symbolColors = {
-  "#": "55,55,55",
-  ">": "255,0,0",
-  "?": "255,210,0",
-  " ": "228,228,228",
+  "#": "#373737",
+  ">": "#FF0000",
+  "?": "#FFD200",
+  " ": "#E4E4E4",
 };
 
 function renderRulesGraphical(gameState) {
@@ -38,7 +38,7 @@ function renderRulesGraphical(gameState) {
   container.innerHTML = ""; // clear
 
   function getSymbolColor(sym) {
-    return palette?.getColor(sym) || symbolColors[sym] || "127,127,127";
+    return palette?.getColor(sym) || symbolColors[sym] || "#7F7F7F";
   }
 
   for (const rule of rules) {
@@ -51,7 +51,7 @@ function renderRulesGraphical(gameState) {
       square.className = "rule-square";
 
       square.textContent = ch;
-      square.style.backgroundColor = `rgb(${getSymbolColor(ch)})`;
+      square.style.backgroundColor = getSymbolColor(ch);
       square.style.color = ch === " " ? "#333333" : "#FFFFFF";
       leftSide.appendChild(square);
     }
@@ -71,9 +71,7 @@ function renderRulesGraphical(gameState) {
       square.className = "rule-square";
       square.textContent = ch;
       square.style.backgroundColor = getSymbolColor(ch);
-      square.style.backgroundColor = `rgb(${getSymbolColor(ch)})`;
       square.style.color = ch === " " ? "#333333" : "#FFFFFF";
-      leftSide.appendChild(square);
       rightSide.appendChild(square);
     }
 
@@ -91,19 +89,24 @@ function getMostCommonColor(data, x0, y0, size, width) {
       const r = data[idx],
         g = data[idx + 1],
         b = data[idx + 2];
-      const key = `${r},${g},${b}`;
-      colorCount[key] = (colorCount[key] || 0) + 1;
+      const hexColor = `#${componentToHex(r)}${componentToHex(g)}${componentToHex(b)}`;
+      colorCount[hexColor] = (colorCount[hexColor] || 0) + 1;
     }
   }
   let max = 0,
-    maxColor = "255,255,255";
-  for (const key in colorCount) {
-    if (colorCount[key] > max) {
-      max = colorCount[key];
-      maxColor = key;
+    maxColor = "#FFFFFF";
+  for (const hexColor in colorCount) {
+    if (colorCount[hexColor] > max) {
+      max = colorCount[hexColor];
+      maxColor = hexColor;
     }
   }
   return maxColor;
+}
+
+function componentToHex(c) {
+  const hex = c.toString(16);
+  return hex.length === 1 ? "0" + hex : hex;
 }
 
 function extractGrid(image) {
@@ -138,14 +141,14 @@ function extractGrid(image) {
 function drawGrid(state) {
   const { grid, player } = state;
   grid.forEach(({ x, y, color: colorCode }) => {
-    const color = grid.palette.code_to_color.get(colorCode);
-    ctx.fillStyle = `rgb(${color})`;
+    const hexColor = grid.palette.code_to_color.get(colorCode);
+    ctx.fillStyle = hexColor;
     ctx.fillRect(x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
     ctx.strokeStyle = "rgba(0,0,0,0.2)";
     ctx.strokeRect(x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
   });
 
-  ctx.fillStyle = "red";
+  ctx.fillStyle = "#FF0000";
   ctx.beginPath();
   ctx.arc(
     player.x * SQUARE_SIZE + SQUARE_SIZE / 2,
@@ -226,7 +229,7 @@ function setupColorControls(state) {
     swatch.style.display = "inline-block";
     swatch.style.width = "20px";
     swatch.style.height = "20px";
-    swatch.style.background = `rgb(${color})`;
+    swatch.style.background = color;
     swatch.style.border = "1px solid #888";
     swatch.style.margin = "0 5px";
 
@@ -285,13 +288,8 @@ function main() {
     .getElementById("reset")
     .addEventListener("click", () => resetGame(state));
   document.getElementById("color-picker").addEventListener("input", (e) => {
-    const color = e.target.value;
-    const r = parseInt(color.slice(1, 3), 16);
-    const g = parseInt(color.slice(3, 5), 16);
-    const b = parseInt(color.slice(5, 7), 16);
-    const rgbColor = `${r},${g},${b}`;
-
-    state.grid.palette.getColorCode(rgbColor);
+    const hexColor = e.target.value;
+    state.grid.palette.getColorCode(hexColor);
     setupColorControls(state);
   });
 
