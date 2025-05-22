@@ -1,7 +1,7 @@
 import "./App.css";
 import "./style.css";
 
-import { useEffect, useCallback } from "react";
+import { useCallback } from "react";
 
 import { useGameState } from "./useGameState";
 import { useKeyEvents } from "./useKeyEvents";
@@ -15,23 +15,18 @@ import { AliasesDisplay } from "./AliasesDisplay";
 import type { Rule, GameState } from "./types";
 
 export default function App() {
-  const { gameState, setGameState, setCreation } = useGameState();
-
   const { creation } = usePondiverse(
     "https://pondiverse.val.run/get-creation?id=532",
   );
 
-  useEffect(() => {
-    if (creation === null) {
-      return;
-    }
-
-    setCreation(creation);
-  }, [creation, setCreation]);
+  const { gameState, setGameState, setAliases } = useGameState(creation);
 
   const setRules = useCallback(
     (rules: Rule[]) => {
-      setGameState((prev: GameState) => {
+      setGameState((prev: GameState | null | undefined) => {
+        if (!prev) {
+          throw new Error("Game state is not initialized");
+        }
         return { ...prev, rules };
       });
     },
@@ -40,12 +35,12 @@ export default function App() {
 
   useKeyEvents({ gameState, setGameState });
 
-  if (!gameState.grid) {
+  if (!gameState) {
     return "Loading...";
   }
 
+  const aliases = gameState.aliases;
   const rules = gameState.rules;
-  const aliases = gameState.grid.aliases;
   const palette = gameState.grid.palette;
 
   return (
@@ -57,7 +52,12 @@ export default function App() {
       <AliasesDisplay aliases={aliases} palette={palette} />
       <RulesDisplay rules={rules} palette={palette} />
       <br />
-      <RulesTextarea rules={rules} setRules={setRules} />
+      <RulesTextarea
+        aliases={aliases}
+        rules={rules}
+        setRules={setRules}
+        setAliases={setAliases}
+      />
       <a href="" id="original">
         View Original
       </a>

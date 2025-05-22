@@ -1,15 +1,21 @@
 import { Grid } from "./grid";
 import type { Point, Rule } from "./types";
 import type { ColorCode } from "./palette";
+import type { GameState } from "./types";
+import { Aliases } from "./aliases";
 
 export function applyRules(
-  rules: Rule[],
-  grid: Grid,
-  player: Point,
+  gameState: GameState,
   delta: Point,
-) {
+): { player: Point | null; grid: Grid } {
+  const { grid, rules, aliases } = gameState;
+  let player = gameState.player;
+  if (!player) {
+    return { grid: gameState.grid, player };
+  }
+
   for (const rule of rules) {
-    const match = matchRule(grid, player, delta, rule);
+    const match = matchRule(aliases, grid, player, delta, rule);
     if (!match) {
       continue;
     }
@@ -19,7 +25,7 @@ export function applyRules(
 
       const becomePos = grid.addVector(match.matchStart, vectorMul(delta, i));
       if (becomeChar === " ") {
-        grid.setEmpty(becomePos);
+        grid.setEmpty(aliases, becomePos);
       } else if (becomeChar === "#") {
         const solid = match.solids.shift();
         if (!solid) {
@@ -28,7 +34,7 @@ export function applyRules(
         grid.setCellCode(becomePos, solid);
       } else if (becomeChar === ">") {
         player = { ...becomePos };
-        grid.setEmpty(becomePos);
+        grid.setEmpty(aliases, becomePos);
       } else {
         grid.setCellCode(becomePos, becomeChar as ColorCode);
       }
@@ -45,6 +51,7 @@ type RuleMatch = {
 };
 
 function matchRule(
+  aliases: Aliases,
   grid: Grid,
   player: Point,
   delta: Point,
@@ -74,7 +81,7 @@ function matchRule(
       continue;
     }
 
-    const isEmpty = grid.isEmpty(matchPos);
+    const isEmpty = grid.isEmpty(aliases, matchPos);
 
     if (isEmpty && matchChar === " ") {
       continue;

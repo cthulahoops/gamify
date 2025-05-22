@@ -1,4 +1,5 @@
 import type { Grid } from "./grid";
+import type { Aliases } from "./aliases";
 
 export type Rule = {
   match: string;
@@ -7,8 +8,9 @@ export type Rule = {
 
 export type GameState = {
   rules: Rule[];
-  grid?: Grid | null;
+  grid: Grid;
   player: Point | null;
+  aliases: Aliases;
 };
 
 export type Player = Point | null;

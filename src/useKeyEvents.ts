@@ -7,7 +7,7 @@ export function useKeyEvents({
   gameState,
   setGameState,
 }: {
-  gameState: GameState;
+  gameState: GameState | null | undefined;
   setGameState: (gameState: GameState) => void;
 }) {
   const handleEvent = useCallback(
@@ -44,10 +44,13 @@ function keyToDirection(key: string): Point | null {
 }
 
 function handleKeyDown(
-  state: GameState,
+  state: GameState | null | undefined,
   updateState: (state: GameState) => void,
   e: KeyboardEvent,
 ) {
+  if (!state) {
+    return;
+  }
   if (document.activeElement?.id === "rules") return;
 
   const direction = keyToDirection(e.key);
@@ -61,12 +64,7 @@ function handleKeyDown(
     return;
   }
 
-  const { player, grid } = applyRules(
-    state.rules,
-    state.grid,
-    state.player,
-    direction,
-  );
+  const { player, grid } = applyRules(state, direction);
 
   updateState({
     ...state,

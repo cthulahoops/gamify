@@ -30,4 +30,22 @@ export class Aliases {
     }
     return expanded;
   }
+
+  toJSON() {
+    const json: Record<string, string[]> = {};
+    for (const [alias, codes] of this.aliases.entries()) {
+      json[alias] = codes.map((code) => code.toString());
+    }
+    return json;
+  }
+
+  static fromJSON(json: Record<string, string[]>) {
+    const aliases = new Aliases();
+    for (const [alias, codes] of Object.entries(json)) {
+      for (const code of codes) {
+        aliases.addAlias(alias as AliasCode, code as ColorCode);
+      }
+    }
+    return aliases;
+  }
 }

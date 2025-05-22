@@ -17,7 +17,7 @@ export function AliasesDisplay({ aliases, palette }: AliasDisplayProps) {
           <div className="rules-side">
             <RuleSquare palette={palette} symbol={alias} />
           </div>
-          <div className="rule-arrow">→</div>
+          <div className="rule-arrow">=</div>
           <div className="rules-side">
             {codes.map((symbol, idx) => (
               <RuleSquare key={idx} palette={palette} symbol={symbol} />

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { Grid } from "./grid";
 import { rgbToHex } from "./colors.js";
 
@@ -6,77 +6,77 @@ import type { GameState } from "./types";
 import type { Point } from "./types";
 import type { Color } from "./palette";
 import type { Creation } from "./usePondiverse";
+import { Aliases } from "./aliases";
 
 const GRID_SIZE = 60;
 
-const DEFAULT_GAME_STATE = {
-  rules: [
-    { match: "#> ", become: " #>" },
-    { match: "> ", become: " >" },
-    { match: "># ", become: " >#" },
-    { match: ">## ", become: " >##" },
-  ],
-  colors: {
-    properties: {
-      solid: [],
-      empty: [],
+const DEFAULT_RULES = [
+  { match: "#> ", become: " #>" },
+  { match: "> ", become: " >" },
+  { match: "># ", become: " >#" },
+  { match: ">## ", become: " >##" },
+];
+
+export function useGameState(creation: Creation | null) {
+  const [gameState, setGameState] = useState<GameState | null>();
+
+  useEffect(() => {
+    if (!creation) {
+      return;
+    }
+    const newState = loadCreation(creation);
+    setGameState(newState);
+  }, [creation]);
+
+  const aliases = gameState?.aliases;
+  const setAliases = useCallback(
+    (newAliases: Aliases) => {
+      setGameState((prev: GameState | null | undefined) => {
+        if (!prev) {
+          throw new Error("Game state is not initialized");
+        }
+        return { ...prev, aliases: newAliases };
+      });
     },
-    palette: {},
-  },
-};
-
-export function useGameState() {
-  const [gameState, setGameState] = useState<GameState>({
-    rules: DEFAULT_GAME_STATE.rules,
-    // colors: {
-    //   properties: {
-    //     solid: [],
-    //     empty: [],
-    //   },
-    //   palette: {},
-    // },
-    grid: null,
-    player: { x: 0, y: 0 },
-  });
-
-  const setCreation = useCallback((creation: Creation) => {
-    setGameState((prevState) => loadCreation(creation, prevState));
-  }, []);
+    [setGameState],
+  );
 
   return {
     gameState,
     setGameState,
-    setCreation,
+    aliases,
+    setAliases,
   };
 }
 
-function loadCreation(creation: Creation, state: GameState): GameState {
+function loadCreation(creation: Creation): GameState {
   if (creation?.img instanceof HTMLImageElement) {
     const grid = extractGrid(creation.img);
+    const aliases = grid.getInitialAliases();
     return {
-      ...state,
-      grid: grid,
-      player: findRandomEmpty(grid),
+      rules: DEFAULT_RULES,
+      grid,
+      player: findRandomEmpty(aliases, grid),
+      aliases,
     };
   }
 
   const data = JSON.parse(creation.data);
-  state.grid = Grid.fromJSON(data.grid);
-  state.player = data.player;
-  state.rules = data.rules;
+  const grid = Grid.fromJSON(data.grid);
+  const aliases = grid.getInitialAliases();
   return {
-    ...state,
-    grid: Grid.fromJSON(data.grid),
+    grid: grid,
     player: data.player,
     rules: data.rules,
+    aliases,
   };
 }
 
-function findRandomEmpty(grid: Grid) {
+function findRandomEmpty(aliases: Aliases, grid: Grid) {
   const emptyCells: Array<Point> = [];
 
   grid.forEach(({ x, y }: Point) => {
-    if (grid.isEmpty({ x, y })) {
+    if (grid.isEmpty(aliases, { x, y })) {
       emptyCells.push({ x, y });
     }
   });
@@ -114,8 +114,6 @@ function extractGrid(image: HTMLImageElement): Grid {
       grid.setCell({ x, y }, color);
     }
   }
-
-  grid.setupColorStates();
   return grid;
 }
 

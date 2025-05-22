@@ -9,7 +9,6 @@ export class Grid {
   gridSize: number;
   grid: ColorCode[][];
   palette: Palette;
-  aliases: Aliases = new Aliases();
 
   constructor(gridSize: number) {
     this.palette = new Palette();
@@ -40,17 +39,17 @@ export class Grid {
     this.grid[y][x] = colorCode;
   }
 
-  isEmpty({ x, y }: Point) {
+  isEmpty(aliases: Aliases, { x, y }: Point) {
     const color = this.getCellCode({ x, y });
-    const emptyColors = this.aliases.expand(" " as AliasCode);
+    const emptyColors = aliases.expand(" " as AliasCode);
     return emptyColors.includes(color);
   }
 
-  setEmpty({ x, y }: Point) {
-    if (this.isEmpty({ x, y })) {
+  setEmpty(aliases: Aliases, { x, y }: Point) {
+    if (this.isEmpty(aliases, { x, y })) {
       return;
     }
-    const emptyColors = this.aliases.expand(" " as AliasCode);
+    const emptyColors = aliases.expand(" " as AliasCode);
     this.setCellCode({ x, y }, emptyColors[0]);
   }
 
@@ -69,7 +68,8 @@ export class Grid {
     };
   }
 
-  setupColorStates() {
+  getInitialAliases() {
+    const defaultAliases = new Aliases();
     const counts = this.countColors();
     const mostCommonColor = [...counts.entries()].reduce((a, b) =>
       a[1] > b[1] ? a : b,
@@ -82,11 +82,12 @@ export class Grid {
           this.palette.getColor(mostCommonColor)!,
         )
       ) {
-        this.aliases.addAlias(" " as AliasCode, color);
+        defaultAliases.addAlias(" " as AliasCode, color);
       } else {
-        this.aliases.addAlias("#" as AliasCode, color);
+        defaultAliases.addAlias("#" as AliasCode, color);
       }
     });
+    return defaultAliases;
   }
 
   forEach(callback: (point: Point & { color: ColorCode }) => void) {
