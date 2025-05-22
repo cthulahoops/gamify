@@ -1,9 +1,12 @@
 import { useState } from "react";
-import type { GameState } from "./types";
+import type { Rule } from "./types";
 
-export function RulesTextarea({ gameState }: { gameState: GameState }) {
-  const { rules } = gameState;
+type RulesTextareaProps = {
+  rules: Rule[];
+  setRules: (rules: Rule[]) => void;
+};
 
+export function RulesTextarea({ rules, setRules }: RulesTextareaProps) {
   const [rulesText, setRulesText] = useState(JSON.stringify(rules, null, 2));
   const [rulesErrors, setRulesErrors] = useState("");
 
@@ -11,7 +14,8 @@ export function RulesTextarea({ gameState }: { gameState: GameState }) {
     setRulesText(text);
     try {
       const newRules = JSON.parse(text);
-      console.log(newRules);
+      setRulesErrors("");
+      setRules(newRules);
     } catch (error) {
       const errorMessage = (error as { message: string }).message;
       setRulesErrors(errorMessage);

@@ -1,6 +1,6 @@
 import React from "react";
 
-import type { GameState } from "./types";
+import type { Rule } from "./types";
 import type { Palette, Color, ColorCode } from "./palette";
 
 const SYMBOL_DISPLAY_COLORS: Record<string, Color> = {
@@ -11,7 +11,9 @@ const SYMBOL_DISPLAY_COLORS: Record<string, Color> = {
 };
 
 type RulesDisplayProps = {
-  gameState: GameState;
+  rules: Rule[];
+  palette: Palette;
+  // setRules: (rules: Rule[]) => void;
 };
 
 function getSymbolColor(sym: string, palette?: Palette): Color {
@@ -22,10 +24,7 @@ function getSymbolColor(sym: string, palette?: Palette): Color {
   );
 }
 
-export function RulesDisplay({ gameState }: RulesDisplayProps) {
-  const rules = gameState.rules;
-  const palette = gameState.grid?.palette;
-
+export function RulesDisplay({ rules, palette }: RulesDisplayProps) {
   return (
     <div id="rules-graphical">
       {rules.map((rule, idx) => (

@@ -1,7 +1,7 @@
 import "./App.css";
 import "./style.css";
 
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 
 import { useGameState } from "./useGameState";
 import { useKeyEvents } from "./useKeyEvents";
@@ -11,6 +11,8 @@ import { GameCanvas } from "./GameCanvas";
 import { ColorControls } from "./ColorControls";
 import { RulesTextarea } from "./RulesTextArea";
 import { RulesDisplay } from "./RulesDisplay";
+
+import type { Rule, GameState } from "./types";
 
 export default function App() {
   const { gameState, setGameState, setCreation } = useGameState();
@@ -27,7 +29,20 @@ export default function App() {
     setCreation(creation);
   }, [creation, setCreation]);
 
+  const setRules = useCallback(
+    (rules: Rule[]) => {
+      setGameState((prev: GameState) => {
+        return { ...prev, rules };
+      });
+    },
+    [setGameState],
+  );
+
   useKeyEvents({ gameState, setGameState });
+
+  if (!gameState.grid) {
+    return "Loading...";
+  }
 
   return (
     <>
@@ -37,9 +52,9 @@ export default function App() {
       <ColorControls gameState={gameState} />
       <div id="color-controls"></div>
       <input type="color" id="color-picker" />
-      <RulesDisplay gameState={gameState} />
+      <RulesDisplay rules={gameState.rules} palette={gameState.grid.palette} />
       <br />
-      <RulesTextarea gameState={gameState} />
+      <RulesTextarea gameState={gameState} setRules={setRules} />
       <a href="" id="original">
         View Original
       </a>
