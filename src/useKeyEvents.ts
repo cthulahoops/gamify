@@ -50,12 +50,12 @@ function handleKeyDown(
 ) {
   if (document.activeElement?.id === "rules") return;
 
-  e.preventDefault();
-
   const direction = keyToDirection(e.key);
   if (!direction) {
     return;
   }
+
+  e.preventDefault();
 
   if (!state.grid || !state.player) {
     return;

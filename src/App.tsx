@@ -8,9 +8,9 @@ import { useKeyEvents } from "./useKeyEvents";
 import { usePondiverse } from "./usePondiverse";
 
 import { GameCanvas } from "./GameCanvas";
-import { ColorControls } from "./ColorControls";
 import { RulesTextarea } from "./RulesTextArea";
 import { RulesDisplay } from "./RulesDisplay";
+import { AliasesDisplay } from "./AliasesDisplay";
 
 import type { Rule, GameState } from "./types";
 
@@ -44,17 +44,20 @@ export default function App() {
     return "Loading...";
   }
 
+  const rules = gameState.rules;
+  const aliases = gameState.grid.aliases;
+  const palette = gameState.grid.palette;
+
   return (
     <>
       <GameCanvas gameState={gameState} />
       <button id="reset">Reset</button>
       <div>Solid colours:</div>
-      <ColorControls gameState={gameState} />
-      <div id="color-controls"></div>
       <input type="color" id="color-picker" />
-      <RulesDisplay rules={gameState.rules} palette={gameState.grid.palette} />
+      <AliasesDisplay aliases={aliases} palette={palette} />
+      <RulesDisplay rules={rules} palette={palette} />
       <br />
-      <RulesTextarea gameState={gameState} setRules={setRules} />
+      <RulesTextarea rules={rules} setRules={setRules} />
       <a href="" id="original">
         View Original
       </a>

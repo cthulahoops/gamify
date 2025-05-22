@@ -1,12 +1,15 @@
 import { Palette } from "./palette";
 import type { Point } from "./types";
 import type { Color, ColorCode, PaletteData } from "./palette";
+import { isSimilar } from "./colors";
+
+import { Aliases, type AliasCode } from "./aliases";
 
 export class Grid {
   gridSize: number;
   grid: ColorCode[][];
-  colorStates: Map<ColorCode, boolean>;
   palette: Palette;
+  aliases: Aliases = new Aliases();
 
   constructor(gridSize: number) {
     this.palette = new Palette();
@@ -15,7 +18,6 @@ export class Grid {
     this.grid = Array.from({ length: gridSize }, () =>
       Array.from({ length: gridSize }, () => defaultColor),
     );
-    this.colorStates = new Map();
   }
 
   getCell({ x, y }: Point): Color {
@@ -40,19 +42,16 @@ export class Grid {
 
   isEmpty({ x, y }: Point) {
     const color = this.getCellCode({ x, y });
-    return !this.colorStates.get(color);
+    const emptyColors = this.aliases.expand(" " as AliasCode);
+    return emptyColors.includes(color);
   }
 
   setEmpty({ x, y }: Point) {
     if (this.isEmpty({ x, y })) {
       return;
     }
-    for (const [color, isSolid] of this.colorStates.entries()) {
-      if (!isSolid) {
-        this.setCellCode({ x, y }, color);
-        return;
-      }
-    }
+    const emptyColors = this.aliases.expand(" " as AliasCode);
+    this.setCellCode({ x, y }, emptyColors[0]);
   }
 
   countColors() {
@@ -76,8 +75,17 @@ export class Grid {
       a[1] > b[1] ? a : b,
     )[0];
 
-    counts.forEach((_count, color) => {
-      this.colorStates.set(color, color !== mostCommonColor);
+    counts.forEach((_count, color: ColorCode) => {
+      if (
+        isSimilar(
+          this.palette.getColor(color)!,
+          this.palette.getColor(mostCommonColor)!,
+        )
+      ) {
+        this.aliases.addAlias(" " as AliasCode, color);
+      } else {
+        this.aliases.addAlias("#" as AliasCode, color);
+      }
     });
   }
 
@@ -117,7 +125,6 @@ export class Grid {
       gridSize: this.gridSize,
       grid: this.grid,
       palette: this.palette.toJSON(),
-      colorStates: Array.from(this.colorStates.entries()),
       // colors: colors, // Add the new colors structure
     };
   }
@@ -127,7 +134,6 @@ export class Grid {
     grid.grid = json.grid;
     grid.palette = new Palette();
     grid.palette = Palette.fromJSON(json.palette);
-    grid.colorStates = new Map(json.colorStates);
     return grid;
   }
 }

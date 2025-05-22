@@ -3,7 +3,7 @@
   image-rendering: pixelated;
 }
 
-#rules-graphical {
+#rules-graphical, #aliases-display {
   display: grid;
   grid-template-columns: repeat(3, auto);
   width: fit-content;
