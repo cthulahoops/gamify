@@ -1,34 +1,55 @@
-export function applyRules(rules, grid, player, delta) {
+import { Grid } from "./grid";
+import type { Point, Rule } from "./types";
+import type { ColorCode } from "./palette";
+
+export function applyRules(
+  rules: Rule[],
+  grid: Grid,
+  player: Point,
+  delta: Point,
+) {
   for (const rule of rules) {
     const match = matchRule(grid, player, delta, rule);
     if (!match) {
       continue;
     }
 
-    player.x = null;
-    player.y = null;
-
     for (let i = 0; i < rule.become.length; i++) {
       const becomeChar = rule.become[i];
+
       const becomePos = grid.addVector(match.matchStart, vectorMul(delta, i));
       if (becomeChar === " ") {
         grid.setEmpty(becomePos);
       } else if (becomeChar === "#") {
         const solid = match.solids.shift();
-        grid.setCell(becomePos, solid);
+        if (!solid) {
+          throw new Error("No solid found for become #");
+        }
+        grid.setCellCode(becomePos, solid);
       } else if (becomeChar === ">") {
-        player.x = becomePos.x;
-        player.y = becomePos.y;
+        player = { ...becomePos };
         grid.setEmpty(becomePos);
       } else {
-        grid.setCellCode(becomePos, becomeChar);
+        grid.setCellCode(becomePos, becomeChar as ColorCode);
       }
     }
     break;
   }
+
+  return { player, grid };
 }
 
-function matchRule(grid, player, delta, rule) {
+type RuleMatch = {
+  matchStart: Point;
+  solids: ColorCode[];
+};
+
+function matchRule(
+  grid: Grid,
+  player: Point,
+  delta: Point,
+  rule: Rule,
+): RuleMatch | null {
   const playerRuleOffset = rule.match.indexOf(">");
   if (playerRuleOffset === -1) {
     throw new Error("Invalid rule: " + rule.match);
@@ -39,13 +60,14 @@ function matchRule(grid, player, delta, rule) {
     vectorMul(delta, -playerRuleOffset),
   );
 
-  const solids = [];
+  const solids: ColorCode[] = [];
   for (let i = 0; i < rule.match.length; i++) {
     const matchPos = grid.addVector(matchStart, vectorMul(delta, i));
 
     const matchChar = rule.match[i];
     if (
       matchChar === ">" &&
+      player &&
       player.x === matchPos.x &&
       player.y === matchPos.y
     ) {
@@ -59,7 +81,7 @@ function matchRule(grid, player, delta, rule) {
     }
 
     if (!isEmpty && matchChar === "#") {
-      solids.push(grid.getCell(matchPos));
+      solids.push(grid.getCellCode(matchPos));
       continue;
     }
 
@@ -76,7 +98,7 @@ function matchRule(grid, player, delta, rule) {
   return { matchStart: matchStart, solids: solids };
 }
 
-function vectorMul(v, times) {
+function vectorMul(v: Point, times: number): Point {
   return {
     x: v.x * times,
     y: v.y * times,
