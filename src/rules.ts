@@ -9,10 +9,12 @@ export function applyRules(
   delta: Point,
 ): { player: Point | null; grid: Grid } {
   const { grid, rules, aliases } = gameState;
-  let player = gameState.player;
+  const player = gameState.player;
   if (!player) {
     return { grid: gameState.grid, player };
   }
+
+  let updatedPlayer = null;
 
   for (const rule of rules) {
     const match = matchRule(aliases, grid, player, delta, rule);
@@ -33,7 +35,7 @@ export function applyRules(
         }
         grid.setCellCode(becomePos, solid);
       } else if (becomeChar === ">") {
-        player = { ...becomePos };
+        updatedPlayer = { ...becomePos };
         grid.setEmpty(aliases, becomePos);
       } else {
         grid.setCellCode(becomePos, becomeChar as ColorCode);
@@ -42,7 +44,7 @@ export function applyRules(
     break;
   }
 
-  return { player, grid };
+  return { player: updatedPlayer, grid };
 }
 
 type RuleMatch = {
