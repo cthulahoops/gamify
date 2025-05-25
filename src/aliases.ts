@@ -31,6 +31,11 @@ export class Aliases {
     return expanded;
   }
 
+  match(alias: AliasCode, code: ColorCode): boolean {
+    const expanded = this.expand(alias);
+    return expanded.includes(code);
+  }
+
   toJSON() {
     const json: Record<string, string[]> = {};
     for (const [alias, codes] of this.aliases.entries()) {

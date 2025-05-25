@@ -2,7 +2,7 @@ import { Grid } from "./grid";
 import type { Point, Rule } from "./types";
 import type { ColorCode } from "./palette";
 import type { GameState } from "./types";
-import { Aliases } from "./aliases";
+import { Aliases, type AliasCode } from "./aliases";
 
 export function applyRules(
   gameState: GameState,
@@ -81,22 +81,14 @@ function matchRule(
       continue;
     }
 
-    const isEmpty = grid.isEmpty(aliases, matchPos);
+    const cellContent = grid.getCellCode(matchPos);
 
-    if (isEmpty && matchChar === " ") {
+    if (matchChar === cellContent) {
       continue;
     }
 
-    if (!isEmpty && matchChar === "#") {
-      solids.push(grid.getCellCode(matchPos));
-      continue;
-    }
-
-    if (matchChar === "?") {
-      continue;
-    }
-
-    if (matchChar == grid.getCellCode(matchPos)) {
+    if (aliases.match(matchChar as AliasCode, cellContent)) {
+      solids.push(cellContent);
       continue;
     }
 
