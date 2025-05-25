@@ -8,6 +8,9 @@ import { GameCanvas } from "./GameCanvas";
 import { RulesTextarea } from "./RulesTextArea";
 import { RulesDisplay } from "./RulesDisplay";
 import { AliasesDisplay } from "./AliasesDisplay";
+import { PaletteDisplay } from "./PaletteDisplay";
+
+import type { Color, ColorCode } from "./palette";
 
 import type { Rule, GameState } from "./types";
 
@@ -32,22 +35,33 @@ export function Game({ creationUrl }: GameProps) {
     [setGameState],
   );
 
+  const onPaletteChange = useCallback(
+    (colorCode: ColorCode, color: Color) => {
+      const palette = gameState?.palette;
+      if (!palette) {
+        throw new Error("Palette is not initialized");
+      }
+      palette.setColorCode(colorCode, color);
+      setPalette(palette);
+    },
+    [setPalette, gameState],
+  );
+
   useKeyEvents({ gameState, setGameState });
 
   if (!gameState) {
     return "Loading...";
   }
 
+  const palette = gameState.palette;
   const aliases = gameState.aliases;
   const rules = gameState.rules;
-  const palette = gameState.palette;
 
   return (
     <>
       <GameCanvas gameState={gameState} />
       <button id="reset">Reset</button>
-      <div>Solid colours:</div>
-      <input type="color" id="color-picker" />
+      <PaletteDisplay palette={palette} onChange={onPaletteChange} />
       <AliasesDisplay aliases={aliases} palette={palette} />
       <RulesDisplay rules={rules} palette={palette} />
       <br />
