@@ -1,12 +1,15 @@
 import { useState } from "react";
 import type { Rule } from "./types";
 import { Aliases } from "./aliases";
+import { Palette } from "./palette";
 
 type RulesTextareaProps = {
   rules: Rule[];
   aliases: Aliases;
   setRules: (rules: Rule[]) => void;
   setAliases: (aliases: Aliases) => void;
+  palette: Palette;
+  setPalette: (palette: Palette) => void;
 };
 
 export function RulesTextarea({
@@ -14,18 +17,29 @@ export function RulesTextarea({
   setRules,
   aliases,
   setAliases,
+  palette,
+  setPalette,
 }: RulesTextareaProps) {
   const [rulesText, setRulesText] = useState(
-    JSON.stringify({ aliases: aliases.toJSON(), rules }, null, 2),
+    JSON.stringify(
+      { aliases: aliases.toJSON(), rules, palette: palette.toJSON() },
+      null,
+      2,
+    ),
   );
   const [rulesErrors, setRulesErrors] = useState("");
 
   const onChange = (text: string) => {
     setRulesText(text);
     try {
-      const { rules: newRules, aliases: newAliases } = JSON.parse(text);
+      const {
+        rules: newRules,
+        aliases: newAliases,
+        palette: newPalette,
+      } = JSON.parse(text);
       setRulesErrors("");
       setRules(newRules);
+      setPalette(Palette.fromJSON(newPalette));
       setAliases(Aliases.fromJSON(newAliases));
     } catch (error) {
       const errorMessage = (error as { message: string }).message;

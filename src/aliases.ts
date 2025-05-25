@@ -1,6 +1,6 @@
 import type { ColorCode } from "./palette";
 
-export type AliasCode = string & { __brand: "AliasCode" };
+type AliasCode = string;
 
 export class Aliases {
   aliases: Map<AliasCode, (AliasCode | ColorCode)[]> = new Map();

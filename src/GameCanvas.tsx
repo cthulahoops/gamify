@@ -2,6 +2,7 @@ import { useRef, useEffect } from "react";
 
 import type { Grid } from "./grid";
 import type { GameState, Player } from "./types";
+import type { Palette } from "./palette";
 
 type GameCanvasProps = {
   gameState: GameState | null;
@@ -20,6 +21,7 @@ export function GameCanvas({ gameState }: GameCanvasProps) {
     drawGrid(canvasRef.current, {
       grid: gameState.grid,
       player: gameState.player,
+      palette: gameState.palette,
     });
   }, [gameState]);
 
@@ -31,14 +33,14 @@ const SQUARE_SIZE = 10;
 
 function drawGrid(
   canvas: HTMLCanvasElement,
-  { grid, player }: { grid: Grid; player: Player },
+  { grid, player, palette }: { grid: Grid; player: Player; palette: Palette },
 ) {
   const ctx = canvas.getContext("2d")!;
   canvas.width = GRID_SIZE * SQUARE_SIZE;
   canvas.height = GRID_SIZE * SQUARE_SIZE;
 
   grid.forEach(({ x, y, color: colorCode }) => {
-    const hexColor = grid.palette.code_to_color.get(colorCode)!;
+    const hexColor = palette.code_to_color.get(colorCode)!;
     ctx.fillStyle = hexColor;
     ctx.fillRect(x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
     ctx.strokeStyle = "rgba(0,0,0,0.2)";

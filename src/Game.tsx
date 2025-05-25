@@ -17,7 +17,8 @@ type GameProps = {
 
 export function Game({ creationUrl }: GameProps) {
   const { creation } = usePondiverse(creationUrl);
-  const { gameState, setGameState, setAliases } = useGameState(creation);
+  const { gameState, setGameState, setAliases, setPalette } =
+    useGameState(creation);
 
   const setRules = useCallback(
     (rules: Rule[]) => {
@@ -39,7 +40,7 @@ export function Game({ creationUrl }: GameProps) {
 
   const aliases = gameState.aliases;
   const rules = gameState.rules;
-  const palette = gameState.grid.palette;
+  const palette = gameState.palette;
 
   return (
     <>
@@ -55,6 +56,8 @@ export function Game({ creationUrl }: GameProps) {
         rules={rules}
         setRules={setRules}
         setAliases={setAliases}
+        palette={palette}
+        setPalette={setPalette}
       />
       <a href="" id="original">
         View Original

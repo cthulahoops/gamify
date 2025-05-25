@@ -7,6 +7,8 @@ import type { Point } from "./types";
 import type { Color } from "./palette";
 import type { Creation } from "./usePondiverse";
 import { Aliases } from "./aliases";
+import { Palette, type ColorCode } from "./palette";
+import { isSimilar } from "./colors";
 
 const GRID_SIZE = 60;
 
@@ -41,31 +43,47 @@ export function useGameState(creation: Creation | null) {
     [setGameState],
   );
 
+  const setPalette = useCallback(
+    (newPalette: Palette) => {
+      setGameState((prev: GameState | null | undefined) => {
+        if (!prev) {
+          throw new Error("Game state is not initialized");
+        }
+        return { ...prev, palette: newPalette };
+      });
+    },
+    [setGameState],
+  );
+
   return {
     gameState,
     setGameState,
     aliases,
     setAliases,
+    setPalette,
   };
 }
 
 function loadCreation(creation: Creation): GameState {
   if (creation?.img instanceof HTMLImageElement) {
-    const grid = extractGrid(creation.img);
-    const aliases = grid.getInitialAliases();
+    const [grid, palette] = extractGrid(creation.img);
+    const aliases = getInitialAliases(grid, palette);
     return {
       rules: DEFAULT_RULES,
       grid,
       player: findRandomEmpty(aliases, grid),
+      palette,
       aliases,
     };
   }
 
   const data = JSON.parse(creation.data);
   const grid = Grid.fromJSON(data.grid);
-  const aliases = grid.getInitialAliases();
+  const palette = Palette.fromJSON(data.palette || data.grid.palette);
+  const aliases = getInitialAliases(grid, palette);
   return {
-    grid: grid,
+    grid,
+    palette,
     player: data.player,
     rules: data.rules,
     aliases,
@@ -87,7 +105,7 @@ function findRandomEmpty(aliases: Aliases, grid: Grid) {
   return emptyCells[randomIndex];
 }
 
-function extractGrid(image: HTMLImageElement): Grid {
+function extractGrid(image: HTMLImageElement): [Grid, Palette] {
   const grid = new Grid(GRID_SIZE);
   const tempCanvas = document.createElement("canvas");
   tempCanvas.width = image.width;
@@ -98,6 +116,8 @@ function extractGrid(image: HTMLImageElement): Grid {
   }
   tempCtx.drawImage(image, 0, 0, image.width, image.height);
   const imageData = tempCtx.getImageData(0, 0, image.width, image.height).data;
+
+  const palette = new Palette();
 
   const cellWidth = Math.floor(image.width / grid.gridSize);
   const cellHeight = Math.floor(image.height / grid.gridSize);
@@ -111,10 +131,30 @@ function extractGrid(image: HTMLImageElement): Grid {
         Math.min(cellWidth, cellHeight),
         image.width,
       );
-      grid.setCell({ x, y }, color);
+      const colorCode = palette.getColorCode(color);
+      grid.setCellCode({ x, y }, colorCode);
     }
   }
-  return grid;
+  return [grid, palette];
+}
+
+function getInitialAliases(grid: Grid, palette: Palette): Aliases {
+  const defaultAliases = new Aliases();
+  const counts = grid.countColors();
+  const mostCommonColor = [...counts.entries()].reduce((a, b) =>
+    a[1] > b[1] ? a : b,
+  )[0];
+
+  counts.forEach((_count, color: ColorCode) => {
+    if (
+      isSimilar(palette.getColor(color)!, palette.getColor(mostCommonColor)!)
+    ) {
+      defaultAliases.addAlias(" ", color);
+    } else {
+      defaultAliases.addAlias("#", color);
+    }
+  });
+  return defaultAliases;
 }
 
 function getMostCommonColor(

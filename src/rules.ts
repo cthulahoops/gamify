@@ -2,7 +2,7 @@ import { Grid } from "./grid";
 import type { Point, Rule } from "./types";
 import type { ColorCode } from "./palette";
 import type { GameState } from "./types";
-import { Aliases, type AliasCode } from "./aliases";
+import { Aliases } from "./aliases";
 
 export function applyRules(
   gameState: GameState,
@@ -89,7 +89,7 @@ function matchRule(
       continue;
     }
 
-    if (aliases.match(matchChar as AliasCode, cellContent)) {
+    if (aliases.match(matchChar, cellContent)) {
       solids.push(cellContent);
       continue;
     }
