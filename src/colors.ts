@@ -1,6 +1,16 @@
 type Color = string & { __brand: "Color" };
 type RgbColor = { r: number; g: number; b: number };
 
+export function parseColor(color: string): Color {
+  if (color.match(/^#[0-9A-Fa-f]{6}$/)) {
+    return color as Color;
+  } else if (color.match(/^[0-9]{1,3},[0-9]{1,3},[0-9]{1,3}$/)) {
+    const [r, g, b] = color.split(",").map(Number);
+    return rgbToHex({ r, g, b }) as Color;
+  }
+  throw new Error(`Invalid color format: ${color}`);
+}
+
 export function rgbToHex({ r, g, b }: RgbColor): Color {
   return `#${componentToHex(r)}${componentToHex(g)}${componentToHex(b)}` as Color;
 }

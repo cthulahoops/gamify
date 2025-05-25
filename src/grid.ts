@@ -132,7 +132,7 @@ export class Grid {
 
   static fromJSON(json: GridData): Grid {
     const grid = new Grid(json.gridSize);
-    grid.grid = json.grid;
+    grid.grid = json.grid.map((x) => Array.from(x));
     grid.palette = new Palette();
     grid.palette = Palette.fromJSON(json.palette);
     return grid;

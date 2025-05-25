@@ -1,72 +1,28 @@
 import "./App.css";
 import "./style.css";
 
-import { useCallback } from "react";
+import { useMemo } from "react";
+import { Game } from "./Game";
 
-import { useGameState } from "./useGameState";
-import { useKeyEvents } from "./useKeyEvents";
-import { usePondiverse } from "./usePondiverse";
-
-import { GameCanvas } from "./GameCanvas";
-import { RulesTextarea } from "./RulesTextArea";
-import { RulesDisplay } from "./RulesDisplay";
-import { AliasesDisplay } from "./AliasesDisplay";
-
-import type { Rule, GameState } from "./types";
+function useCreationUrl() {
+  return useMemo(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    return searchParams.get("creation");
+  }, []);
+}
 
 export default function App() {
-  const { creation } = usePondiverse(
-    "https://pondiverse.val.run/get-creation?id=532",
-  );
-
-  const { gameState, setGameState, setAliases } = useGameState(creation);
-
-  const setRules = useCallback(
-    (rules: Rule[]) => {
-      setGameState((prev: GameState | null | undefined) => {
-        if (!prev) {
-          throw new Error("Game state is not initialized");
-        }
-        return { ...prev, rules };
-      });
-    },
-    [setGameState],
-  );
-
-  useKeyEvents({ gameState, setGameState });
-
-  if (!gameState) {
-    return "Loading...";
+  const creationUrl = useCreationUrl();
+  if (!creationUrl) {
+    return (
+      <div>
+        <h1>Pondiverse Game</h1>
+        <p>
+          Add <code>?creation=YOUR_ID</code> to the URL to play on a Pondiverse
+          grid.
+        </p>
+      </div>
+    );
   }
-
-  const aliases = gameState.aliases;
-  const rules = gameState.rules;
-  const palette = gameState.grid.palette;
-
-  return (
-    <>
-      <GameCanvas gameState={gameState} />
-      <button id="reset">Reset</button>
-      <div>Solid colours:</div>
-      <input type="color" id="color-picker" />
-      <AliasesDisplay aliases={aliases} palette={palette} />
-      <RulesDisplay rules={rules} palette={palette} />
-      <br />
-      <RulesTextarea
-        aliases={aliases}
-        rules={rules}
-        setRules={setRules}
-        setAliases={setAliases}
-      />
-      <a href="" id="original">
-        View Original
-      </a>
-      <p>
-        Use arrow keys to move the red player.
-        <br />
-        Add <code>?creation=YOUR_ID</code> to the URL to play on a Pondiverse
-        grid.
-      </p>
-    </>
-  );
+  return <Game creationUrl={creationUrl} />;
 }

@@ -1,3 +1,5 @@
+import { parseColor } from "./colors";
+
 export type Color = string & { __brand: "Color" };
 export type ColorCode = string & { __brand: "ColorCode" };
 export type PaletteData = [ColorCode, Color][];
@@ -48,7 +50,7 @@ export class Palette {
     const palette = new Palette();
 
     for (const [code, color] of data) {
-      palette.setColorCode(code, color);
+      palette.setColorCode(code, parseColor(color));
     }
 
     return palette;
