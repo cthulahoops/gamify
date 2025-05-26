@@ -28,6 +28,10 @@ export class Palette {
     return code;
   }
 
+  hasColorCode(code: string): boolean {
+    return this.code_to_color.has(code as ColorCode);
+  }
+
   getColor(code: ColorCode): Color | undefined {
     if (this.code_to_color.has(code)) {
       return this.code_to_color.get(code);

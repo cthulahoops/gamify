@@ -8,48 +8,77 @@ export function applyRules(
   gameState: GameState,
   delta: Point,
 ): { player: Point | null; grid: Grid } {
-  const { grid, rules, aliases } = gameState;
+  const { grid, aliases } = gameState;
   const player = gameState.player;
+  const palette = gameState.palette;
+
   if (!player) {
+    return { grid: gameState.grid, player };
+  }
+
+  const match = getFirstMatch(gameState, delta);
+
+  if (!match) {
     return { grid: gameState.grid, player };
   }
 
   let updatedPlayer = null;
 
-  for (const rule of rules) {
-    const match = matchRule(aliases, grid, player, delta, rule);
-    if (!match) {
-      continue;
-    }
+  for (let i = 0; i < match.rule.become.length; i++) {
+    const becomeChar = match.rule.become[i];
 
-    for (let i = 0; i < rule.become.length; i++) {
-      const becomeChar = rule.become[i];
+    const becomePos = grid.addVector(match.matchStart, vectorMul(delta, i));
 
-      const becomePos = grid.addVector(match.matchStart, vectorMul(delta, i));
-      if (becomeChar === " ") {
-        grid.setEmpty(aliases, becomePos);
-      } else if (becomeChar === "#") {
-        const solid = match.solids.shift();
-        if (!solid) {
-          throw new Error("No solid found for become #");
-        }
-        grid.setCellCode(becomePos, solid);
-      } else if (becomeChar === ">") {
-        updatedPlayer = { ...becomePos };
-        grid.setEmpty(aliases, becomePos);
-      } else {
+    if (becomeChar === ">") {
+      updatedPlayer = { ...becomePos };
+      grid.setEmpty(aliases, becomePos);
+    } else {
+      if (palette.hasColorCode(becomeChar)) {
         grid.setCellCode(becomePos, becomeChar as ColorCode);
+      } else {
+        const captures = match.captures.get(becomeChar) || [];
+        if (captures.length > 0) {
+          const color = captures.shift();
+          grid.setCellCode(becomePos, color!);
+        } else {
+          const choices = aliases.expand(becomeChar);
+          if (choices.length === 0) {
+            throw new Error(
+              `Alias "${becomeChar}" does not expand to any color codes.`,
+            );
+          }
+
+          const color = choices[Math.floor(Math.random() * choices.length)];
+
+          grid.setCellCode(becomePos, color);
+        }
       }
     }
-    break;
   }
 
   return { player: updatedPlayer, grid };
 }
 
+function getFirstMatch(gameState: GameState, delta: Point): RuleMatch | null {
+  const { grid, rules, aliases } = gameState;
+  const player = gameState.player;
+  if (!player) {
+    return null;
+  }
+
+  for (const rule of rules) {
+    const match = matchRule(aliases, grid, player, delta, rule);
+    if (match) {
+      return match;
+    }
+  }
+  return null;
+}
+
 type RuleMatch = {
   matchStart: Point;
-  solids: ColorCode[];
+  captures: Map<string, ColorCode[]>;
+  rule: Rule;
 };
 
 function matchRule(
@@ -69,7 +98,8 @@ function matchRule(
     vectorMul(delta, -playerRuleOffset),
   );
 
-  const solids: ColorCode[] = [];
+  const captures = new Map<string, ColorCode[]>();
+
   for (let i = 0; i < rule.match.length; i++) {
     const matchPos = grid.addVector(matchStart, vectorMul(delta, i));
 
@@ -90,13 +120,16 @@ function matchRule(
     }
 
     if (aliases.match(matchChar, cellContent)) {
-      solids.push(cellContent);
+      if (!captures.has(matchChar)) {
+        captures.set(matchChar, []);
+      }
+      captures.get(matchChar)!.push(cellContent);
       continue;
     }
 
     return null;
   }
-  return { matchStart: matchStart, solids: solids };
+  return { matchStart: matchStart, captures: captures, rule: rule };
 }
 
 function vectorMul(v: Point, times: number): Point {
