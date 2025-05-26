@@ -1,4 +1,6 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
+
+import { PondiverseButton } from "./PondiverseButton";
 
 import { useGameState } from "./useGameState";
 import { useKeyEvents } from "./useKeyEvents";
@@ -19,6 +21,8 @@ type GameProps = {
 };
 
 export function Game({ creationUrl }: GameProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
   const { creation } = usePondiverse(creationUrl);
   const { gameState, setGameState, setAliases, setPalette } =
     useGameState(creation);
@@ -59,7 +63,7 @@ export function Game({ creationUrl }: GameProps) {
 
   return (
     <>
-      <GameCanvas gameState={gameState} />
+      <GameCanvas gameState={gameState} ref={canvasRef} />
       <button id="reset">Reset</button>
       <PaletteDisplay palette={palette} onChange={onPaletteChange} />
       <AliasesDisplay aliases={aliases} palette={palette} />
@@ -82,6 +86,13 @@ export function Game({ creationUrl }: GameProps) {
         Add <code>?creation=YOUR_ID</code> to the URL to play on a Pondiverse
         grid.
       </p>
+      <PondiverseButton
+        getPondiverseCreation={() => ({
+          type: "gamified",
+          data: JSON.stringify(gameState),
+          image: canvasRef?.current?.toDataURL() ?? "",
+        })}
+      />
     </>
   );
 }

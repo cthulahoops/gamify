@@ -6,10 +6,13 @@ import type { Palette } from "./palette";
 
 type GameCanvasProps = {
   gameState: GameState | null;
+  ref?: React.RefObject<HTMLCanvasElement | null>;
 };
 
-export function GameCanvas({ gameState }: GameCanvasProps) {
-  const canvasRef = useRef(null);
+export function GameCanvas({ gameState, ref: passedRef }: GameCanvasProps) {
+  const defaultCanvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = passedRef ?? defaultCanvasRef;
+
   useEffect(() => {
     if (!canvasRef.current) {
       return;
@@ -23,7 +26,7 @@ export function GameCanvas({ gameState }: GameCanvasProps) {
       player: gameState.player,
       palette: gameState.palette,
     });
-  }, [gameState]);
+  }, [gameState, canvasRef]);
 
   return <canvas ref={canvasRef} />;
 }

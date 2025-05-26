@@ -77,7 +77,7 @@ function loadCreation(creation: Creation): GameState {
     };
   }
 
-  const data = JSON.parse(creation.data);
+  const data = JSON.parse(creation.data || "{}");
   const grid = Grid.fromJSON(data.grid);
   const palette = Palette.fromJSON(data.palette || data.grid.palette);
   const aliases = getInitialAliases(grid, palette);
