@@ -28,7 +28,7 @@ export class Palette {
     return code;
   }
 
-  hasColorCode(code: string): boolean {
+  hasColorCode(code: string): code is ColorCode {
     return this.code_to_color.has(code as ColorCode);
   }
 

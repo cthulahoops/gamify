@@ -10,7 +10,6 @@ export function applyRules(
 ): { player: Point | null; grid: Grid } {
   const { grid, aliases } = gameState;
   const player = gameState.player;
-  const palette = gameState.palette;
 
   if (!player) {
     return { grid: gameState.grid, player };
@@ -33,30 +32,44 @@ export function applyRules(
       updatedPlayer = { ...becomePos };
       grid.setEmpty(aliases, becomePos);
     } else {
-      if (palette.hasColorCode(becomeChar)) {
-        grid.setCellCode(becomePos, becomeChar as ColorCode);
-      } else {
-        const captures = match.captures.get(becomeChar) || [];
-        if (captures.length > 0) {
-          const color = captures.shift();
-          grid.setCellCode(becomePos, color!);
-        } else {
-          const choices = aliases.expand(becomeChar);
-          if (choices.length === 0) {
-            throw new Error(
-              `Alias "${becomeChar}" does not expand to any color codes.`,
-            );
-          }
-
-          const color = choices[Math.floor(Math.random() * choices.length)];
-
-          grid.setCellCode(becomePos, color);
-        }
-      }
+      const updatedColor = getUpdatedColor(
+        becomeChar,
+        match.captures,
+        gameState,
+      );
+      grid.setCellCode(becomePos, updatedColor);
     }
   }
 
   return { player: updatedPlayer, grid };
+}
+
+function getUpdatedColor(
+  becomeChar: string,
+  captures: Captures,
+  gameState: GameState,
+): ColorCode {
+  const palette = gameState.palette;
+  const aliases = gameState.aliases;
+
+  if (palette.hasColorCode(becomeChar)) {
+    return becomeChar;
+  }
+
+  const ourCaptures = captures.get(becomeChar) || [];
+  const captured = ourCaptures.shift();
+  if (captured !== undefined) {
+    return captured;
+  }
+
+  const choices = aliases.expand(becomeChar);
+  if (choices.length === 0) {
+    throw new Error(
+      `Alias "${becomeChar}" does not expand to any color codes.`,
+    );
+  }
+
+  return choices[Math.floor(Math.random() * choices.length)];
 }
 
 function getFirstMatch(gameState: GameState, delta: Point): RuleMatch | null {
@@ -80,6 +93,8 @@ type RuleMatch = {
   captures: Map<string, ColorCode[]>;
   rule: Rule;
 };
+
+type Captures = Map<string, ColorCode[]>;
 
 function matchRule(
   aliases: Aliases,
