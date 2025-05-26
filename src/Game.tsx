@@ -67,7 +67,7 @@ export function Game({ creationUrl }: GameProps) {
       <button id="reset">Reset</button>
       <PaletteDisplay palette={palette} onChange={onPaletteChange} />
       <AliasesDisplay aliases={aliases} palette={palette} />
-      <RulesDisplay rules={rules} palette={palette} />
+      <RulesDisplay rules={rules} aliases={aliases} palette={palette} />
       <br />
       <RulesTextarea
         aliases={aliases}

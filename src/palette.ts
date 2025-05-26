@@ -32,10 +32,11 @@ export class Palette {
     return this.code_to_color.has(code as ColorCode);
   }
 
-  getColor(code: ColorCode): Color | undefined {
-    if (this.code_to_color.has(code)) {
-      return this.code_to_color.get(code);
+  getColor(code: ColorCode): Color {
+    if (!this.code_to_color.has(code)) {
+      throw new Error(`Color code ${code} not found in palette.`);
     }
+    return this.code_to_color.get(code)!;
   }
 
   setColorCode(code: ColorCode, color: Color): void {

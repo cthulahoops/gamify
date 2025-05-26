@@ -15,12 +15,17 @@ export function AliasesDisplay({ aliases, palette }: AliasDisplayProps) {
       {Array.from(aliases.aliases.entries()).map(([alias, codes]) => (
         <React.Fragment key={alias}>
           <div className="rules-side">
-            <RuleSquare palette={palette} symbol={alias} />
+            <RuleSquare aliases={aliases} palette={palette} symbol={alias} />
           </div>
           <div className="rule-arrow">=</div>
           <div className="rules-side">
             {codes.map((symbol, idx) => (
-              <RuleSquare key={idx} palette={palette} symbol={symbol} />
+              <RuleSquare
+                key={idx}
+                aliases={aliases}
+                palette={palette}
+                symbol={symbol}
+              />
             ))}
           </div>
         </React.Fragment>
