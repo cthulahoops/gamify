@@ -15,7 +15,7 @@ import { Aliases } from "./aliases";
 import { Palette, type ColorCode } from "./palette";
 import { isSimilar } from "./colors";
 
-const GRID_SIZE = 60;
+
 
 const DEFAULT_RULES = [
   { match: "#> ", become: " #>" },
@@ -150,7 +150,12 @@ export function findRandomEmpty(aliases: Aliases, grid: Grid) {
 }
 
 export function extractGrid(image: HTMLImageElement): [Grid, Palette] {
-  const grid = new Grid(GRID_SIZE, GRID_SIZE);
+  // Calculate grid dimensions respecting aspect ratio with 60 cells height
+  const gridHeight = 60;
+  const aspectRatio = image.width / image.height;
+  const gridWidth = Math.round(gridHeight * aspectRatio);
+  
+  const grid = new Grid(gridWidth, gridHeight);
   const tempCanvas = document.createElement("canvas");
   tempCanvas.width = image.width;
   tempCanvas.height = image.height;
