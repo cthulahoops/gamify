@@ -2,7 +2,7 @@ import { useCallback, useState, useEffect } from "react";
 import { Grid } from "./grid";
 import { rgbToHex } from "./colors.js";
 
-import type { GameState } from "./types";
+import type { GameState, GameStateDTO } from "./types";
 import type { Point } from "./types";
 import type { Color } from "./palette";
 import type { Creation } from "./usePondiverse";
@@ -77,9 +77,9 @@ function loadCreation(creation: Creation): GameState {
     };
   }
 
-  const data = JSON.parse(creation.data || "{}");
+  const data = JSON.parse(creation.data || "{}") as GameStateDTO;
   const grid = Grid.fromJSON(data.grid);
-  const palette = Palette.fromJSON(data.palette || data.grid.palette);
+  const palette = Palette.fromJSON(data.palette);
   const aliases = getInitialAliases(grid, palette);
   return {
     grid,

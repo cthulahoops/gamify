@@ -14,7 +14,7 @@ import { PaletteDisplay } from "./PaletteDisplay";
 
 import type { Color, ColorCode } from "./palette";
 
-import type { Rule, GameState } from "./types";
+import type { Rule, GameState, GameStateDTO } from "./types";
 
 type GameProps = {
   creationUrl: string;
@@ -87,11 +87,21 @@ export function Game({ creationUrl }: GameProps) {
         grid.
       </p>
       <PondiverseButton
-        getPondiverseCreation={() => ({
-          type: "gamified",
-          data: JSON.stringify(gameState),
-          image: canvasRef?.current?.toDataURL() ?? "",
-        })}
+        getPondiverseCreation={() => {
+          const gameStateSaved: GameStateDTO = {
+            palette: gameState.palette.toJSON(),
+            aliases: gameState.aliases.toJSON(),
+            rules: gameState.rules,
+            grid: gameState.grid.toJSON(),
+            player: gameState.player,
+          };
+          console.log("Saving game state:", gameStateSaved);
+          return {
+            type: "gamified",
+            data: JSON.stringify(gameStateSaved),
+            image: canvasRef?.current?.toDataURL() ?? "",
+          };
+        }}
       />
     </>
   );

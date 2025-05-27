@@ -58,46 +58,23 @@ export class Grid {
     }
   }
 
-  toJSON() {
-    // // Create the colors structure
-    // const colors = {
-    //   properties: {
-    //     solid: [],
-    //     empty: [],
-    //   },
-    //   palette: {},
-    // };
-
-    // // Populate the properties based on colorStates
-    // this.colorStates.forEach((isSolid, code) => {
-    //   if (isSolid) {
-    //     colors.properties.solid.push(code);
-    //   } else {
-    //     colors.properties.empty.push(code);
-    //   }
-    // });
-
-    // // Populate the palette
-    // this.palette.code_to_color.forEach((hexColor, code) => {
-    //   colors.palette[code] = hexColor;
-    // });
-
+  toJSON(): GridData {
     return {
-      gridSize: this.gridSize,
-      grid: this.grid,
+      size: { x: this.gridSize, y: this.gridSize },
+      data: this.grid.map((row) => row.join("")),
     };
   }
 
   static fromJSON(json: GridData): Grid {
-    const grid = new Grid(json.gridSize);
-    grid.grid = json.grid.map((x) => Array.from(x));
+    const grid = new Grid(json.size.x); // y size is ignored for now, only squares!
+    grid.grid = json.data.map((x) => Array.from(x) as ColorCode[]);
     return grid;
   }
 }
 
 type GridData = {
-  gridSize: number;
-  grid: ColorCode[][];
+  size: { x: number; y: number };
+  data: string[];
 };
 
 function mod(n: number, m: number) {

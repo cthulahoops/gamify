@@ -14,6 +14,14 @@ export type GameState = {
   aliases: Aliases;
 };
 
+export type GameStateDTO = {
+  palette: [string, string][];
+  aliases: Record<string, string[]>;
+  rules: { match: string; become: string }[];
+  grid: { size: { x: number; y: number }; data: string[] };
+  player: { x: number; y: number } | null;
+};
+
 export type Player = Point | null;
 
 export type Point = {

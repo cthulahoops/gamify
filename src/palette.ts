@@ -2,7 +2,7 @@ import { parseColor } from "./colors";
 
 export type Color = string & { __brand: "Color" };
 export type ColorCode = string & { __brand: "ColorCode" };
-export type PaletteData = [ColorCode, Color][];
+export type PaletteData = [string, string][];
 
 export class Palette {
   color_to_code: Map<Color, ColorCode>;
@@ -55,7 +55,7 @@ export class Palette {
     const palette = new Palette();
 
     for (const [code, color] of data) {
-      palette.setColorCode(code, parseColor(color));
+      palette.setColorCode(code as ColorCode, parseColor(color));
     }
 
     return palette;
