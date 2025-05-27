@@ -7,10 +7,7 @@ import { useKeyEvents } from "./useKeyEvents";
 import { usePondiverse } from "./usePondiverse";
 
 import { GameCanvas } from "./GameCanvas";
-import { RulesTextarea } from "./RulesTextArea";
-import { RulesDisplay } from "./RulesDisplay";
-import { AliasesDisplay } from "./AliasesDisplay";
-import { PaletteDisplay } from "./PaletteDisplay";
+import { Editor } from "./Editor";
 
 import type { Color, ColorCode } from "./palette";
 
@@ -73,44 +70,45 @@ export function Game({ creationUrl, localImage }: GameProps) {
     <>
       <GameCanvas gameState={gameState} ref={canvasRef} />
       <button id="reset">Reset</button>
-      <PaletteDisplay palette={palette} onChange={onPaletteChange} />
-      <AliasesDisplay aliases={aliases} palette={palette} />
-      <RulesDisplay rules={rules} aliases={aliases} palette={palette} />
-      <br />
-      <RulesTextarea
+      
+      <Editor
+        palette={palette}
         aliases={aliases}
         rules={rules}
+        onPaletteChange={onPaletteChange}
         setRules={setRules}
         setAliases={setAliases}
-        palette={palette}
         setPalette={setPalette}
       />
-      <a href="" id="original">
-        View Original
-      </a>
-      <p>
-        Use arrow keys to move the red player.
-        <br />
-        Add <code>?creation=YOUR_ID</code> to the URL to play on a Pondiverse
-        grid.
-      </p>
-      <PondiverseButton
-        getPondiverseCreation={() => {
-          const gameStateSaved: GameStateDTO = {
-            palette: gameState.palette.toJSON(),
-            aliases: gameState.aliases.toJSON(),
-            rules: gameState.rules,
-            grid: gameState.grid.toJSON(),
-            player: gameState.player,
-          };
-          console.log("Saving game state:", gameStateSaved);
-          return {
-            type: "gamified",
-            data: JSON.stringify(gameStateSaved),
-            image: canvasRef?.current?.toDataURL() ?? "",
-          };
-        }}
-      />
+      
+      <div className="game-footer">
+        <a href="" id="original">
+          View Original
+        </a>
+        <p>
+          Use arrow keys to move the red player.
+          <br />
+          Add <code>?creation=YOUR_ID</code> to the URL to play on a Pondiverse
+          grid.
+        </p>
+        <PondiverseButton
+          getPondiverseCreation={() => {
+            const gameStateSaved: GameStateDTO = {
+              palette: gameState.palette.toJSON(),
+              aliases: gameState.aliases.toJSON(),
+              rules: gameState.rules,
+              grid: gameState.grid.toJSON(),
+              player: gameState.player,
+            };
+            console.log("Saving game state:", gameStateSaved);
+            return {
+              type: "gamified",
+              data: JSON.stringify(gameStateSaved),
+              image: canvasRef?.current?.toDataURL() ?? "",
+            };
+          }}
+        />
+      </div>
     </>
   );
 }
