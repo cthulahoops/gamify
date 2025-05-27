@@ -17,15 +17,20 @@ import type { Color, ColorCode } from "./palette";
 import type { Rule, GameState, GameStateDTO } from "./types";
 
 type GameProps = {
-  creationUrl: string;
+  creationUrl?: string;
+  localImage?: HTMLImageElement;
 };
 
-export function Game({ creationUrl }: GameProps) {
+export function Game({ creationUrl, localImage }: GameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const { creation } = usePondiverse(creationUrl);
+  const { creation } = usePondiverse(creationUrl || "");
+  
+  // Create a creation object from local image if provided
+  const localCreation = localImage ? { type: "image", img: localImage, data: undefined } : null;
+  
   const { gameState, setGameState, setAliases, setPalette } =
-    useGameState(creation);
+    useGameState(creation || localCreation);
 
   const setRules = useCallback(
     (rules: Rule[]) => {
