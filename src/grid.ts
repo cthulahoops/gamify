@@ -3,13 +3,15 @@ import type { ColorCode } from "./palette";
 import { Aliases } from "./aliases";
 
 export class Grid {
-  gridSize: number;
+  width: number;
+  height: number;
   grid: ColorCode[][];
 
-  constructor(gridSize: number) {
-    this.gridSize = gridSize;
-    this.grid = Array.from({ length: gridSize }, () =>
-      Array.from({ length: gridSize }, () => "A" as ColorCode),
+  constructor(width: number, height: number = width) {
+    this.width = width;
+    this.height = height;
+    this.grid = Array.from({ length: height }, () =>
+      Array.from({ length: width }, () => "A" as ColorCode),
     );
   }
 
@@ -45,14 +47,14 @@ export class Grid {
 
   addVector(v1: Point, v2: Point): Point {
     return {
-      x: mod(v1.x + v2.x, this.gridSize),
-      y: mod(v1.y + v2.y, this.gridSize),
+      x: mod(v1.x + v2.x, this.width),
+      y: mod(v1.y + v2.y, this.height),
     };
   }
 
   forEach(callback: (point: Point & { color: ColorCode }) => void) {
-    for (let y = 0; y < this.gridSize; y++) {
-      for (let x = 0; x < this.gridSize; x++) {
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
         callback({ x, y, color: this.grid[y][x] });
       }
     }
@@ -60,19 +62,19 @@ export class Grid {
 
   toJSON(): GridData {
     return {
-      size: { x: this.gridSize, y: this.gridSize },
+      size: { x: this.width, y: this.height },
       data: this.grid.map((row) => row.join("")),
     };
   }
 
   static fromJSON(json: GridData): Grid {
-    const grid = new Grid(json.size.x); // y size is ignored for now, only squares!
+    const grid = new Grid(json.size.x, json.size.y);
     grid.grid = json.data.map((x) => Array.from(x) as ColorCode[]);
     return grid;
   }
 
   clone(): Grid {
-    const cloned = new Grid(this.gridSize);
+    const cloned = new Grid(this.width, this.height);
     cloned.grid = this.grid.map((row) => [...row]);
     return cloned;
   }

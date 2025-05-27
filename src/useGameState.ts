@@ -150,7 +150,7 @@ export function findRandomEmpty(aliases: Aliases, grid: Grid) {
 }
 
 export function extractGrid(image: HTMLImageElement): [Grid, Palette] {
-  const grid = new Grid(GRID_SIZE);
+  const grid = new Grid(GRID_SIZE, GRID_SIZE);
   const tempCanvas = document.createElement("canvas");
   tempCanvas.width = image.width;
   tempCanvas.height = image.height;
@@ -163,11 +163,11 @@ export function extractGrid(image: HTMLImageElement): [Grid, Palette] {
 
   const palette = new Palette();
 
-  const cellWidth = Math.floor(image.width / grid.gridSize);
-  const cellHeight = Math.floor(image.height / grid.gridSize);
+  const cellWidth = Math.floor(image.width / grid.width);
+  const cellHeight = Math.floor(image.height / grid.height);
 
-  for (let y = 0; y < grid.gridSize; y++) {
-    for (let x = 0; x < grid.gridSize; x++) {
+  for (let y = 0; y < grid.height; y++) {
+    for (let x = 0; x < grid.width; x++) {
       const color = getMostCommonColor(
         imageData,
         x * cellWidth,

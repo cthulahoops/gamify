@@ -31,7 +31,6 @@ export function GameCanvas({ gameState, ref: passedRef }: GameCanvasProps) {
   return <canvas ref={canvasRef} />;
 }
 
-const GRID_SIZE = 60;
 const SQUARE_SIZE = 10;
 
 function drawGrid(
@@ -39,8 +38,8 @@ function drawGrid(
   { grid, player, palette }: { grid: Grid; player: Player; palette: Palette },
 ) {
   const ctx = canvas.getContext("2d")!;
-  canvas.width = GRID_SIZE * SQUARE_SIZE;
-  canvas.height = GRID_SIZE * SQUARE_SIZE;
+  canvas.width = grid.width * SQUARE_SIZE;
+  canvas.height = grid.height * SQUARE_SIZE;
 
   grid.forEach(({ x, y, color: colorCode }) => {
     const hexColor = palette.code_to_color.get(colorCode)!;
