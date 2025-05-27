@@ -3,6 +3,7 @@ import "./style.css";
 
 import { useMemo, useState, useCallback } from "react";
 import { Game } from "./Game";
+import { CreationsList } from "./CreationsList";
 
 function useCreationUrl() {
   return useMemo(() => {
@@ -82,6 +83,7 @@ export default function App() {
         grid, or upload an image below:
       </p>
       <ImageUpload onImageLoad={setLocalImage} />
+      <CreationsList />
     </div>
   );
 }

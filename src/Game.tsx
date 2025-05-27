@@ -26,7 +26,13 @@ export function Game({ creationUrl, localImage }: GameProps) {
   // Create a creation object from local image if provided (memoized to prevent re-initialization)
   const localCreation = useMemo(
     () =>
-      localImage ? { type: "image", img: localImage, data: undefined } : null,
+      localImage ? { 
+        id: "local", 
+        type: "image", 
+        title: "Local Image",
+        img: localImage, 
+        data: undefined 
+      } : null,
     [localImage],
   );
 
