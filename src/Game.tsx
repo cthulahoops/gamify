@@ -22,15 +22,17 @@ export function Game({ creationUrl, localImage }: GameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const { creation } = usePondiverse(creationUrl || "");
-  
+
   // Create a creation object from local image if provided (memoized to prevent re-initialization)
-  const localCreation = useMemo(() => 
-    localImage ? { type: "image", img: localImage, data: undefined } : null,
-    [localImage]
+  const localCreation = useMemo(
+    () =>
+      localImage ? { type: "image", img: localImage, data: undefined } : null,
+    [localImage],
   );
-  
-  const { gameState, setGameState, setAliases, setPalette } =
-    useGameState(creation || localCreation);
+
+  const { gameState, setGameState, setAliases, setPalette, resetGame } = useGameState(
+    creation || localCreation,
+  );
 
   const setRules = useCallback(
     (rules: Rule[]) => {
@@ -38,7 +40,10 @@ export function Game({ creationUrl, localImage }: GameProps) {
         if (!prev) {
           throw new Error("Game state is not initialized");
         }
-        return { ...prev, rules };
+        return { 
+          ...prev, 
+          design: { ...prev.design, rules }
+        };
       });
     },
     [setGameState],
@@ -46,7 +51,7 @@ export function Game({ creationUrl, localImage }: GameProps) {
 
   const onPaletteChange = useCallback(
     (colorCode: ColorCode, color: Color) => {
-      const palette = gameState?.palette;
+      const palette = gameState?.design.palette;
       if (!palette) {
         throw new Error("Palette is not initialized");
       }
@@ -62,15 +67,15 @@ export function Game({ creationUrl, localImage }: GameProps) {
     return "Loading...";
   }
 
-  const palette = gameState.palette;
-  const aliases = gameState.aliases;
-  const rules = gameState.rules;
+  const palette = gameState.design.palette;
+  const aliases = gameState.design.aliases;
+  const rules = gameState.design.rules;
 
   return (
     <>
       <GameCanvas gameState={gameState} ref={canvasRef} />
-      <button id="reset">Reset</button>
-      
+      <button id="reset" onClick={resetGame}>Reset</button>
+
       <Editor
         palette={palette}
         aliases={aliases}
@@ -80,7 +85,7 @@ export function Game({ creationUrl, localImage }: GameProps) {
         setAliases={setAliases}
         setPalette={setPalette}
       />
-      
+
       <div className="game-footer">
         <a href="" id="original">
           View Original
@@ -94,11 +99,11 @@ export function Game({ creationUrl, localImage }: GameProps) {
         <PondiverseButton
           getPondiverseCreation={() => {
             const gameStateSaved: GameStateDTO = {
-              palette: gameState.palette.toJSON(),
-              aliases: gameState.aliases.toJSON(),
-              rules: gameState.rules,
-              grid: gameState.grid.toJSON(),
-              player: gameState.player,
+              palette: gameState.design.palette.toJSON(),
+              aliases: gameState.design.aliases.toJSON(),
+              rules: gameState.design.rules,
+              grid: gameState.design.originalGrid.toJSON(),
+              player: gameState.design.playerSpawnPosition,
             };
             console.log("Saving game state:", gameStateSaved);
             return {

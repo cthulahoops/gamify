@@ -60,7 +60,7 @@ function handleKeyDown(
 
   e.preventDefault();
 
-  if (!state.grid || !state.player) {
+  if (!state.playState.currentGrid || !state.playState.playerPosition) {
     return;
   }
 
@@ -68,7 +68,10 @@ function handleKeyDown(
 
   updateState({
     ...state,
-    player,
-    grid,
+    playState: {
+      ...state.playState,
+      playerPosition: player,
+      currentGrid: grid,
+    },
   });
 }

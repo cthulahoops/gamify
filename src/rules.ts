@@ -8,17 +8,18 @@ export function applyRules(
   gameState: GameState,
   delta: Point,
 ): { player: Point | null; grid: Grid } {
-  const { grid, aliases } = gameState;
-  const player = gameState.player;
+  const grid = gameState.playState.currentGrid.clone();
+  const aliases = gameState.design.aliases;
+  const player = gameState.playState.playerPosition;
 
   if (!player) {
-    return { grid: gameState.grid, player };
+    return { grid, player };
   }
 
   const match = getFirstMatch(gameState, delta);
 
   if (!match) {
-    return { grid: gameState.grid, player };
+    return { grid, player };
   }
 
   let updatedPlayer = null;
@@ -49,8 +50,8 @@ function getUpdatedColor(
   captures: Captures,
   gameState: GameState,
 ): ColorCode {
-  const palette = gameState.palette;
-  const aliases = gameState.aliases;
+  const palette = gameState.design.palette;
+  const aliases = gameState.design.aliases;
 
   if (palette.hasColorCode(becomeChar)) {
     return becomeChar;
@@ -73,8 +74,10 @@ function getUpdatedColor(
 }
 
 function getFirstMatch(gameState: GameState, delta: Point): RuleMatch | null {
-  const { grid, rules, aliases } = gameState;
-  const player = gameState.player;
+  const grid = gameState.playState.currentGrid;
+  const rules = gameState.design.rules;
+  const aliases = gameState.design.aliases;
+  const player = gameState.playState.playerPosition;
   if (!player) {
     return null;
   }

@@ -6,12 +6,22 @@ export type Rule = {
   become: string;
 };
 
-export type GameState = {
-  rules: Rule[];
-  grid: Grid;
-  player: Point | null;
+export type GameDesign = {
+  originalGrid: Grid;
+  playerSpawnPosition: Point | null;
   palette: Palette;
   aliases: Aliases;
+  rules: Rule[];
+};
+
+export type GamePlayState = {
+  currentGrid: Grid;
+  playerPosition: Point | null;
+};
+
+export type GameState = {
+  design: GameDesign;
+  playState: GamePlayState;
 };
 
 export type GameStateDTO = {

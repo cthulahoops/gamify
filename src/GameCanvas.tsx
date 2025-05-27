@@ -18,13 +18,13 @@ export function GameCanvas({ gameState, ref: passedRef }: GameCanvasProps) {
       return;
     }
 
-    if (!gameState?.grid) {
+    if (!gameState?.playState?.currentGrid) {
       return;
     }
     drawGrid(canvasRef.current, {
-      grid: gameState.grid,
-      player: gameState.player,
-      palette: gameState.palette,
+      grid: gameState.playState.currentGrid,
+      player: gameState.playState.playerPosition,
+      palette: gameState.design.palette,
     });
   }, [gameState, canvasRef]);
 

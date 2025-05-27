@@ -2,7 +2,7 @@ import { useCallback, useState, useEffect } from "react";
 import { Grid } from "./grid";
 import { rgbToHex } from "./colors.js";
 
-import type { GameState, GameStateDTO } from "./types";
+import type { GameState, GameDesign, GamePlayState, GameStateDTO } from "./types";
 import type { Point } from "./types";
 import type { Color } from "./palette";
 import type { Creation } from "./usePondiverse";
@@ -30,14 +30,17 @@ export function useGameState(creation: Creation | null) {
     setGameState(newState);
   }, [creation]);
 
-  const aliases = gameState?.aliases;
+  const aliases = gameState?.design.aliases;
   const setAliases = useCallback(
     (newAliases: Aliases) => {
       setGameState((prev: GameState | null | undefined) => {
         if (!prev) {
           throw new Error("Game state is not initialized");
         }
-        return { ...prev, aliases: newAliases };
+        return { 
+          ...prev, 
+          design: { ...prev.design, aliases: newAliases }
+        };
       });
     },
     [setGameState],
@@ -49,11 +52,29 @@ export function useGameState(creation: Creation | null) {
         if (!prev) {
           throw new Error("Game state is not initialized");
         }
-        return { ...prev, palette: newPalette };
+        return { 
+          ...prev, 
+          design: { ...prev.design, palette: newPalette }
+        };
       });
     },
     [setGameState],
   );
+
+  const resetGame = useCallback(() => {
+    setGameState((prev: GameState | null | undefined) => {
+      if (!prev) {
+        throw new Error("Game state is not initialized");
+      }
+      return {
+        ...prev,
+        playState: {
+          currentGrid: prev.design.originalGrid.clone(),
+          playerPosition: prev.design.playerSpawnPosition,
+        }
+      };
+    });
+  }, [setGameState]);
 
   return {
     gameState,
@@ -61,6 +82,7 @@ export function useGameState(creation: Creation | null) {
     aliases,
     setAliases,
     setPalette,
+    resetGame,
   };
 }
 
@@ -68,29 +90,46 @@ function loadCreation(creation: Creation): GameState {
   if (creation?.img instanceof HTMLImageElement) {
     const [grid, palette] = extractGrid(creation.img);
     const aliases = getInitialAliases(grid, palette);
-    return {
-      rules: DEFAULT_RULES,
-      grid,
-      player: findRandomEmpty(aliases, grid),
+    const playerSpawnPosition = findRandomEmpty(aliases, grid);
+    
+    const design: GameDesign = {
+      originalGrid: grid,
+      playerSpawnPosition,
       palette,
       aliases,
+      rules: DEFAULT_RULES,
     };
+    
+    const playState: GamePlayState = {
+      currentGrid: grid.clone(),
+      playerPosition: playerSpawnPosition,
+    };
+    
+    return { design, playState };
   }
 
   const data = JSON.parse(creation.data || "{}") as GameStateDTO;
   const grid = Grid.fromJSON(data.grid);
   const palette = Palette.fromJSON(data.palette);
   const aliases = getInitialAliases(grid, palette);
-  return {
-    grid,
+  
+  const design: GameDesign = {
+    originalGrid: grid,
+    playerSpawnPosition: data.player,
     palette,
-    player: data.player,
-    rules: data.rules,
     aliases,
+    rules: data.rules,
   };
+  
+  const playState: GamePlayState = {
+    currentGrid: grid.clone(),
+    playerPosition: data.player,
+  };
+  
+  return { design, playState };
 }
 
-function findRandomEmpty(aliases: Aliases, grid: Grid) {
+export function findRandomEmpty(aliases: Aliases, grid: Grid) {
   const emptyCells: Array<Point> = [];
 
   grid.forEach(({ x, y }: Point) => {
@@ -105,7 +144,7 @@ function findRandomEmpty(aliases: Aliases, grid: Grid) {
   return emptyCells[randomIndex];
 }
 
-function extractGrid(image: HTMLImageElement): [Grid, Palette] {
+export function extractGrid(image: HTMLImageElement): [Grid, Palette] {
   const grid = new Grid(GRID_SIZE);
   const tempCanvas = document.createElement("canvas");
   tempCanvas.width = image.width;
@@ -138,7 +177,7 @@ function extractGrid(image: HTMLImageElement): [Grid, Palette] {
   return [grid, palette];
 }
 
-function getInitialAliases(grid: Grid, palette: Palette): Aliases {
+export function getInitialAliases(grid: Grid, palette: Palette): Aliases {
   const defaultAliases = new Aliases();
   const counts = grid.countColors();
   const mostCommonColor = [...counts.entries()].reduce((a, b) =>

@@ -70,6 +70,12 @@ export class Grid {
     grid.grid = json.data.map((x) => Array.from(x) as ColorCode[]);
     return grid;
   }
+
+  clone(): Grid {
+    const cloned = new Grid(this.gridSize);
+    cloned.grid = this.grid.map(row => [...row]);
+    return cloned;
+  }
 }
 
 type GridData = {
