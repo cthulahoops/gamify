@@ -1,4 +1,4 @@
-import { parseColor } from "./colors";
+import { parseColor, isSimilar } from "./colors";
 
 export type Color = string & { __brand: "Color" };
 export type ColorCode = string & { __brand: "ColorCode" };
@@ -20,12 +20,27 @@ export class Palette {
       return this.color_to_code.get(color)!;
     }
 
+    // Check for similar colors to avoid palette bloat
+    const similarColor = this.findSimilarColor(color);
+    if (similarColor) {
+      return this.color_to_code.get(similarColor)!;
+    }
+
     const code = this.nextColor;
     this.color_to_code.set(color, code);
     this.code_to_color.set(code, color);
     this.nextColor = nextColorCode(code);
 
     return code;
+  }
+
+  private findSimilarColor(color: Color): Color | null {
+    for (const existingColor of this.color_to_code.keys()) {
+      if (isSimilar(color, existingColor, 40)) {
+        return existingColor;
+      }
+    }
+    return null;
   }
 
   hasColorCode(code: string): code is ColorCode {

@@ -33,10 +33,9 @@ export function getForegroundColor(color: Color): Color {
   return (brightness > 128 ? "#000000" : "#FFFFFF") as Color;
 }
 
-export function isSimilar(color1: Color, color2: Color) {
+export function isSimilar(color1: Color, color2: Color, threshold = 150) {
   const { r: r1, g: g1, b: b1 } = hexToRgb(color1);
   const { r: r2, g: g2, b: b2 } = hexToRgb(color2);
-  const threshold = 150;
   const manhattanDistance =
     Math.abs(r1 - r2) + Math.abs(g1 - g2) + Math.abs(b1 - b2);
   return manhattanDistance < threshold;
