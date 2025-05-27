@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useMemo } from "react";
 
 import { PondiverseButton } from "./PondiverseButton";
 
@@ -26,8 +26,11 @@ export function Game({ creationUrl, localImage }: GameProps) {
 
   const { creation } = usePondiverse(creationUrl || "");
   
-  // Create a creation object from local image if provided
-  const localCreation = localImage ? { type: "image", img: localImage, data: undefined } : null;
+  // Create a creation object from local image if provided (memoized to prevent re-initialization)
+  const localCreation = useMemo(() => 
+    localImage ? { type: "image", img: localImage, data: undefined } : null,
+    [localImage]
+  );
   
   const { gameState, setGameState, setAliases, setPalette } =
     useGameState(creation || localCreation);
