@@ -106,7 +106,6 @@ export function Game({ creationUrl, localImage }: GameProps) {
               grid: gameState.design.originalGrid.toJSON(),
               player: gameState.design.playerSpawnPosition,
             };
-            console.log("Saving game state:", gameStateSaved);
             return {
               type: "gamified",
               data: JSON.stringify(gameStateSaved),
