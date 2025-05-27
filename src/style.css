@@ -3,7 +3,8 @@
   image-rendering: pixelated;
 }
 
-#rules-graphical, #aliases-display {
+#rules-graphical,
+#aliases-display {
   display: grid;
   grid-template-columns: repeat(3, auto);
   width: fit-content;
@@ -125,7 +126,8 @@
 }
 
 /* Improve rules and aliases display spacing */
-#rules-graphical, #aliases-display {
+#rules-graphical,
+#aliases-display {
   margin-bottom: 1rem;
 }
 

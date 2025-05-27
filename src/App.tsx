@@ -11,39 +11,49 @@ function useCreationUrl() {
   }, []);
 }
 
-function ImageUpload({ onImageLoad }: { onImageLoad: (img: HTMLImageElement) => void }) {
-  const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      const img = new Image();
-      img.onload = () => onImageLoad(img);
-      img.src = URL.createObjectURL(file);
-    }
-  }, [onImageLoad]);
+function ImageUpload({
+  onImageLoad,
+}: {
+  onImageLoad: (img: HTMLImageElement) => void;
+}) {
+  const handleFileChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file && file.type.startsWith("image/")) {
+        const img = new Image();
+        img.onload = () => onImageLoad(img);
+        img.src = URL.createObjectURL(file);
+      }
+    },
+    [onImageLoad],
+  );
 
-  const handleDrop = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
-    const file = event.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      const img = new Image();
-      img.onload = () => onImageLoad(img);
-      img.src = URL.createObjectURL(file);
-    }
-  }, [onImageLoad]);
+  const handleDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+      const file = event.dataTransfer.files[0];
+      if (file && file.type.startsWith("image/")) {
+        const img = new Image();
+        img.onload = () => onImageLoad(img);
+        img.src = URL.createObjectURL(file);
+      }
+    },
+    [onImageLoad],
+  );
 
   const handleDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
   }, []);
 
   return (
-    <div 
+    <div
       onDrop={handleDrop}
       onDragOver={handleDragOver}
-      style={{ 
-        border: '2px dashed #ccc', 
-        padding: '20px', 
-        textAlign: 'center',
-        margin: '20px 0' 
+      style={{
+        border: "2px dashed #ccc",
+        padding: "20px",
+        textAlign: "center",
+        margin: "20px 0",
       }}
     >
       <p>Drop an image here or:</p>

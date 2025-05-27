@@ -30,9 +30,8 @@ export function Game({ creationUrl, localImage }: GameProps) {
     [localImage],
   );
 
-  const { gameState, setGameState, setAliases, setPalette, resetGame } = useGameState(
-    creation || localCreation,
-  );
+  const { gameState, setGameState, setAliases, setPalette, resetGame } =
+    useGameState(creation || localCreation);
 
   const setRules = useCallback(
     (rules: Rule[]) => {
@@ -40,9 +39,9 @@ export function Game({ creationUrl, localImage }: GameProps) {
         if (!prev) {
           throw new Error("Game state is not initialized");
         }
-        return { 
-          ...prev, 
-          design: { ...prev.design, rules }
+        return {
+          ...prev,
+          design: { ...prev.design, rules },
         };
       });
     },
@@ -74,7 +73,9 @@ export function Game({ creationUrl, localImage }: GameProps) {
   return (
     <>
       <GameCanvas gameState={gameState} ref={canvasRef} />
-      <button id="reset" onClick={resetGame}>Reset</button>
+      <button id="reset" onClick={resetGame}>
+        Reset
+      </button>
 
       <Editor
         palette={palette}

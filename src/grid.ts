@@ -73,7 +73,7 @@ export class Grid {
 
   clone(): Grid {
     const cloned = new Grid(this.gridSize);
-    cloned.grid = this.grid.map(row => [...row]);
+    cloned.grid = this.grid.map((row) => [...row]);
     return cloned;
   }
 }

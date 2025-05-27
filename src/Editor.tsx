@@ -1,4 +1,3 @@
-
 import { PaletteDisplay } from "./PaletteDisplay";
 import { AliasesDisplay } from "./AliasesDisplay";
 import { RulesDisplay } from "./RulesDisplay";
@@ -34,18 +33,18 @@ export function Editor({
           <h3>Colors</h3>
           <PaletteDisplay palette={palette} onChange={onPaletteChange} />
         </div>
-        
+
         <div className="editor-section">
           <h3>Aliases</h3>
           <AliasesDisplay aliases={aliases} palette={palette} />
         </div>
-        
+
         <div className="editor-section">
           <h3>Rules</h3>
           <RulesDisplay rules={rules} aliases={aliases} palette={palette} />
         </div>
       </div>
-      
+
       <div className="editor-text">
         <h3>Rule Editor</h3>
         <RulesTextarea

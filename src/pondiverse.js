@@ -142,7 +142,7 @@ export async function fetchPondiverseCreations({ store = DEFAULT_STORE } = {}) {
 // For getting a single creation by its id
 export async function fetchPondiverseCreation(
   creation,
-  { store = DEFAULT_STORE } = {}
+  { store = DEFAULT_STORE } = {},
 ) {
   const url = isNaN(parseInt(creation))
     ? creation
@@ -157,7 +157,7 @@ export async function fetchPondiverseCreation(
 // For deleting a creation by its id
 export async function deletePondiverseCreation(
   id,
-  { store = DEFAULT_STORE, password = "" } = {}
+  { store = DEFAULT_STORE, password = "" } = {},
 ) {
   const response = await fetch(store.deleteCreation, {
     method: "POST",
@@ -176,7 +176,7 @@ export async function deletePondiverseCreation(
 // Get the image URL for a creation
 export function getPondiverseCreationImageUrl(
   creation,
-  { store = DEFAULT_STORE } = {}
+  { store = DEFAULT_STORE } = {},
 ) {
   if (creation.image) {
     return creation.image;
@@ -192,7 +192,7 @@ export function getPondiverseCreationImageUrl(
 //=======================//
 export function addPondiverseButton(
   getPondiverseCreation,
-  { store = DEFAULT_STORE } = {}
+  { store = DEFAULT_STORE } = {},
 ) {
   if (window["addedPondiverseButton"]) return;
 
@@ -224,7 +224,7 @@ export function addPondiverseButton(
 
 function addPondiverseDialog(
   getPondiverseCreation = window["getPondiverseCreation"],
-  { store = DEFAULT_STORE } = {}
+  { store = DEFAULT_STORE } = {},
 ) {
   window["getPondiverseCreation"] = getPondiverseCreation;
 
@@ -271,7 +271,7 @@ function addPondiverseDialog(
       e.stopPropagation();
       e.stopImmediatePropagation();
     },
-    { passive: false }
+    { passive: false },
   );
 
   dialog.addEventListener(
@@ -280,7 +280,7 @@ function addPondiverseDialog(
       e.stopPropagation();
       e.stopImmediatePropagation();
     },
-    { passive: false }
+    { passive: false },
   );
 
   dialog.addEventListener("pointerdown", (e) => e.stopPropagation());
@@ -350,7 +350,7 @@ function addPondiverseDialog(
 // Use this if you want to programmatically open the dialog
 export function openPondiverseDialog(
   getPondiverseCreation = window["getPondiverseCreation"],
-  { store = DEFAULT_STORE } = {}
+  { store = DEFAULT_STORE } = {},
 ) {
   addPondiverseDialog(getPondiverseCreation, { store });
 
@@ -373,7 +373,7 @@ export function openPondiverseDialog(
   const getCreation = window["getPondiverseCreation"];
   if (!getCreation) {
     throw new Error(
-      `\ngetPondiverseCreation function not specified.\n\nIf you want your creation to be sent to the Pondiverse, pass a function as an argument that returns a JSON object. The JSON object can provide:\n- type: A string to identify what kind of creation it is. For example, "screenpond" if it's intended to be loaded into screenpond.\n- data: A string containing the data of your creation, so that it can be loaded up again.\n- image: A base64 data URL string to be used as a thumbnail for your creation.\n\nAll properties are optional.`
+      `\ngetPondiverseCreation function not specified.\n\nIf you want your creation to be sent to the Pondiverse, pass a function as an argument that returns a JSON object. The JSON object can provide:\n- type: A string to identify what kind of creation it is. For example, "screenpond" if it's intended to be loaded into screenpond.\n- data: A string containing the data of your creation, so that it can be loaded up again.\n- image: A base64 data URL string to be used as a thumbnail for your creation.\n\nAll properties are optional.`,
     );
   }
 

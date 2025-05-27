@@ -2,7 +2,12 @@ import { useCallback, useState, useEffect } from "react";
 import { Grid } from "./grid";
 import { rgbToHex } from "./colors.js";
 
-import type { GameState, GameDesign, GamePlayState, GameStateDTO } from "./types";
+import type {
+  GameState,
+  GameDesign,
+  GamePlayState,
+  GameStateDTO,
+} from "./types";
 import type { Point } from "./types";
 import type { Color } from "./palette";
 import type { Creation } from "./usePondiverse";
@@ -37,9 +42,9 @@ export function useGameState(creation: Creation | null) {
         if (!prev) {
           throw new Error("Game state is not initialized");
         }
-        return { 
-          ...prev, 
-          design: { ...prev.design, aliases: newAliases }
+        return {
+          ...prev,
+          design: { ...prev.design, aliases: newAliases },
         };
       });
     },
@@ -52,9 +57,9 @@ export function useGameState(creation: Creation | null) {
         if (!prev) {
           throw new Error("Game state is not initialized");
         }
-        return { 
-          ...prev, 
-          design: { ...prev.design, palette: newPalette }
+        return {
+          ...prev,
+          design: { ...prev.design, palette: newPalette },
         };
       });
     },
@@ -71,7 +76,7 @@ export function useGameState(creation: Creation | null) {
         playState: {
           currentGrid: prev.design.originalGrid.clone(),
           playerPosition: prev.design.playerSpawnPosition,
-        }
+        },
       };
     });
   }, [setGameState]);
@@ -91,7 +96,7 @@ function loadCreation(creation: Creation): GameState {
     const [grid, palette] = extractGrid(creation.img);
     const aliases = getInitialAliases(grid, palette);
     const playerSpawnPosition = findRandomEmpty(aliases, grid);
-    
+
     const design: GameDesign = {
       originalGrid: grid,
       playerSpawnPosition,
@@ -99,12 +104,12 @@ function loadCreation(creation: Creation): GameState {
       aliases,
       rules: DEFAULT_RULES,
     };
-    
+
     const playState: GamePlayState = {
       currentGrid: grid.clone(),
       playerPosition: playerSpawnPosition,
     };
-    
+
     return { design, playState };
   }
 
@@ -112,7 +117,7 @@ function loadCreation(creation: Creation): GameState {
   const grid = Grid.fromJSON(data.grid);
   const palette = Palette.fromJSON(data.palette);
   const aliases = getInitialAliases(grid, palette);
-  
+
   const design: GameDesign = {
     originalGrid: grid,
     playerSpawnPosition: data.player,
@@ -120,12 +125,12 @@ function loadCreation(creation: Creation): GameState {
     aliases,
     rules: data.rules,
   };
-  
+
   const playState: GamePlayState = {
     currentGrid: grid.clone(),
     playerPosition: data.player,
   };
-  
+
   return { design, playState };
 }
 
