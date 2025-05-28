@@ -7,7 +7,9 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 
 import { Aliases } from "./aliases";
 import type { Palette, ColorCode, Color } from "./palette";
-import type { Rule } from "./types";
+import type { Rule, DragItem } from "./types";
+
+import { DeleteZone } from "./DeleteZone";
 
 type EditorProps = {
   palette: Palette;
@@ -228,6 +230,20 @@ export function Editor({
     setAliases(newAliases);
   };
 
+  const handleDelete = (item: DragItem) => {
+    if (item.type === "RULE_BLOCK") {
+      handleDeleteRuleBlock(
+        item.sourceRuleIndex,
+        item.sourceSide,
+        item.sourcePosition,
+      );
+    } else if (item.type === "RULE_REORDER") {
+      handleDeleteRule(item.sourceRuleIndex);
+    } else if (item.type === "ALIAS_BLOCK") {
+      handleDeleteAliasBlock(item.sourceAlias, item.sourceIndex);
+    }
+  };
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="editor">
@@ -236,6 +252,8 @@ export function Editor({
             <h3>Colors</h3>
             <PaletteDisplay palette={palette} onChange={onPaletteChange} />
           </div>
+
+          <DeleteZone onDelete={handleDelete} />
 
           <div className="editor-section">
             <h3>Aliases</h3>
@@ -257,9 +275,6 @@ export function Editor({
               onCopyAliasToRule={handleCopyAliasToRule}
               onCreateNewRule={handleCreateNewRule}
               onReorderRule={handleReorderRule}
-              onDeleteRuleBlock={handleDeleteRuleBlock}
-              onDeleteRule={handleDeleteRule}
-              onDeleteAliasBlock={handleDeleteAliasBlock}
             />
           </div>
         </div>

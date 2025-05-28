@@ -38,3 +38,25 @@ export type Point = {
   x: number;
   y: number;
 };
+
+export type RuleDragItem = {
+  type: "RULE_BLOCK";
+  sourceRuleIndex: number;
+  sourceSide: "match" | "become";
+  sourcePosition: number;
+  symbol: string;
+};
+
+export type AliasDragItem = {
+  type: "ALIAS_BLOCK";
+  sourceAlias: string;
+  sourceIndex: number;
+  symbol: string;
+};
+
+export type RuleReorderDragItem = {
+  type: "RULE_REORDER";
+  sourceRuleIndex: number;
+};
+
+export type DragItem = RuleDragItem | AliasDragItem | RuleReorderDragItem;
