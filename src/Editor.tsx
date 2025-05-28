@@ -219,6 +219,39 @@ export function Editor({
     setRules(newRules);
   };
 
+  const handleDeleteRuleBlock = (
+    ruleIndex: number,
+    side: "match" | "become",
+    position: number,
+  ) => {
+    const newRules = [...rules];
+    const rule = newRules[ruleIndex];
+    const newSideString =
+      rule[side].slice(0, position) + rule[side].slice(position + 1);
+    newRules[ruleIndex] = { ...rule, [side]: newSideString };
+    setRules(newRules);
+  };
+
+  const handleDeleteRule = (ruleIndex: number) => {
+    const newRules = [...rules];
+    newRules.splice(ruleIndex, 1);
+    setRules(newRules);
+  };
+
+  const handleDeleteAliasBlock = (sourceAlias: string, sourceIndex: number) => {
+    const newAliases = new Aliases();
+    newAliases.aliases = new Map(aliases.aliases);
+    newAliases.removeFromAlias(sourceAlias, sourceIndex);
+
+    // If alias becomes empty, remove it entirely
+    const remainingCodes = newAliases.aliases.get(sourceAlias);
+    if (remainingCodes && remainingCodes.length === 0) {
+      newAliases.aliases.delete(sourceAlias);
+    }
+
+    setAliases(newAliases);
+  };
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="editor">
@@ -248,6 +281,9 @@ export function Editor({
               onCopyAliasToRule={handleCopyAliasToRule}
               onCreateNewRule={handleCreateNewRule}
               onReorderRule={handleReorderRule}
+              onDeleteRuleBlock={handleDeleteRuleBlock}
+              onDeleteRule={handleDeleteRule}
+              onDeleteAliasBlock={handleDeleteAliasBlock}
             />
           </div>
         </div>

@@ -48,6 +48,13 @@ type RulesDisplayProps = {
   ) => void;
   onCreateNewRule?: (symbol: string) => void;
   onReorderRule?: (sourceIndex: number, targetIndex: number) => void;
+  onDeleteRuleBlock?: (
+    ruleIndex: number,
+    side: "match" | "become",
+    position: number,
+  ) => void;
+  onDeleteRule?: (ruleIndex: number) => void;
+  onDeleteAliasBlock?: (sourceAlias: string, sourceIndex: number) => void;
 };
 
 function DraggableRuleBlock({
@@ -340,6 +347,63 @@ function NewRuleDropZone({
   );
 }
 
+function DeleteZone({
+  onDeleteRuleBlock,
+  onDeleteRule,
+  onDeleteAliasBlock,
+}: {
+  onDeleteRuleBlock?: (
+    ruleIndex: number,
+    side: "match" | "become",
+    position: number,
+  ) => void;
+  onDeleteRule?: (ruleIndex: number) => void;
+  onDeleteAliasBlock?: (sourceAlias: string, sourceIndex: number) => void;
+}) {
+  const [{ isOver }, drop] = useDrop({
+    accept: ["RULE_BLOCK", "RULE_REORDER", "ALIAS_BLOCK"],
+    drop: (item: DragItem) => {
+      if (item.type === "RULE_BLOCK" && onDeleteRuleBlock) {
+        onDeleteRuleBlock(
+          item.sourceRuleIndex,
+          item.sourceSide,
+          item.sourcePosition,
+        );
+      } else if (item.type === "RULE_REORDER" && onDeleteRule) {
+        onDeleteRule(item.sourceRuleIndex);
+      } else if (item.type === "ALIAS_BLOCK" && onDeleteAliasBlock) {
+        onDeleteAliasBlock(item.sourceAlias, item.sourceIndex);
+      }
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
+  });
+
+  return (
+    <div
+      ref={drop as any}
+      style={{
+        height: "60px",
+        width: "100%",
+        backgroundColor: isOver
+          ? "rgba(255, 0, 0, 0.2)"
+          : "rgba(200, 200, 200, 0.1)",
+        border: isOver ? "2px dashed red" : "2px dashed #ccc",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: "10px",
+        fontSize: "14px",
+        color: isOver ? "#d00" : "#666",
+        borderRadius: "4px",
+      }}
+    >
+      {isOver ? "🗑️ Drop to delete" : "🗑️ Delete zone"}
+    </div>
+  );
+}
+
 export function RulesDisplay({
   rules,
   aliases,
@@ -348,6 +412,9 @@ export function RulesDisplay({
   onCopyAliasToRule,
   onCreateNewRule,
   onReorderRule,
+  onDeleteRuleBlock,
+  onDeleteRule,
+  onDeleteAliasBlock,
 }: RulesDisplayProps) {
   return (
     <div>
@@ -391,6 +458,11 @@ export function RulesDisplay({
         ))}
       </div>
       <NewRuleDropZone onCreateNewRule={onCreateNewRule} />
+      <DeleteZone
+        onDeleteRuleBlock={onDeleteRuleBlock}
+        onDeleteRule={onDeleteRule}
+        onDeleteAliasBlock={onDeleteAliasBlock}
+      />
     </div>
   );
 }
