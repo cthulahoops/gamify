@@ -28,6 +28,53 @@ export function Editor({
   setAliases,
   setPalette,
 }: EditorProps) {
+  const handleMoveRuleBlock = (
+    sourceRuleIndex: number,
+    sourceSide: "match" | "become",
+    sourcePosition: number,
+    targetRuleIndex: number,
+    targetSide: "match" | "become",
+    targetPosition?: number,
+  ) => {
+    const newRules = [...rules];
+
+    const sourceRule = newRules[sourceRuleIndex];
+    const targetRule = newRules[targetRuleIndex];
+
+    const sourceString = sourceRule[sourceSide];
+    const symbolToMove = sourceString[sourcePosition];
+
+    let adjustedTargetPosition =
+      targetPosition ?? targetRule[targetSide].length;
+
+    // If moving within the same rule side, adjust target position for removal
+    if (sourceRuleIndex === targetRuleIndex && sourceSide === targetSide) {
+      if (sourcePosition < adjustedTargetPosition) {
+        adjustedTargetPosition--;
+      }
+    }
+
+    const newSourceString =
+      sourceString.slice(0, sourcePosition) +
+      sourceString.slice(sourcePosition + 1);
+    newRules[sourceRuleIndex] = {
+      ...sourceRule,
+      [sourceSide]: newSourceString,
+    };
+
+    const targetString = newRules[targetRuleIndex][targetSide];
+    const newTargetString =
+      targetString.slice(0, adjustedTargetPosition) +
+      symbolToMove +
+      targetString.slice(adjustedTargetPosition);
+    newRules[targetRuleIndex] = {
+      ...newRules[targetRuleIndex],
+      [targetSide]: newTargetString,
+    };
+
+    setRules(newRules);
+  };
+
   const handleMoveBlock = (
     sourceAlias: string,
     sourceIndex: number,
@@ -70,7 +117,12 @@ export function Editor({
 
           <div className="editor-section">
             <h3>Rules</h3>
-            <RulesDisplay rules={rules} aliases={aliases} palette={palette} />
+            <RulesDisplay
+              rules={rules}
+              aliases={aliases}
+              palette={palette}
+              onMoveRuleBlock={handleMoveRuleBlock}
+            />
           </div>
         </div>
 
