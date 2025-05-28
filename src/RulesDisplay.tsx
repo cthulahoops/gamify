@@ -21,7 +21,12 @@ type AliasDragItem = {
   symbol: string;
 };
 
-type DragItem = RuleDragItem | AliasDragItem;
+type RuleReorderDragItem = {
+  type: "RULE_REORDER";
+  sourceRuleIndex: number;
+};
+
+type DragItem = RuleDragItem | AliasDragItem | RuleReorderDragItem;
 
 type RulesDisplayProps = {
   rules: Rule[];
@@ -42,6 +47,7 @@ type RulesDisplayProps = {
     targetPosition: number,
   ) => void;
   onCreateNewRule?: (symbol: string) => void;
+  onReorderRule?: (sourceIndex: number, targetIndex: number) => void;
 };
 
 function DraggableRuleBlock({
@@ -83,6 +89,66 @@ function DraggableRuleBlock({
     >
       <RuleSquare aliases={aliases} palette={palette} symbol={symbol} />
     </div>
+  );
+}
+
+function DraggableArrow({ ruleIndex }: { ruleIndex: number }) {
+  const [{ isDragging }, drag] = useDrag({
+    type: "RULE_REORDER",
+    item: {
+      type: "RULE_REORDER",
+      sourceRuleIndex: ruleIndex,
+    },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  return (
+    <div
+      ref={drag as any}
+      className="rule-arrow"
+      style={{
+        opacity: isDragging ? 0.5 : 1,
+        cursor: "move",
+      }}
+    >
+      →
+    </div>
+  );
+}
+
+function RuleDropZone({
+  targetRuleIndex,
+  onReorderRule,
+}: {
+  targetRuleIndex: number;
+  onReorderRule?: (sourceIndex: number, targetIndex: number) => void;
+}) {
+  const [{ isOver }, drop] = useDrop({
+    accept: "RULE_REORDER",
+    drop: (item: RuleReorderDragItem) => {
+      if (onReorderRule && item.sourceRuleIndex !== targetRuleIndex) {
+        onReorderRule(item.sourceRuleIndex, targetRuleIndex);
+      }
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
+  });
+
+  return (
+    <div
+      ref={drop as any}
+      style={{
+        height: "4px",
+        width: "100%",
+        backgroundColor: isOver ? "rgba(0, 255, 0, 0.8)" : "transparent",
+        border: isOver ? "2px solid green" : "none",
+        marginBottom: isOver ? "4px" : "0",
+        gridColumn: "1 / -1",
+      }}
+    />
   );
 }
 
@@ -239,7 +305,7 @@ function NewRuleDropZone({
             sourceSide: item.sourceSide,
             sourcePosition: item.sourcePosition,
           });
-        } else {
+        } else if (item.type === "ALIAS_BLOCK") {
           onCreateNewRule(item.symbol, {
             type: "ALIAS_BLOCK",
           });
@@ -281,32 +347,49 @@ export function RulesDisplay({
   onMoveRuleBlock,
   onCopyAliasToRule,
   onCreateNewRule,
+  onReorderRule,
 }: RulesDisplayProps) {
   return (
-    <div id="rules-graphical">
-      {rules.map((rule, ruleIndex) => (
-        <React.Fragment key={ruleIndex}>
-          <DroppableRuleSide
-            aliases={aliases}
-            palette={palette}
-            symbols={rule.match}
-            ruleIndex={ruleIndex}
-            side="match"
-            onMoveRuleBlock={onMoveRuleBlock}
-            onCopyAliasToRule={onCopyAliasToRule}
-          />
-          <div className="rule-arrow">→</div>
-          <DroppableRuleSide
-            aliases={aliases}
-            palette={palette}
-            symbols={rule.become}
-            ruleIndex={ruleIndex}
-            side="become"
-            onMoveRuleBlock={onMoveRuleBlock}
-            onCopyAliasToRule={onCopyAliasToRule}
-          />
-        </React.Fragment>
-      ))}
+    <div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, auto)",
+          width: "fit-content",
+          rowGap: "0.25rem",
+        }}
+      >
+        <RuleDropZone targetRuleIndex={0} onReorderRule={onReorderRule} />
+
+        {rules.map((rule, ruleIndex) => (
+          <React.Fragment key={ruleIndex}>
+            <DroppableRuleSide
+              aliases={aliases}
+              palette={palette}
+              symbols={rule.match}
+              ruleIndex={ruleIndex}
+              side="match"
+              onMoveRuleBlock={onMoveRuleBlock}
+              onCopyAliasToRule={onCopyAliasToRule}
+            />
+            <DraggableArrow ruleIndex={ruleIndex} />
+            <DroppableRuleSide
+              aliases={aliases}
+              palette={palette}
+              symbols={rule.become}
+              ruleIndex={ruleIndex}
+              side="become"
+              onMoveRuleBlock={onMoveRuleBlock}
+              onCopyAliasToRule={onCopyAliasToRule}
+            />
+
+            <RuleDropZone
+              targetRuleIndex={ruleIndex + 1}
+              onReorderRule={onReorderRule}
+            />
+          </React.Fragment>
+        ))}
+      </div>
       <NewRuleDropZone onCreateNewRule={onCreateNewRule} />
     </div>
   );

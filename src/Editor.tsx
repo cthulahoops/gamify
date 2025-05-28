@@ -212,6 +212,13 @@ export function Editor({
     setRules(newRules);
   };
 
+  const handleReorderRule = (sourceIndex: number, targetIndex: number) => {
+    const newRules = [...rules];
+    const [movedRule] = newRules.splice(sourceIndex, 1);
+    newRules.splice(targetIndex, 0, movedRule);
+    setRules(newRules);
+  };
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="editor">
@@ -240,6 +247,7 @@ export function Editor({
               onMoveRuleBlock={handleMoveRuleBlock}
               onCopyAliasToRule={handleCopyAliasToRule}
               onCreateNewRule={handleCreateNewRule}
+              onReorderRule={handleReorderRule}
             />
           </div>
         </div>
