@@ -120,6 +120,59 @@ export function Editor({
     setAliases(newAliases);
   };
 
+  const generateUniqueAliasName = (aliases: Aliases): string => {
+    let charCode = 36; // Start with "$" (ASCII 36)
+    while (true) {
+      const candidate = String.fromCharCode(charCode);
+      if (!aliases.aliases.has(candidate)) {
+        return candidate;
+      }
+      charCode++;
+    }
+  };
+
+  const handleCreateNewAlias = (
+    symbol: string,
+    sourceInfo?: {
+      type: "RULE_BLOCK" | "ALIAS_BLOCK";
+      sourceRuleIndex?: number;
+      sourceSide?: "match" | "become";
+      sourcePosition?: number;
+      sourceAlias?: string;
+      sourceIndex?: number;
+    },
+  ) => {
+    const newAliases = new Aliases();
+    for (const [alias, codes] of aliases.aliases.entries()) {
+      newAliases.aliases.set(alias, [...codes]);
+    }
+
+    const newAliasName = generateUniqueAliasName(newAliases);
+    newAliases.addAlias(newAliasName, symbol);
+
+    // If it's a rule block, remove it from its original position in rules
+    if (
+      sourceInfo?.type === "RULE_BLOCK" &&
+      sourceInfo.sourceRuleIndex !== undefined
+    ) {
+      const newRules = [...rules];
+      const sourceRule = newRules[sourceInfo.sourceRuleIndex];
+      const sourceString = sourceRule[sourceInfo.sourceSide!];
+      const newSourceString =
+        sourceString.slice(0, sourceInfo.sourcePosition!) +
+        sourceString.slice(sourceInfo.sourcePosition! + 1);
+
+      newRules[sourceInfo.sourceRuleIndex] = {
+        ...sourceRule,
+        [sourceInfo.sourceSide!]: newSourceString,
+      };
+
+      setRules(newRules);
+    }
+
+    setAliases(newAliases);
+  };
+
   const handleCreateNewRule = (
     symbol: string,
     sourceInfo?: {
@@ -174,6 +227,7 @@ export function Editor({
               aliases={aliases}
               palette={palette}
               onMoveBlock={handleMoveBlock}
+              onCreateNewAlias={handleCreateNewAlias}
             />
           </div>
 
