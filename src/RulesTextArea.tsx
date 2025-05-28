@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Rule } from "./types";
 import { Aliases } from "./aliases";
 import { Palette } from "./palette";
@@ -28,6 +28,16 @@ export function RulesTextarea({
     ),
   );
   const [rulesErrors, setRulesErrors] = useState("");
+
+  // Sync text when external state changes (from drag-and-drop operations)
+  useEffect(() => {
+    const newText = JSON.stringify(
+      { aliases: aliases.toJSON(), rules, palette: palette.toJSON() },
+      null,
+      2,
+    );
+    setRulesText(newText);
+  }, [rules, aliases, palette]);
 
   const onChange = (text: string) => {
     setRulesText(text);

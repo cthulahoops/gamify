@@ -44,6 +44,25 @@ export class Aliases {
     return json;
   }
 
+  removeFromAlias(alias: AliasCode, index: number) {
+    const codes = this.aliases.get(alias);
+    if (codes && index >= 0 && index < codes.length) {
+      codes.splice(index, 1);
+    }
+  }
+
+  addToAlias(alias: AliasCode, code: AliasCode | ColorCode, index?: number) {
+    if (!this.aliases.has(alias)) {
+      this.aliases.set(alias, []);
+    }
+    const codes = this.aliases.get(alias)!;
+    if (index !== undefined) {
+      codes.splice(index, 0, code);
+    } else {
+      codes.push(code);
+    }
+  }
+
   static fromJSON(json: Record<string, string[]>) {
     const aliases = new Aliases();
     for (const [alias, codes] of Object.entries(json)) {
