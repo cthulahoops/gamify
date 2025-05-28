@@ -1,4 +1,5 @@
 import React from "react";
+import { useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
 import type { Aliases } from "./aliases";
@@ -57,6 +58,7 @@ function DraggableBlock({
   sourceAlias: string;
   sourceIndex: number;
 }) {
+  const dragRef = useRef<HTMLDivElement>(null);
   const [{ isDragging }, drag] = useDrag({
     type: "ALIAS_BLOCK",
     item: { type: "ALIAS_BLOCK", sourceAlias, sourceIndex, symbol },
@@ -65,9 +67,11 @@ function DraggableBlock({
     }),
   });
 
+  drag(dragRef);
+
   return (
     <div
-      ref={drag as any}
+      ref={dragRef}
       style={{
         opacity: isDragging ? 0.5 : 1,
         cursor: "move",
@@ -96,6 +100,7 @@ function DroppableRHS({
     targetIndex?: number,
   ) => void;
 }) {
+  const dropRef = useRef<HTMLDivElement>(null);
   const [{ isOver }, drop] = useDrop({
     accept: "ALIAS_BLOCK",
     drop: (item: DragItem) => {
@@ -108,9 +113,11 @@ function DroppableRHS({
     }),
   });
 
+  drop(dropRef);
+
   return (
     <div
-      ref={drop as any}
+      ref={dropRef}
       className="rules-side"
       style={{
         backgroundColor: isOver ? "rgba(0, 255, 0, 0.2)" : "transparent",
@@ -147,6 +154,7 @@ function NewAliasDropZone({
     },
   ) => void;
 }) {
+  const dropRef = useRef<HTMLDivElement>(null);
   const [{ isOver }, drop] = useDrop({
     accept: ["RULE_BLOCK", "ALIAS_BLOCK"],
     drop: (item: AllDragItems) => {
@@ -172,9 +180,11 @@ function NewAliasDropZone({
     }),
   });
 
+  drop(dropRef);
+
   return (
     <div
-      ref={drop as any}
+      ref={dropRef}
       style={{
         height: "60px",
         width: "100%",
