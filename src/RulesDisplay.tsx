@@ -41,6 +41,7 @@ type RulesDisplayProps = {
     targetSide: "match" | "become",
     targetPosition: number,
   ) => void;
+  onCreateNewRule?: (symbol: string) => void;
 };
 
 function DraggableRuleBlock({
@@ -214,12 +215,72 @@ function DroppableRuleSide({
   );
 }
 
+function NewRuleDropZone({
+  onCreateNewRule,
+}: {
+  onCreateNewRule?: (
+    symbol: string,
+    sourceInfo?: {
+      type: "RULE_BLOCK" | "ALIAS_BLOCK";
+      sourceRuleIndex?: number;
+      sourceSide?: "match" | "become";
+      sourcePosition?: number;
+    },
+  ) => void;
+}) {
+  const [{ isOver }, drop] = useDrop({
+    accept: ["RULE_BLOCK", "ALIAS_BLOCK"],
+    drop: (item: DragItem) => {
+      if (onCreateNewRule) {
+        if (item.type === "RULE_BLOCK") {
+          onCreateNewRule(item.symbol, {
+            type: "RULE_BLOCK",
+            sourceRuleIndex: item.sourceRuleIndex,
+            sourceSide: item.sourceSide,
+            sourcePosition: item.sourcePosition,
+          });
+        } else {
+          onCreateNewRule(item.symbol, {
+            type: "ALIAS_BLOCK",
+          });
+        }
+      }
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
+  });
+
+  return (
+    <div
+      ref={drop as any}
+      style={{
+        height: "60px",
+        width: "100%",
+        backgroundColor: isOver
+          ? "rgba(0, 255, 0, 0.2)"
+          : "rgba(200, 200, 200, 0.1)",
+        border: isOver ? "2px dashed green" : "2px dashed #ccc",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: "10px",
+        fontSize: "14px",
+        color: "#666",
+      }}
+    >
+      {isOver ? "Drop to create new rule" : "Drop here to create new rule"}
+    </div>
+  );
+}
+
 export function RulesDisplay({
   rules,
   aliases,
   palette,
   onMoveRuleBlock,
   onCopyAliasToRule,
+  onCreateNewRule,
 }: RulesDisplayProps) {
   return (
     <div id="rules-graphical">
@@ -246,6 +307,7 @@ export function RulesDisplay({
           />
         </React.Fragment>
       ))}
+      <NewRuleDropZone onCreateNewRule={onCreateNewRule} />
     </div>
   );
 }

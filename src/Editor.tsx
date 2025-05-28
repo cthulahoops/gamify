@@ -120,6 +120,45 @@ export function Editor({
     setAliases(newAliases);
   };
 
+  const handleCreateNewRule = (
+    symbol: string,
+    sourceInfo?: {
+      type: "RULE_BLOCK" | "ALIAS_BLOCK";
+      sourceRuleIndex?: number;
+      sourceSide?: "match" | "become";
+      sourcePosition?: number;
+    },
+  ) => {
+    const newRules = [...rules];
+
+    // Create new rule with the symbol after the ">" in match
+    const newRule = {
+      match: ">" + symbol,
+      become: ">",
+    };
+
+    newRules.push(newRule);
+
+    // If it's a rule block, remove it from its original position
+    if (
+      sourceInfo?.type === "RULE_BLOCK" &&
+      sourceInfo.sourceRuleIndex !== undefined
+    ) {
+      const sourceRule = newRules[sourceInfo.sourceRuleIndex];
+      const sourceString = sourceRule[sourceInfo.sourceSide!];
+      const newSourceString =
+        sourceString.slice(0, sourceInfo.sourcePosition!) +
+        sourceString.slice(sourceInfo.sourcePosition! + 1);
+
+      newRules[sourceInfo.sourceRuleIndex] = {
+        ...sourceRule,
+        [sourceInfo.sourceSide!]: newSourceString,
+      };
+    }
+
+    setRules(newRules);
+  };
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="editor">
@@ -146,6 +185,7 @@ export function Editor({
               palette={palette}
               onMoveRuleBlock={handleMoveRuleBlock}
               onCopyAliasToRule={handleCopyAliasToRule}
+              onCreateNewRule={handleCreateNewRule}
             />
           </div>
         </div>
