@@ -105,11 +105,17 @@ export function Editor({
     targetIndex?: number,
   ) => {
     const newAliases = aliases.clone();
-    const symbolToMove = newAliases.removeFromAlias(sourceAlias, sourceIndex);
-    if (!symbolToMove) {
-      return;
+
+    if (sourceIndex < 0) {
+      // This is adding the alias itself to the target alias.
+      newAliases.addToAlias(targetAlias, sourceAlias, targetIndex);
+    } else {
+      const symbolToMove = newAliases.removeFromAlias(sourceAlias, sourceIndex);
+      if (!symbolToMove) {
+        return;
+      }
+      newAliases.addToAlias(targetAlias, symbolToMove, targetIndex);
     }
-    newAliases.addToAlias(targetAlias, symbolToMove, targetIndex);
 
     setAliases(newAliases);
   };

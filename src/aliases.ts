@@ -57,9 +57,26 @@ export class Aliases {
     return expanded;
   }
 
+  isAlias(alias: AliasItem): alias is AliasCode {
+    return this.aliases.has(alias);
+  }
+
   match(alias: AliasCode, code: ColorCode): boolean {
     const expanded = this.expand(alias);
     return expanded.includes(code);
+  }
+
+  contains(alias: AliasCode, code: AliasItem): boolean {
+    const codes = this.aliases.get(alias) || [];
+    for (const item of codes) {
+      if (code == item) {
+        return true;
+      }
+      if (this.isAlias(item) && this.contains(item, code)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   toJSON() {
@@ -81,10 +98,15 @@ export class Aliases {
   }
 
   addToAlias(alias: AliasCode, code: AliasItem, index?: number) {
+    if (this.isAlias(code) && this.contains(code, alias)) {
+      console.log("Infinite loop detected: trying to add alias to itself");
+      return;
+    }
     if (!this.aliases.has(alias)) {
       this.aliases.set(alias, []);
     }
     const codes = this.aliases.get(alias)!;
+
     if (index !== undefined) {
       codes.splice(index, 0, code);
     } else {
