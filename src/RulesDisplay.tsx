@@ -51,6 +51,7 @@ function DraggableRuleBlock({
   sourceSide: "match" | "become";
   sourcePosition: number;
 }) {
+  const dragRef = useRef<HTMLDivElement>(null);
   const [{ isDragging }, drag] = useDrag({
     type: "RULE_BLOCK",
     item: {
@@ -65,9 +66,11 @@ function DraggableRuleBlock({
     }),
   });
 
+  drag(dragRef);
+
   return (
     <div
-      ref={drag as any}
+      ref={dragRef}
       style={{
         opacity: isDragging ? 0.5 : 1,
         cursor: "move",
@@ -79,6 +82,7 @@ function DraggableRuleBlock({
 }
 
 function DraggableArrow({ ruleIndex }: { ruleIndex: number }) {
+  const dragRef = useRef<HTMLDivElement>(null);
   const [{ isDragging }, drag] = useDrag({
     type: "RULE_REORDER",
     item: {
@@ -90,9 +94,11 @@ function DraggableArrow({ ruleIndex }: { ruleIndex: number }) {
     }),
   });
 
+  drag(dragRef);
+
   return (
     <div
-      ref={drag as any}
+      ref={dragRef}
       className="rule-arrow"
       style={{
         opacity: isDragging ? 0.5 : 1,
@@ -111,6 +117,7 @@ function RuleDropZone({
   targetRuleIndex: number;
   onReorderRule?: (sourceIndex: number, targetIndex: number) => void;
 }) {
+  const dropRef = useRef<HTMLDivElement>(null);
   const [{ isOver }, drop] = useDrop({
     accept: "RULE_REORDER",
     drop: (item: RuleReorderDragItem) => {
@@ -123,9 +130,11 @@ function RuleDropZone({
     }),
   });
 
+  drop(dropRef);
+
   return (
     <div
-      ref={drop as any}
+      ref={dropRef}
       style={{
         height: "4px",
         width: "100%",
@@ -163,6 +172,7 @@ function DropZone({
     targetPosition: number,
   ) => void;
 }) {
+  const dropRef = useRef<HTMLDivElement>(null);
   const [{ isOver }, drop] = useDrop({
     accept: ["RULE_BLOCK", "ALIAS_BLOCK"],
     drop: (item: DragItem) => {
@@ -184,9 +194,11 @@ function DropZone({
     }),
   });
 
+  drop(dropRef);
+
   return (
     <div
-      ref={drop as any}
+      ref={dropRef}
       style={{
         width: "8px",
         height: "40px",
@@ -280,6 +292,7 @@ function NewRuleDropZone({
     },
   ) => void;
 }) {
+  const dropRef = useRef<HTMLDivElement>(null);
   const [{ isOver }, drop] = useDrop({
     accept: ["RULE_BLOCK", "ALIAS_BLOCK"],
     drop: (item: DragItem) => {
@@ -303,9 +316,11 @@ function NewRuleDropZone({
     }),
   });
 
+  drop(dropRef);
+
   return (
     <div
-      ref={drop as any}
+      ref={dropRef}
       style={{
         height: "60px",
         width: "100%",
