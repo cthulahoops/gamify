@@ -121,7 +121,13 @@ export function AliasesDisplay({
       {Array.from(aliases.aliases.entries()).map(([alias, codes]) => (
         <React.Fragment key={alias}>
           <div className="rules-side">
-            <RuleSquare aliases={aliases} palette={palette} symbol={alias} />
+            <DraggableBlock
+              aliases={aliases}
+              palette={palette}
+              symbol={alias}
+              sourceAlias={alias}
+              sourceIndex={-1}
+            />
           </div>
           <div className="rule-arrow">=</div>
           <DroppableRHS

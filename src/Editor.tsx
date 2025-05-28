@@ -75,6 +75,29 @@ export function Editor({
     setRules(newRules);
   };
 
+  const handleCopyAliasToRule = (
+    symbol: string,
+    targetRuleIndex: number,
+    targetSide: "match" | "become",
+    targetPosition: number,
+  ) => {
+    const newRules = [...rules];
+    const targetRule = newRules[targetRuleIndex];
+    const targetString = targetRule[targetSide];
+
+    const newTargetString =
+      targetString.slice(0, targetPosition) +
+      symbol +
+      targetString.slice(targetPosition);
+
+    newRules[targetRuleIndex] = {
+      ...targetRule,
+      [targetSide]: newTargetString,
+    };
+
+    setRules(newRules);
+  };
+
   const handleMoveBlock = (
     sourceAlias: string,
     sourceIndex: number,
@@ -122,6 +145,7 @@ export function Editor({
               aliases={aliases}
               palette={palette}
               onMoveRuleBlock={handleMoveRuleBlock}
+              onCopyAliasToRule={handleCopyAliasToRule}
             />
           </div>
         </div>
