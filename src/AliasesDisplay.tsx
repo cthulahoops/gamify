@@ -203,7 +203,7 @@ export function AliasesDisplay({
 }: AliasDisplayProps) {
   return (
     <div id="aliases-display">
-      {Array.from(aliases.aliases.entries()).map(([alias, codes]) => (
+      {aliases.map((alias, codes) => (
         <React.Fragment key={alias}>
           <div className="rules-side">
             <DraggableBlock

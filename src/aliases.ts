@@ -1,19 +1,45 @@
 import type { ColorCode } from "./palette";
 
 type AliasCode = string;
+type AliasItem = AliasCode | ColorCode;
 
 export class Aliases {
-  aliases: Map<AliasCode, (AliasCode | ColorCode)[]> = new Map();
+  private aliases: Map<AliasCode, AliasItem[]> = new Map();
+  private nextAlias = " " as AliasCode;
 
-  addAlias(alias: AliasCode, code: AliasCode | ColorCode) {
+  addAlias(alias: AliasCode | undefined, code: AliasItem) {
+    if (typeof alias === "undefined") {
+      alias = this.nextAlias;
+    }
+
+    if (alias >= this.nextAlias) {
+      this.nextAlias = String.fromCharCode(
+        alias.charCodeAt(0) + 1,
+      ) as AliasCode;
+    }
+
     if (!this.aliases.has(alias)) {
       this.aliases.set(alias, []);
     }
     this.aliases.get(alias)?.push(code);
   }
 
+  map<T>(
+    callback: (key: AliasCode, value: AliasItem[], aliases: this) => T,
+  ): T[] {
+    const result: T[] = [];
+    for (const [key, value] of this.aliases) {
+      result.push(callback(key, value, this));
+    }
+    return result;
+  }
+
   getAliases() {
     return this.aliases;
+  }
+
+  getAlias(alias: AliasCode): AliasItem[] {
+    return this.aliases.get(alias) || [];
   }
 
   expand(alias: AliasCode): ColorCode[] {
@@ -44,14 +70,17 @@ export class Aliases {
     return json;
   }
 
-  removeFromAlias(alias: AliasCode, index: number) {
+  removeFromAlias(alias: AliasCode, index: number): AliasItem | undefined {
     const codes = this.aliases.get(alias);
     if (codes && index >= 0 && index < codes.length) {
+      const removedCode = codes[index];
       codes.splice(index, 1);
+      return removedCode;
     }
+    return undefined;
   }
 
-  addToAlias(alias: AliasCode, code: AliasCode | ColorCode, index?: number) {
+  addToAlias(alias: AliasCode, code: AliasItem, index?: number) {
     if (!this.aliases.has(alias)) {
       this.aliases.set(alias, []);
     }
@@ -61,6 +90,15 @@ export class Aliases {
     } else {
       codes.push(code);
     }
+  }
+
+  clone() {
+    const newAliases = new Aliases();
+    for (const [alias, codes] of this.aliases.entries()) {
+      newAliases.aliases.set(alias, [...codes]);
+    }
+    newAliases.nextAlias = this.nextAlias;
+    return newAliases;
   }
 
   static fromJSON(json: Record<string, string[]>) {

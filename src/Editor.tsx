@@ -104,31 +104,14 @@ export function Editor({
     targetAlias: string,
     targetIndex?: number,
   ) => {
-    const newAliases = new Aliases();
-    for (const [alias, codes] of aliases.aliases.entries()) {
-      newAliases.aliases.set(alias, [...codes]);
+    const newAliases = aliases.clone();
+    const symbolToMove = newAliases.removeFromAlias(sourceAlias, sourceIndex);
+    if (!symbolToMove) {
+      return;
     }
-
-    const sourceCodes = newAliases.aliases.get(sourceAlias);
-    if (!sourceCodes || sourceIndex >= sourceCodes.length) return;
-
-    const symbolToMove = sourceCodes[sourceIndex];
-
-    newAliases.removeFromAlias(sourceAlias, sourceIndex);
     newAliases.addToAlias(targetAlias, symbolToMove, targetIndex);
 
     setAliases(newAliases);
-  };
-
-  const generateUniqueAliasName = (aliases: Aliases): string => {
-    let charCode = 36; // Start with "$" (ASCII 36)
-    while (true) {
-      const candidate = String.fromCharCode(charCode);
-      if (!aliases.aliases.has(candidate)) {
-        return candidate;
-      }
-      charCode++;
-    }
   };
 
   const handleCreateNewAlias = (
@@ -142,13 +125,8 @@ export function Editor({
       sourceIndex?: number;
     },
   ) => {
-    const newAliases = new Aliases();
-    for (const [alias, codes] of aliases.aliases.entries()) {
-      newAliases.aliases.set(alias, [...codes]);
-    }
-
-    const newAliasName = generateUniqueAliasName(newAliases);
-    newAliases.addAlias(newAliasName, symbol);
+    const newAliases = aliases.clone();
+    newAliases.addAlias(undefined, symbol);
 
     // If it's a rule block, remove it from its original position in rules
     if (
@@ -239,16 +217,8 @@ export function Editor({
   };
 
   const handleDeleteAliasBlock = (sourceAlias: string, sourceIndex: number) => {
-    const newAliases = new Aliases();
-    newAliases.aliases = new Map(aliases.aliases);
+    const newAliases = aliases.clone();
     newAliases.removeFromAlias(sourceAlias, sourceIndex);
-
-    // If alias becomes empty, remove it entirely
-    const remainingCodes = newAliases.aliases.get(sourceAlias);
-    if (remainingCodes && remainingCodes.length === 0) {
-      newAliases.aliases.delete(sourceAlias);
-    }
-
     setAliases(newAliases);
   };
 
