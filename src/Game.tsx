@@ -38,34 +38,20 @@ export function Game({ creationUrl, localImage }: GameProps) {
     [localImage],
   );
 
-  const { gameState, setGameState, setAliases, setPalette, resetGame } =
-    useGameState(creation || localCreation);
+  const { gameState, setGameState, resetGame } = useGameState(
+    creation || localCreation,
+  );
 
-  const setRules = useCallback(
-    (rules: Rule[]) => {
+  const setGameDesign = useCallback(
+    (design: GameState["design"]) => {
       setGameState((prev: GameState | null | undefined) => {
         if (!prev) {
           throw new Error("Game state is not initialized");
         }
-        return {
-          ...prev,
-          design: { ...prev.design, rules },
-        };
+        return { ...prev, design };
       });
     },
     [setGameState],
-  );
-
-  const onPaletteChange = useCallback(
-    (colorCode: ColorCode, color: Color) => {
-      const palette = gameState?.design.palette;
-      if (!palette) {
-        throw new Error("Palette is not initialized");
-      }
-      palette.setColorCode(colorCode, color);
-      setPalette(palette);
-    },
-    [setPalette, gameState],
   );
 
   useKeyEvents({ gameState, setGameState });
@@ -74,10 +60,6 @@ export function Game({ creationUrl, localImage }: GameProps) {
     return "Loading...";
   }
 
-  const palette = gameState.design.palette;
-  const aliases = gameState.design.aliases;
-  const rules = gameState.design.rules;
-
   return (
     <>
       <GameCanvas gameState={gameState} ref={canvasRef} />
@@ -85,15 +67,7 @@ export function Game({ creationUrl, localImage }: GameProps) {
         Reset
       </button>
 
-      <Editor
-        palette={palette}
-        aliases={aliases}
-        rules={rules}
-        onPaletteChange={onPaletteChange}
-        setRules={setRules}
-        setAliases={setAliases}
-        setPalette={setPalette}
-      />
+      <Editor gameDesign={gameState.design} setGameDesign={setGameDesign} />
 
       <div className="game-footer">
         <a href="" id="original">

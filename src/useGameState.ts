@@ -34,35 +34,6 @@ export function useGameState(creation: Creation | null) {
   }, [creation]);
 
   const aliases = gameState?.design.aliases;
-  const setAliases = useCallback(
-    (newAliases: Aliases) => {
-      setGameState((prev: GameState | null | undefined) => {
-        if (!prev) {
-          throw new Error("Game state is not initialized");
-        }
-        return {
-          ...prev,
-          design: { ...prev.design, aliases: newAliases },
-        };
-      });
-    },
-    [setGameState],
-  );
-
-  const setPalette = useCallback(
-    (newPalette: Palette) => {
-      setGameState((prev: GameState | null | undefined) => {
-        if (!prev) {
-          throw new Error("Game state is not initialized");
-        }
-        return {
-          ...prev,
-          design: { ...prev.design, palette: newPalette },
-        };
-      });
-    },
-    [setGameState],
-  );
 
   const resetGame = useCallback(() => {
     setGameState((prev: GameState | null | undefined) => {
@@ -83,8 +54,6 @@ export function useGameState(creation: Creation | null) {
     gameState,
     setGameState,
     aliases,
-    setAliases,
-    setPalette,
     resetGame,
   };
 }

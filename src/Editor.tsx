@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { PaletteDisplay } from "./PaletteDisplay";
 import { AliasesDisplay } from "./AliasesDisplay";
 import { RulesDisplay } from "./RulesDisplay";
@@ -8,28 +9,53 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { Aliases } from "./aliases";
 import type { Palette, ColorCode, Color } from "./palette";
 import type { Rule, DragItem } from "./types";
+import type { GameDesign } from "./types";
 
 import { DeleteZone } from "./DeleteZone";
 
 type EditorProps = {
-  palette: Palette;
-  aliases: Aliases;
-  rules: Rule[];
-  onPaletteChange: (colorCode: ColorCode, color: Color) => void;
-  setRules: (rules: Rule[]) => void;
-  setAliases: (aliases: Aliases) => void;
-  setPalette: (palette: Palette) => void;
+  gameDesign: GameDesign;
+  setGameDesign: (design: GameDesign) => void;
 };
 
-export function Editor({
-  palette,
-  aliases,
-  rules,
-  onPaletteChange,
-  setRules,
-  setAliases,
-  setPalette,
-}: EditorProps) {
+export function Editor({ gameDesign, setGameDesign }: EditorProps) {
+  const palette = gameDesign.palette;
+  const aliases = gameDesign.aliases;
+  const rules = gameDesign.rules;
+
+  const setRules = useCallback(
+    (rules: Rule[]) => {
+      setGameDesign({ ...gameDesign, rules });
+    },
+    [gameDesign, setGameDesign],
+  );
+
+  const setAliases = useCallback(
+    (aliases: Aliases) => {
+      setGameDesign({ ...gameDesign, aliases });
+    },
+    [gameDesign, setGameDesign],
+  );
+
+  const setPalette = useCallback(
+    (palette: Palette) => {
+      setGameDesign({ ...gameDesign, palette });
+    },
+    [gameDesign, setGameDesign],
+  );
+
+  const onPaletteChange = useCallback(
+    (colorCode: ColorCode, color: Color) => {
+      const palette = gameDesign.palette;
+      if (!palette) {
+        throw new Error("Palette is not initialized");
+      }
+      palette.setColorCode(colorCode, color);
+      setPalette(palette);
+    },
+    [gameDesign, setPalette],
+  );
+
   const handleMoveRuleBlock = (
     sourceRuleIndex: number,
     sourceSide: "match" | "become",

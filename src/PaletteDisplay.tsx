@@ -29,6 +29,7 @@ export function PaletteDisplay({ palette, onChange }: PaletteProps) {
           />
         </div>
       ))}
+      <div className="palette-item">+</div>
     </div>
   );
 }
