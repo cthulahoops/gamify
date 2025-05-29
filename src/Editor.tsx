@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { PaletteDisplay } from "./PaletteDisplay";
 import { AliasesDisplay } from "./AliasesDisplay";
 import { RulesDisplay } from "./RulesDisplay";
 import { RulesTextarea } from "./RulesTextArea";
@@ -293,18 +292,15 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
               setPosition={setPlayerSpawnPosition}
             />
           </div>
-          <div className="editor-section">
-            <h3>Colors</h3>
-            <PaletteDisplay palette={palette} onChange={onPaletteChange} />
-          </div>
 
           <div className="editor-section">
-            <h3>Aliases</h3>
+            <h3>Palette</h3>
             <AliasesDisplay
               aliases={aliases}
               palette={palette}
               onMoveBlock={handleMoveBlock}
               onCreateNewAlias={handleCreateNewAlias}
+              setColor={onPaletteChange}
             />
           </div>
 

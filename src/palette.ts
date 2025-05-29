@@ -62,6 +62,14 @@ export class Palette {
     }
   }
 
+  map<T>(callback: (color: Color, code: ColorCode) => T): T[] {
+    const result: T[] = [];
+    for (const [code, color] of this.code_to_color.entries()) {
+      result.push(callback(color, code));
+    }
+    return result;
+  }
+
   toJSON(): PaletteData {
     return Array.from(this.code_to_color.entries());
   }

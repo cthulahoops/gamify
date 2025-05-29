@@ -5,6 +5,7 @@ import { useDrag, useDrop } from "react-dnd";
 import type { Aliases } from "./aliases";
 import type { Palette } from "./palette";
 import type { AliasDragItem, RuleDragItem } from "./types";
+import type { ColorCode, Color } from "./palette";
 import { RuleSquare } from "./RuleSquare";
 
 type AllDragItems = AliasDragItem | RuleDragItem;
@@ -12,6 +13,7 @@ type AllDragItems = AliasDragItem | RuleDragItem;
 type AliasDisplayProps = {
   aliases: Aliases;
   palette: Palette;
+  setColor: (symbol: ColorCode, color: Color) => void;
   onMoveBlock?: (
     sourceAlias: string,
     sourceIndex: number,
@@ -191,9 +193,30 @@ export function AliasesDisplay({
   palette,
   onMoveBlock,
   onCreateNewAlias,
+  setColor,
 }: AliasDisplayProps) {
   return (
     <div id="aliases-display">
+      {palette.map((color: Color, symbol: ColorCode) => (
+        <React.Fragment key={symbol}>
+          <div className="rules-side" key={symbol}>
+            <DraggableBlock
+              aliases={aliases}
+              palette={palette}
+              symbol={symbol}
+              sourceAlias={symbol}
+              sourceIndex={-1}
+            />
+          </div>
+          <div className="rule-arrow">=</div>
+          <input
+            type="color"
+            value={color}
+            onChange={(e) => setColor(symbol, e.target.value as Color)}
+            className="palette-input"
+          />
+        </React.Fragment>
+      ))}
       {aliases.map((alias, codes) => (
         <React.Fragment key={alias}>
           <div className="rules-side">
