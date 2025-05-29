@@ -9,9 +9,7 @@ import { usePondiverse } from "./usePondiverse";
 import { GameCanvas } from "./GameCanvas";
 import { Editor } from "./Editor";
 
-import type { Color, ColorCode } from "./palette";
-
-import type { Rule, GameState, GameStateDTO } from "./types";
+import type { GameState, GameStateDTO } from "./types";
 
 type GameProps = {
   creationUrl?: string;

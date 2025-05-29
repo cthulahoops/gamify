@@ -101,7 +101,7 @@ function loadCreation(creation: Creation): GameState {
   return { design, playState };
 }
 
-export function findRandomEmpty(aliases: Aliases, grid: Grid) {
+export function findRandomEmpty(aliases: Aliases, grid: Grid): Point {
   const emptyCells: Array<Point> = [];
 
   grid.forEach(({ x, y }: Point) => {
@@ -110,7 +110,7 @@ export function findRandomEmpty(aliases: Aliases, grid: Grid) {
     }
   });
 
-  if (emptyCells.length === 0) return null; // No empty cells found
+  if (emptyCells.length === 0) return { x: 0, y: 0 };
 
   const randomIndex = Math.floor(Math.random() * emptyCells.length);
   return emptyCells[randomIndex];

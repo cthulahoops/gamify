@@ -8,7 +8,7 @@ export type Rule = {
 
 export type GameDesign = {
   originalGrid: Grid;
-  playerSpawnPosition: Point | null;
+  playerSpawnPosition: Point;
   palette: Palette;
   aliases: Aliases;
   rules: Rule[];
@@ -29,7 +29,7 @@ export type GameStateDTO = {
   aliases: Record<string, string[]>;
   rules: { match: string; become: string }[];
   grid: { size: { x: number; y: number }; data: string[] };
-  player: { x: number; y: number } | null;
+  player: { x: number; y: number };
 };
 
 export type Player = Point | null;

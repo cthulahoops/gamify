@@ -3,6 +3,7 @@ import { PaletteDisplay } from "./PaletteDisplay";
 import { AliasesDisplay } from "./AliasesDisplay";
 import { RulesDisplay } from "./RulesDisplay";
 import { RulesTextarea } from "./RulesTextArea";
+import { PlayerSpawnPosition } from "./PlayerSpawnPosition";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
@@ -54,6 +55,16 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
       setPalette(palette);
     },
     [gameDesign, setPalette],
+  );
+
+  const setPlayerSpawnPosition = useCallback(
+    (position: { x: number; y: number }) => {
+      setGameDesign({
+        ...gameDesign,
+        playerSpawnPosition: position,
+      });
+    },
+    [gameDesign, setGameDesign],
   );
 
   const handleMoveRuleBlock = (
@@ -274,6 +285,14 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
     <DndProvider backend={HTML5Backend}>
       <div className="editor">
         <div className="editor-visual">
+          <div className="editor-section">
+            <PlayerSpawnPosition
+              grid={gameDesign.originalGrid}
+              aliases={aliases}
+              position={gameDesign.playerSpawnPosition}
+              setPosition={setPlayerSpawnPosition}
+            />
+          </div>
           <div className="editor-section">
             <h3>Colors</h3>
             <PaletteDisplay palette={palette} onChange={onPaletteChange} />
