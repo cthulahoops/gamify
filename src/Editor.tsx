@@ -294,17 +294,6 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
           </div>
 
           <div className="editor-section">
-            <h3>Palette</h3>
-            <AliasesDisplay
-              aliases={aliases}
-              palette={palette}
-              onMoveBlock={handleMoveBlock}
-              onCreateNewAlias={handleCreateNewAlias}
-              setColor={onPaletteChange}
-            />
-          </div>
-
-          <div className="editor-section">
             <h3>Rules</h3>
             <RulesDisplay
               rules={rules}
@@ -314,6 +303,17 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
               onCopyAliasToRule={handleCopyAliasToRule}
               onCreateNewRule={handleCreateNewRule}
               onReorderRule={handleReorderRule}
+            />
+          </div>
+
+          <div className="editor-section">
+            <h3>Palette</h3>
+            <AliasesDisplay
+              aliases={aliases}
+              palette={palette}
+              onMoveBlock={handleMoveBlock}
+              onCreateNewAlias={handleCreateNewAlias}
+              setColor={onPaletteChange}
             />
           </div>
 
