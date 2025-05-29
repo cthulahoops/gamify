@@ -298,8 +298,6 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
             <PaletteDisplay palette={palette} onChange={onPaletteChange} />
           </div>
 
-          <DeleteZone onDelete={handleDelete} />
-
           <div className="editor-section">
             <h3>Aliases</h3>
             <AliasesDisplay
@@ -322,6 +320,8 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
               onReorderRule={handleReorderRule}
             />
           </div>
+
+          <DeleteZone onDelete={handleDelete} />
         </div>
 
         <div className="editor-text">

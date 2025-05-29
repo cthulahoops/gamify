@@ -110,19 +110,16 @@ function RuleDropZone({
   return (
     <div
       ref={dropRef}
+      className={isOver ? "drop-zone isOver" : "drop-zone"}
       style={{
-        height: "4px",
-        width: "100%",
-        backgroundColor: isOver ? "rgba(0, 255, 0, 0.8)" : "transparent",
-        border: isOver ? "2px solid green" : "none",
-        marginBottom: isOver ? "4px" : "0",
-        gridColumn: "1 / -1",
+        height: isOver ? "1.5rem" : "0.5rem",
+        paddingBlock: isOver ? "0.5rem" : "0",
       }}
     />
   );
 }
 
-function DropZone({
+function BlockDropZone({
   ruleIndex,
   side,
   position,
@@ -174,11 +171,11 @@ function DropZone({
   return (
     <div
       ref={dropRef}
+      className={isOver ? "drop-zone isOver" : "drop-zone"}
       style={{
-        width: "8px",
-        height: "40px",
-        backgroundColor: isOver ? "rgba(0, 255, 0, 0.5)" : "transparent",
-        border: isOver ? "2px dashed green" : "none",
+        boxSizing: "border-box",
+        width: isOver ? "1.5rem" : "0.5rem",
+        paddingInline: isOver ? "1rem" : "0",
       }}
     />
   );
@@ -216,15 +213,8 @@ function DroppableRuleSide({
   const symbolsArray = Array.from(symbols);
 
   return (
-    <div
-      className="rules-side"
-      style={{
-        display: "flex",
-        alignItems: "center",
-        minHeight: "40px",
-      }}
-    >
-      <DropZone
+    <div className="rules-side">
+      <BlockDropZone
         ruleIndex={ruleIndex}
         side={side}
         position={0}
@@ -241,7 +231,7 @@ function DroppableRuleSide({
             sourceSide={side}
             sourcePosition={position}
           />
-          <DropZone
+          <BlockDropZone
             ruleIndex={ruleIndex}
             side={side}
             position={position + 1}
@@ -296,22 +286,14 @@ function NewRuleDropZone({
   return (
     <div
       ref={dropRef}
+      className={isOver ? "drop-zone isOver" : "drop-zone"}
       style={{
-        height: "60px",
-        width: "100%",
-        backgroundColor: isOver
-          ? "rgba(0, 255, 0, 0.2)"
-          : "rgba(200, 200, 200, 0.1)",
+        height: "1.5rem",
         border: isOver ? "2px dashed green" : "2px dashed #ccc",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        marginTop: "10px",
-        fontSize: "14px",
         color: "#666",
       }}
     >
-      {isOver ? "Drop to create new rule" : "Drop here to create new rule"}
+      {isOver ? "Drop to create new rule" : ""}
     </div>
   );
 }
@@ -417,8 +399,8 @@ export function RulesDisplay({
             />
           </React.Fragment>
         ))}
+        <NewRuleDropZone onCreateNewRule={onCreateNewRule} />
       </div>
-      <NewRuleDropZone onCreateNewRule={onCreateNewRule} />
     </div>
   );
 }

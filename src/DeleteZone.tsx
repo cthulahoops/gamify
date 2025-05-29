@@ -20,23 +20,12 @@ export function DeleteZone({
   return (
     <div
       ref={dropRef}
+      className={isOver ? "drop-zone isOver delete" : "drop-zone delete"}
       style={{
-        height: "60px",
-        width: "100%",
-        backgroundColor: isOver
-          ? "rgba(255, 0, 0, 0.2)"
-          : "rgba(200, 200, 200, 0.1)",
-        border: isOver ? "2px dashed red" : "2px dashed #ccc",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        marginTop: "10px",
-        fontSize: "14px",
-        color: isOver ? "#d00" : "#666",
-        borderRadius: "4px",
+        height: "2rem",
       }}
     >
-      {isOver ? "🗑️ Drop to delete" : "🗑️ Delete zone"}
+      ❌
     </div>
   );
 }

@@ -107,8 +107,6 @@ function DroppableRHS({
       className="rules-side"
       style={{
         backgroundColor: isOver ? "rgba(0, 255, 0, 0.2)" : "transparent",
-        minHeight: "40px",
-        minWidth: "40px",
       }}
     >
       {codes.map((symbol, idx) => (
@@ -171,22 +169,19 @@ function NewAliasDropZone({
   return (
     <div
       ref={dropRef}
+      className={isOver ? "drop-zone isOver" : "drop-zone"}
       style={{
-        height: "60px",
+        height: "1.5rem",
         width: "100%",
-        backgroundColor: isOver
-          ? "rgba(0, 255, 0, 0.2)"
-          : "rgba(200, 200, 200, 0.1)",
         border: isOver ? "2px dashed green" : "2px dashed #ccc",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        marginTop: "10px",
-        fontSize: "14px",
+        gridColumn: "span 3",
         color: "#666",
       }}
     >
-      {isOver ? "Drop to create new alias" : "Drop here to create new alias"}
+      {isOver ? "Drop to create new alias" : ""}
     </div>
   );
 }
