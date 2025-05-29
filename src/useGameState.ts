@@ -102,18 +102,15 @@ function loadCreation(creation: Creation): GameState {
 }
 
 export function findRandomEmpty(aliases: Aliases, grid: Grid): Point {
-  const emptyCells: Array<Point> = [];
-
-  grid.forEach(({ x, y }: Point) => {
+  const maxAttempts = 50;
+  for (let i = 0; i < maxAttempts; i++) {
+    const x = Math.floor(Math.random() * grid.width);
+    const y = Math.floor(Math.random() * grid.height);
     if (grid.isEmpty(aliases, { x, y })) {
-      emptyCells.push({ x, y });
+      return { x, y };
     }
-  });
-
-  if (emptyCells.length === 0) return { x: 0, y: 0 };
-
-  const randomIndex = Math.floor(Math.random() * emptyCells.length);
-  return emptyCells[randomIndex];
+  }
+  return { x: 0, y: 0 };
 }
 
 export function extractGrid(image: HTMLImageElement): [Grid, Palette] {
