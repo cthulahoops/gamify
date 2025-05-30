@@ -75,9 +75,6 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
 
   const handleAddBlockToRule = (item: BlockDragItem, target: RuleLocation) => {
     let newRules = [...rules];
-    const targetRule = newRules[target.ruleIndex];
-    const targetString = targetRule[target.side];
-
     let adjustedTargetPosition = target.position;
     const symbolToAdd = item.symbol;
 
@@ -96,6 +93,9 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
       // Remove from source
       newRules = removeBlockFromRules(newRules, item.source);
     }
+
+    const targetRule = newRules[target.ruleIndex];
+    const targetString = targetRule[target.side];
 
     // Add to target
     const newTargetString =
