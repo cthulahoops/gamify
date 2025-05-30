@@ -18,6 +18,79 @@ type AliasDisplayProps = {
   onCreateNewAlias: (item: BlockDragItem) => void;
 };
 
+export function AliasesDisplay({
+  aliases,
+  palette,
+  onAddBlockToAlias,
+  onCreateNewAlias,
+  setColor,
+}: AliasDisplayProps) {
+  return (
+    <div id="aliases-display">
+      {palette.map((color: Color, symbol: ColorCode) => (
+        <React.Fragment key={symbol}>
+          <div className="rules-side" key={symbol}>
+            <Draggable
+              item={{
+                type: "ALIAS_BLOCK",
+                sourceAlias: symbol,
+                sourceIndex: -1,
+                symbol: symbol,
+              }}
+            >
+              <RuleSquare aliases={aliases} palette={palette} symbol={symbol} />
+            </Draggable>
+          </div>
+          <div className="rule-arrow">=</div>
+          <input
+            type="color"
+            value={color}
+            onChange={(e) => setColor(symbol, e.target.value as Color)}
+            className="palette-input"
+          />
+        </React.Fragment>
+      ))}
+      {aliases.map((alias, codes) => (
+        <React.Fragment key={alias}>
+          <div className="rules-side">
+            <Draggable
+              item={{
+                type: "ALIAS_BLOCK",
+                sourceAlias: alias,
+                sourceIndex: -1,
+                symbol: alias,
+              }}
+            >
+              <RuleSquare aliases={aliases} palette={palette} symbol={alias} />
+            </Draggable>
+          </div>
+          <div className="rule-arrow">=</div>
+          <DroppableRHS alias={alias} onAddBlockToAlias={onAddBlockToAlias}>
+            {codes.map((symbol, idx) => (
+              <Draggable
+                item={{
+                  type: "ALIAS_BLOCK",
+                  sourceAlias: alias,
+                  sourceIndex: idx,
+                  symbol,
+                }}
+                key={symbol}
+              >
+                <RuleSquare
+                  aliases={aliases}
+                  palette={palette}
+                  symbol={symbol}
+                />
+              </Draggable>
+            ))}
+          </DroppableRHS>
+        </React.Fragment>
+      ))}
+      <NewAliasDropZone onCreateNewAlias={onCreateNewAlias} />
+    </div>
+  );
+}
+
 function DroppableRHS({
   alias,
   onAddBlockToAlias,
@@ -89,78 +162,6 @@ function NewAliasDropZone({
       }}
     >
       {isOver ? "Drop to create new alias" : ""}
-    </div>
-  );
-}
-
-export function AliasesDisplay({
-  aliases,
-  palette,
-  onAddBlockToAlias,
-  onCreateNewAlias,
-  setColor,
-}: AliasDisplayProps) {
-  return (
-    <div id="aliases-display">
-      {palette.map((color: Color, symbol: ColorCode) => (
-        <React.Fragment key={symbol}>
-          <div className="rules-side" key={symbol}>
-            <Draggable
-              item={{
-                type: "ALIAS_BLOCK",
-                sourceAlias: symbol,
-                sourceIndex: -1,
-                symbol: symbol,
-              }}
-            >
-              <RuleSquare aliases={aliases} palette={palette} symbol={symbol} />
-            </Draggable>
-          </div>
-          <div className="rule-arrow">=</div>
-          <input
-            type="color"
-            value={color}
-            onChange={(e) => setColor(symbol, e.target.value as Color)}
-            className="palette-input"
-          />
-        </React.Fragment>
-      ))}
-      {aliases.map((alias, codes) => (
-        <React.Fragment key={alias}>
-          <div className="rules-side">
-            <Draggable
-              item={{
-                type: "ALIAS_BLOCK",
-                sourceAlias: alias,
-                sourceIndex: -1,
-                symbol: alias,
-              }}
-            >
-              <RuleSquare aliases={aliases} palette={palette} symbol={alias} />
-            </Draggable>
-          </div>
-          <div className="rule-arrow">=</div>
-          <DroppableRHS
-            alias={alias}
-            onAddBlockToAlias={onAddBlockToAlias}
-          >
-            {codes.map((symbol, idx) => (
-              <Draggable
-                item={{
-                  type: "ALIAS_BLOCK",
-                  sourceAlias: alias,
-                  sourceIndex: idx,
-                  symbol,
-                }}
-                key={symbol}
-              >
-                <RuleSquare aliases={aliases} palette={palette} symbol={symbol} />
-              </Draggable>
-            ))}
-          </DroppableRHS>
-        </React.Fragment>
-      ))}
-      <NewAliasDropZone onCreateNewAlias={onCreateNewAlias} />
     </div>
   );
 }

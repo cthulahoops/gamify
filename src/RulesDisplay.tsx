@@ -23,6 +23,58 @@ type RulesDisplayProps = {
   onReorderRule: (sourceIndex: number, targetIndex: number) => void;
 };
 
+export function RulesDisplay({
+  rules,
+  aliases,
+  palette,
+  onAddBlockToRule,
+  onCreateNewRule,
+  onReorderRule,
+}: RulesDisplayProps) {
+  return (
+    <div>
+      <div className="rule-list">
+        <RuleDropZone targetRuleIndex={0} onReorderRule={onReorderRule} />
+
+        {rules.map((rule, ruleIndex) => (
+          <React.Fragment key={ruleIndex}>
+            <Rule
+              ruleIndex={ruleIndex}
+              rule={rule}
+              aliases={aliases}
+              palette={palette}
+              onAddBlockToRule={onAddBlockToRule}
+            >
+              <DroppableRuleSide
+                aliases={aliases}
+                palette={palette}
+                symbols={rule.match}
+                ruleIndex={ruleIndex}
+                side="match"
+                onAddBlockToRule={onAddBlockToRule}
+              />
+              <Arrow />
+              <DroppableRuleSide
+                aliases={aliases}
+                palette={palette}
+                symbols={rule.become}
+                ruleIndex={ruleIndex}
+                side="become"
+                onAddBlockToRule={onAddBlockToRule}
+              />
+            </Rule>
+            <RuleDropZone
+              targetRuleIndex={ruleIndex + 1}
+              onReorderRule={onReorderRule}
+            />
+          </React.Fragment>
+        ))}
+        <NewRuleDropZone onCreateNewRule={onCreateNewRule} />
+      </div>
+    </div>
+  );
+}
+
 function Arrow() {
   return <div>→</div>;
 }
@@ -225,57 +277,5 @@ function Rule({ ruleIndex, children }: RuleProps) {
     >
       {children}
     </Draggable>
-  );
-}
-
-export function RulesDisplay({
-  rules,
-  aliases,
-  palette,
-  onAddBlockToRule,
-  onCreateNewRule,
-  onReorderRule,
-}: RulesDisplayProps) {
-  return (
-    <div>
-      <div className="rule-list">
-        <RuleDropZone targetRuleIndex={0} onReorderRule={onReorderRule} />
-
-        {rules.map((rule, ruleIndex) => (
-          <React.Fragment key={ruleIndex}>
-            <Rule
-              ruleIndex={ruleIndex}
-              rule={rule}
-              aliases={aliases}
-              palette={palette}
-              onAddBlockToRule={onAddBlockToRule}
-            >
-              <DroppableRuleSide
-                aliases={aliases}
-                palette={palette}
-                symbols={rule.match}
-                ruleIndex={ruleIndex}
-                side="match"
-                onAddBlockToRule={onAddBlockToRule}
-              />
-              <Arrow />
-              <DroppableRuleSide
-                aliases={aliases}
-                palette={palette}
-                symbols={rule.become}
-                ruleIndex={ruleIndex}
-                side="become"
-                onAddBlockToRule={onAddBlockToRule}
-              />
-            </Rule>
-            <RuleDropZone
-              targetRuleIndex={ruleIndex + 1}
-              onReorderRule={onReorderRule}
-            />
-          </React.Fragment>
-        ))}
-        <NewRuleDropZone onCreateNewRule={onCreateNewRule} />
-      </div>
-    </div>
   );
 }
