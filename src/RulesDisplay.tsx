@@ -20,45 +20,8 @@ type RulesDisplayProps = {
     targetPosition: number,
   ) => void;
   onCreateNewRule: (item: BlockDragItem) => void;
-  onReorderRule?: (sourceIndex: number, targetIndex: number) => void;
-  onDeleteRuleBlock?: (
-    ruleIndex: number,
-    side: "match" | "become",
-    position: number,
-  ) => void;
-  onDeleteRule?: (ruleIndex: number) => void;
-  onDeleteAliasBlock?: (sourceAlias: string, sourceIndex: number) => void;
+  onReorderRule: (sourceIndex: number, targetIndex: number) => void;
 };
-
-function DraggableRuleBlock({
-  aliases,
-  palette,
-  symbol,
-  sourceRuleIndex,
-  sourceSide,
-  sourcePosition,
-}: {
-  aliases: Aliases;
-  palette: Palette;
-  symbol: string;
-  sourceRuleIndex: number;
-  sourceSide: "match" | "become";
-  sourcePosition: number;
-}) {
-  return (
-    <Draggable
-      item={{
-        type: "RULE_BLOCK",
-        sourceRuleIndex,
-        sourceSide,
-        sourcePosition,
-        symbol,
-      }}
-    >
-      <RuleSquare aliases={aliases} palette={palette} symbol={symbol} />
-    </Draggable>
-  );
-}
 
 function Arrow() {
   return <div>→</div>;
@@ -177,14 +140,17 @@ function DroppableRuleSide({
       />
       {symbolsArray.map((symbol, position) => (
         <React.Fragment key={position}>
-          <DraggableRuleBlock
-            aliases={aliases}
-            palette={palette}
-            symbol={symbol}
-            sourceRuleIndex={ruleIndex}
-            sourceSide={side}
-            sourcePosition={position}
-          />
+          <Draggable
+            item={{
+              type: "RULE_BLOCK",
+              sourceRuleIndex: ruleIndex,
+              sourceSide: side,
+              sourcePosition: position,
+              symbol,
+            }}
+          >
+            <RuleSquare aliases={aliases} palette={palette} symbol={symbol} />
+          </Draggable>
           <BlockDropZone
             ruleIndex={ruleIndex}
             side={side}
