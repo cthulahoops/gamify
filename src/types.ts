@@ -39,11 +39,15 @@ export type Point = {
   y: number;
 };
 
+export type RuleLocation = {
+  ruleIndex: number;
+  side: "match" | "become";
+  position: number;
+};
+
 export type RuleBlockDragItem = {
   type: "RULE_BLOCK";
-  sourceRuleIndex: number;
-  sourceSide: "match" | "become";
-  sourcePosition: number;
+  source: RuleLocation;
   symbol: string;
 };
 

@@ -2,7 +2,13 @@ import React from "react";
 import { useRef } from "react";
 import { useDrop } from "react-dnd";
 
-import type { Rule, DragItem, RuleDragItem, BlockDragItem } from "./types";
+import type {
+  Rule,
+  DragItem,
+  RuleDragItem,
+  BlockDragItem,
+  RuleLocation,
+} from "./types";
 import type { Palette } from "./palette";
 import type { Aliases } from "./aliases";
 import { RuleSquare } from "./RuleSquare";
@@ -13,12 +19,7 @@ type RulesDisplayProps = {
   rules: Rule[];
   aliases: Aliases;
   palette: Palette;
-  onAddBlockToRule?: (
-    sourceItem: BlockDragItem,
-    targetRuleIndex: number,
-    targetSide: "match" | "become",
-    targetPosition: number,
-  ) => void;
+  onAddBlockToRule?: (sourceItem: BlockDragItem, target: RuleLocation) => void;
   onCreateNewRule: (item: BlockDragItem) => void;
   onReorderRule: (sourceIndex: number, targetIndex: number) => void;
 };
@@ -122,12 +123,7 @@ function BlockDropZone({
   ruleIndex: number;
   side: "match" | "become";
   position: number;
-  onAddBlockToRule?: (
-    sourceItem: BlockDragItem,
-    targetRuleIndex: number,
-    targetSide: "match" | "become",
-    targetPosition: number,
-  ) => void;
+  onAddBlockToRule?: (sourceItem: BlockDragItem, target: RuleLocation) => void;
 }) {
   const dropRef = useRef<HTMLDivElement>(null);
   const [{ isOver }, drop] = useDrop({
@@ -137,7 +133,7 @@ function BlockDropZone({
         (item.type === "RULE_BLOCK" || item.type === "ALIAS_BLOCK") &&
         onAddBlockToRule
       ) {
-        onAddBlockToRule(item, ruleIndex, side, position);
+        onAddBlockToRule(item, { ruleIndex, side, position });
       }
     },
     collect: (monitor) => ({
@@ -173,12 +169,7 @@ function DroppableRuleSide({
   symbols: string;
   ruleIndex: number;
   side: "match" | "become";
-  onAddBlockToRule?: (
-    sourceItem: BlockDragItem,
-    targetRuleIndex: number,
-    targetSide: "match" | "become",
-    targetPosition: number,
-  ) => void;
+  onAddBlockToRule?: (sourceItem: BlockDragItem, target: RuleLocation) => void;
 }) {
   const symbolsArray = Array.from(symbols);
 
@@ -195,9 +186,7 @@ function DroppableRuleSide({
           <Draggable
             item={{
               type: "RULE_BLOCK",
-              sourceRuleIndex: ruleIndex,
-              sourceSide: side,
-              sourcePosition: position,
+              source: { ruleIndex, side, position },
               symbol,
             }}
           >
@@ -257,12 +246,7 @@ type RuleProps = {
   rule: Rule;
   aliases: Aliases;
   palette: Palette;
-  onAddBlockToRule?: (
-    sourceItem: BlockDragItem,
-    targetRuleIndex: number,
-    targetSide: "match" | "become",
-    targetPosition: number,
-  ) => void;
+  onAddBlockToRule?: (sourceItem: BlockDragItem, target: RuleLocation) => void;
   children: React.ReactNode;
 };
 

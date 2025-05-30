@@ -14,6 +14,7 @@ import type {
   AliasBlockDragItem,
   RuleBlockDragItem,
   BlockDragItem,
+  RuleLocation,
 } from "./types";
 import type { GameDesign } from "./types";
 
@@ -72,38 +73,41 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
     [gameDesign, setGameDesign],
   );
 
-  const handleAddBlockToRule = (
-    sourceItem: BlockDragItem,
-    targetRuleIndex: number,
-    targetSide: "match" | "become",
-    targetPosition: number,
-  ) => {
+  const handleAddBlockToRule = (item: BlockDragItem, target: RuleLocation) => {
+    const {
+      ruleIndex: targetRuleIndex,
+      side: targetSide,
+      position: targetPosition,
+    } = target;
     const newRules = [...rules];
     const targetRule = newRules[targetRuleIndex];
     const targetString = targetRule[targetSide];
 
     let adjustedTargetPosition = targetPosition;
-    let symbolToAdd = sourceItem.symbol;
+    const symbolToAdd = item.symbol;
 
     // If it's a rule block, we need to remove it from the source
-    if (sourceItem.type === "RULE_BLOCK") {
-      const sourceRule = newRules[sourceItem.sourceRuleIndex];
-      const sourceString = sourceRule[sourceItem.sourceSide];
+    if (item.type === "RULE_BLOCK") {
+      const sourceRule = newRules[item.source.ruleIndex];
+      const sourceString = sourceRule[item.source.side];
 
       // If moving within the same rule side, adjust target position for removal
-      if (sourceItem.sourceRuleIndex === targetRuleIndex && sourceItem.sourceSide === targetSide) {
-        if (sourceItem.sourcePosition < adjustedTargetPosition) {
+      if (
+        item.source.ruleIndex === targetRuleIndex &&
+        item.source.side === targetSide
+      ) {
+        if (item.source.position < adjustedTargetPosition) {
           adjustedTargetPosition--;
         }
       }
 
       // Remove from source
       const newSourceString =
-        sourceString.slice(0, sourceItem.sourcePosition) +
-        sourceString.slice(sourceItem.sourcePosition + 1);
-      newRules[sourceItem.sourceRuleIndex] = {
+        sourceString.slice(0, item.source.position) +
+        sourceString.slice(item.source.position + 1);
+      newRules[item.source.ruleIndex] = {
         ...sourceRule,
-        [sourceItem.sourceSide as keyof Rule]: newSourceString,
+        [item.source.side as keyof Rule]: newSourceString,
       };
     }
 
@@ -154,15 +158,15 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
     // If it's a rule block, remove it from its original position in rules
     if (item.type === "RULE_BLOCK") {
       const newRules = [...rules];
-      const sourceRule = newRules[item.sourceRuleIndex];
-      const sourceString = sourceRule[item.sourceSide];
+      const sourceRule = newRules[item.source.ruleIndex];
+      const sourceString = sourceRule[item.source.side];
       const newSourceString =
-        sourceString.slice(0, item.sourcePosition) +
-        sourceString.slice(item.sourcePosition + 1);
+        sourceString.slice(0, item.source.position) +
+        sourceString.slice(item.source.position + 1);
 
-      newRules[item.sourceRuleIndex] = {
+      newRules[item.source.ruleIndex] = {
         ...sourceRule,
-        [item.sourceSide as keyof Rule]: newSourceString,
+        [item.source.side as keyof Rule]: newSourceString,
       };
 
       setRules(newRules);
@@ -172,32 +176,28 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
   };
 
   const handleCreateNewRule = (
-    sourceInfo?: AliasBlockDragItem | RuleBlockDragItem,
+    item: AliasBlockDragItem | RuleBlockDragItem,
   ) => {
     const newRules = [...rules];
 
-    // Create new rule with the symbol after the ">" in match
     const newRule = {
-      match: ">" + sourceInfo?.symbol,
+      match: ">" + item.symbol,
       become: ">",
     };
 
     newRules.push(newRule);
 
-    // If it's a rule block, remove it from its original position
-    if (
-      sourceInfo?.type === "RULE_BLOCK" &&
-      sourceInfo.sourceRuleIndex !== undefined
-    ) {
-      const sourceRule = newRules[sourceInfo.sourceRuleIndex];
-      const sourceString = sourceRule[sourceInfo.sourceSide!];
+    if (item.type === "RULE_BLOCK" && item.source.ruleIndex !== undefined) {
+      const source = item.source;
+      const sourceRule = newRules[source.ruleIndex];
+      const sourceString = sourceRule[source.side];
       const newSourceString =
-        sourceString.slice(0, sourceInfo.sourcePosition!) +
-        sourceString.slice(sourceInfo.sourcePosition! + 1);
+        sourceString.slice(0, source.position!) +
+        sourceString.slice(source.position! + 1);
 
-      newRules[sourceInfo.sourceRuleIndex] = {
+      newRules[source.ruleIndex] = {
         ...sourceRule,
-        [sourceInfo.sourceSide!]: newSourceString,
+        [source.side!]: newSourceString,
       };
     }
 
@@ -238,11 +238,8 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
 
   const handleDelete = (item: DragItem) => {
     if (item.type === "RULE_BLOCK") {
-      handleDeleteRuleBlock(
-        item.sourceRuleIndex,
-        item.sourceSide,
-        item.sourcePosition,
-      );
+      const source = item.source;
+      handleDeleteRuleBlock(source.ruleIndex, source.side, source.position);
     } else if (item.type === "RULE_REORDER") {
       handleDeleteRule(item.sourceRuleIndex);
     } else if (item.type === "ALIAS_BLOCK") {
