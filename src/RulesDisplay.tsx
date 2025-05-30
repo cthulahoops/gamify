@@ -1,12 +1,13 @@
 import React from "react";
 import { useRef } from "react";
-import { useDrag, useDrop } from "react-dnd";
+import { useDrop } from "react-dnd";
 
 import type { Rule, DragItem, RuleReorderDragItem } from "./types";
 import type { Palette } from "./palette";
 import type { Aliases } from "./aliases";
 import { RuleSquare } from "./RuleSquare";
 import type { RuleDragItem, AliasDragItem } from "./types";
+import { Draggable } from "./Draggable";
 
 type RulesDisplayProps = {
   rules: Rule[];
@@ -52,33 +53,18 @@ function DraggableRuleBlock({
   sourceSide: "match" | "become";
   sourcePosition: number;
 }) {
-  const dragRef = useRef<HTMLDivElement>(null);
-  const [{ isDragging }, drag] = useDrag({
-    type: "RULE_BLOCK",
-    item: {
-      type: "RULE_BLOCK",
-      sourceRuleIndex,
-      sourceSide,
-      sourcePosition,
-      symbol,
-    },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
-
-  drag(dragRef);
-
   return (
-    <div
-      ref={dragRef}
-      style={{
-        opacity: isDragging ? 0.5 : 1,
-        cursor: "move",
+    <Draggable
+      item={{
+        type: "RULE_BLOCK",
+        sourceRuleIndex,
+        sourceSide,
+        sourcePosition,
+        symbol,
       }}
     >
       <RuleSquare aliases={aliases} palette={palette} symbol={symbol} />
-    </div>
+    </Draggable>
   );
 }
 
@@ -305,31 +291,16 @@ type RuleProps = {
 };
 
 function Rule({ ruleIndex, children }: RuleProps) {
-  const dragRef = useRef<HTMLDivElement>(null);
-  const [{ isDragging }, drag] = useDrag({
-    type: "RULE_REORDER",
-    item: {
-      type: "RULE_REORDER",
-      sourceRuleIndex: ruleIndex,
-    },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
-
-  drag(dragRef);
-
   return (
-    <div
-      ref={dragRef}
-      className="rule"
-      style={{
-        opacity: isDragging ? 0.5 : 1,
-        cursor: "move",
+    <Draggable
+      item={{
+        type: "RULE_REORDER",
+        sourceRuleIndex: ruleIndex,
       }}
+      className="rule"
     >
       {children}
-    </div>
+    </Draggable>
   );
 }
 

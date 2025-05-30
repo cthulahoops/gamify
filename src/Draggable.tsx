@@ -5,9 +5,11 @@ import { useDrag } from "react-dnd";
 export function Draggable({
   item,
   children,
+  className,
 }: {
   item: DragItem;
   children: React.ReactNode;
+  className?: string;
 }) {
   const dragRef = useRef<HTMLDivElement>(null);
   const [{ isDragging }, drag] = useDrag({
@@ -23,6 +25,7 @@ export function Draggable({
   return (
     <div
       ref={dragRef}
+      className={className}
       style={{
         opacity: isDragging ? 0.5 : 1,
         cursor: "move",
