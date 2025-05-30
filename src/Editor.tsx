@@ -8,7 +8,13 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 
 import { Aliases } from "./aliases";
 import type { Palette, ColorCode, Color } from "./palette";
-import type { Rule, DragItem, AliasBlockDragItem, RuleBlockDragItem } from "./types";
+import type {
+  Rule,
+  DragItem,
+  BlockDragItem,
+  AliasBlockDragItem,
+  RuleBlockDragItem,
+} from "./types";
 import type { GameDesign } from "./types";
 
 import { DeleteZone } from "./DeleteZone";
@@ -136,23 +142,24 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
     setRules(newRules);
   };
 
-  const handleMoveBlock = (
-    sourceAlias: string,
-    sourceIndex: number,
+  const handleAddBlockToAlias = (
+    item: AliasBlockDragItem,
     targetAlias: string,
-    targetIndex?: number,
   ) => {
     const newAliases = aliases.clone();
 
-    if (sourceIndex < 0) {
+    if (item.sourceIndex < 0) {
       // This is adding the alias itself to the target alias.
-      newAliases.addToAlias(targetAlias, sourceAlias, targetIndex);
+      newAliases.addToAlias(targetAlias, item.sourceAlias);
     } else {
-      const symbolToMove = newAliases.removeFromAlias(sourceAlias, sourceIndex);
+      const symbolToMove = newAliases.removeFromAlias(
+        item.sourceAlias,
+        item.sourceIndex,
+      );
       if (!symbolToMove) {
         return;
       }
-      newAliases.addToAlias(targetAlias, symbolToMove, targetIndex);
+      newAliases.addToAlias(targetAlias, symbolToMove);
     }
 
     setAliases(newAliases);
@@ -195,7 +202,9 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
     setAliases(newAliases);
   };
 
-  const handleCreateNewRule = (sourceInfo?: AliasBlockDragItem | RuleBlockDragItem) => {
+  const handleCreateNewRule = (
+    sourceInfo?: AliasBlockDragItem | RuleBlockDragItem,
+  ) => {
     const newRules = [...rules];
 
     // Create new rule with the symbol after the ">" in match
@@ -303,7 +312,7 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
             <AliasesDisplay
               aliases={aliases}
               palette={palette}
-              onMoveBlock={handleMoveBlock}
+              onAddBlockToAlias={handleAddBlockToAlias}
               onCreateNewAlias={handleCreateNewAlias}
               setColor={onPaletteChange}
             />

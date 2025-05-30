@@ -4,25 +4,18 @@ import { useDrop } from "react-dnd";
 
 import type { Aliases } from "./aliases";
 import type { Palette } from "./palette";
-import type { AliasBlockDragItem, RuleBlockDragItem } from "./types";
+import type { AliasBlockDragItem, BlockDragItem } from "./types";
 import type { ColorCode, Color } from "./palette";
 import { RuleSquare } from "./RuleSquare";
 
 import { Draggable } from "./Draggable";
 
-type AllDragItems = AliasBlockDragItem | RuleBlockDragItem;
-
 type AliasDisplayProps = {
   aliases: Aliases;
   palette: Palette;
   setColor: (symbol: ColorCode, color: Color) => void;
-  onMoveBlock?: (
-    sourceAlias: string,
-    sourceIndex: number,
-    targetAlias: string,
-    targetIndex?: number,
-  ) => void;
-  onCreateNewAlias?: (
+  onAddBlockToAlias: (item: AliasBlockDragItem, targetAlias: string) => void;
+  onCreateNewAlias: (
     symbol: string,
     sourceInfo?: {
       type: "RULE_BLOCK" | "ALIAS_BLOCK";
@@ -40,25 +33,20 @@ function DroppableRHS({
   palette,
   alias,
   codes,
-  onMoveBlock,
+  onAddBlockToAlias,
 }: {
   aliases: Aliases;
   palette: Palette;
   alias: string;
   codes: string[];
-  onMoveBlock?: (
-    sourceAlias: string,
-    sourceIndex: number,
-    targetAlias: string,
-    targetIndex?: number,
-  ) => void;
+  onAddBlockToAlias: (item: AliasBlockDragItem, alias: string) => void;
 }) {
   const dropRef = useRef<HTMLDivElement>(null);
   const [{ isOver }, drop] = useDrop({
     accept: "ALIAS_BLOCK",
     drop: (item: AliasBlockDragItem) => {
-      if (onMoveBlock && item.sourceAlias !== alias) {
-        onMoveBlock(item.sourceAlias, item.sourceIndex, alias);
+      if (item.sourceAlias !== alias) {
+        onAddBlockToAlias(item, alias);
       }
     },
     collect: (monitor) => ({
@@ -111,7 +99,7 @@ function NewAliasDropZone({
   const dropRef = useRef<HTMLDivElement>(null);
   const [{ isOver }, drop] = useDrop({
     accept: ["RULE_BLOCK", "ALIAS_BLOCK"],
-    drop: (item: AllDragItems) => {
+    drop: (item: BlockDragItem) => {
       if (onCreateNewAlias) {
         if (item.type === "RULE_BLOCK") {
           onCreateNewAlias(item.symbol, {
@@ -159,7 +147,7 @@ function NewAliasDropZone({
 export function AliasesDisplay({
   aliases,
   palette,
-  onMoveBlock,
+  onAddBlockToAlias,
   onCreateNewAlias,
   setColor,
 }: AliasDisplayProps) {
@@ -208,7 +196,7 @@ export function AliasesDisplay({
             palette={palette}
             alias={alias}
             codes={codes}
-            onMoveBlock={onMoveBlock}
+            onAddBlockToAlias={onAddBlockToAlias}
           />
         </React.Fragment>
       ))}

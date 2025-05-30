@@ -59,4 +59,5 @@ export type RuleDragItem = {
   sourceRuleIndex: number;
 };
 
-export type DragItem = RuleBlockDragItem | AliasBlockDragItem | RuleDragItem;
+export type BlockDragItem = AliasBlockDragItem | RuleBlockDragItem;
+export type DragItem = BlockDragItem | RuleDragItem;
