@@ -19,17 +19,13 @@ type AliasDisplayProps = {
 };
 
 function DroppableRHS({
-  aliases,
-  palette,
   alias,
-  codes,
   onAddBlockToAlias,
+  children,
 }: {
-  aliases: Aliases;
-  palette: Palette;
   alias: string;
-  codes: string[];
   onAddBlockToAlias: (item: AliasBlockDragItem, alias: string) => void;
+  children: React.ReactNode;
 }) {
   const dropRef = useRef<HTMLDivElement>(null);
   const [{ isOver }, drop] = useDrop({
@@ -52,19 +48,7 @@ function DroppableRHS({
         backgroundColor: isOver ? "rgba(0, 255, 0, 0.2)" : "transparent",
       }}
     >
-      {codes.map((symbol, idx) => (
-        <Draggable
-          item={{
-            type: "ALIAS_BLOCK",
-            sourceAlias: alias,
-            sourceIndex: idx,
-            symbol,
-          }}
-          key={symbol}
-        >
-          <RuleSquare aliases={aliases} palette={palette} symbol={symbol} />
-        </Draggable>
-      ))}
+      {children}
     </div>
   );
 }
@@ -157,12 +141,23 @@ export function AliasesDisplay({
           </div>
           <div className="rule-arrow">=</div>
           <DroppableRHS
-            aliases={aliases}
-            palette={palette}
             alias={alias}
-            codes={codes}
             onAddBlockToAlias={onAddBlockToAlias}
-          />
+          >
+            {codes.map((symbol, idx) => (
+              <Draggable
+                item={{
+                  type: "ALIAS_BLOCK",
+                  sourceAlias: alias,
+                  sourceIndex: idx,
+                  symbol,
+                }}
+                key={symbol}
+              >
+                <RuleSquare aliases={aliases} palette={palette} symbol={symbol} />
+              </Draggable>
+            ))}
+          </DroppableRHS>
         </React.Fragment>
       ))}
       <NewAliasDropZone onCreateNewAlias={onCreateNewAlias} />
