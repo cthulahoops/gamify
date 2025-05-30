@@ -2,7 +2,7 @@ import React from "react";
 import { useRef } from "react";
 import { useDrop } from "react-dnd";
 
-import type { Rule, DragItem, RuleDragItem } from "./types";
+import type { Rule, DragItem, RuleDragItem, BlockDragItem } from "./types";
 import type { Palette } from "./palette";
 import type { Aliases } from "./aliases";
 import { RuleSquare } from "./RuleSquare";
@@ -14,20 +14,18 @@ type RulesDisplayProps = {
   aliases: Aliases;
   palette: Palette;
   onMoveRuleBlock?: (
-    sourceRuleIndex: number,
-    sourceSide: "match" | "become",
-    sourcePosition: number,
+    sourceItem: RuleBlockDragItem,
     targetRuleIndex: number,
     targetSide: "match" | "become",
     targetPosition?: number,
   ) => void;
   onCopyAliasToRule?: (
-    symbol: string,
+    sourceItem: AliasBlockDragItem,
     targetRuleIndex: number,
     targetSide: "match" | "become",
     targetPosition: number,
   ) => void;
-  onCreateNewRule: (item: RuleBlockDragItem | AliasBlockDragItem) => void;
+  onCreateNewRule: (item: BlockDragItem) => void;
   onReorderRule?: (sourceIndex: number, targetIndex: number) => void;
   onDeleteRuleBlock?: (
     ruleIndex: number,
@@ -117,15 +115,13 @@ function BlockDropZone({
   side: "match" | "become";
   position: number;
   onMoveRuleBlock?: (
-    sourceRuleIndex: number,
-    sourceSide: "match" | "become",
-    sourcePosition: number,
+    sourceItem: RuleBlockDragItem,
     targetRuleIndex: number,
     targetSide: "match" | "become",
     targetPosition?: number,
   ) => void;
   onCopyAliasToRule?: (
-    symbol: string,
+    sourceItem: AliasBlockDragItem,
     targetRuleIndex: number,
     targetSide: "match" | "become",
     targetPosition: number,
@@ -136,16 +132,9 @@ function BlockDropZone({
     accept: ["RULE_BLOCK", "ALIAS_BLOCK"],
     drop: (item: DragItem) => {
       if (item.type === "RULE_BLOCK" && onMoveRuleBlock) {
-        onMoveRuleBlock(
-          item.sourceRuleIndex,
-          item.sourceSide,
-          item.sourcePosition,
-          ruleIndex,
-          side,
-          position,
-        );
+        onMoveRuleBlock(item, ruleIndex, side, position);
       } else if (item.type === "ALIAS_BLOCK" && onCopyAliasToRule) {
-        onCopyAliasToRule(item.symbol, ruleIndex, side, position);
+        onCopyAliasToRule(item, ruleIndex, side, position);
       }
     },
     collect: (monitor) => ({
@@ -183,15 +172,13 @@ function DroppableRuleSide({
   ruleIndex: number;
   side: "match" | "become";
   onMoveRuleBlock?: (
-    sourceRuleIndex: number,
-    sourceSide: "match" | "become",
-    sourcePosition: number,
+    sourceItem: RuleBlockDragItem,
     targetRuleIndex: number,
     targetSide: "match" | "become",
     targetPosition?: number,
   ) => void;
   onCopyAliasToRule?: (
-    symbol: string,
+    sourceItem: AliasBlockDragItem,
     targetRuleIndex: number,
     targetSide: "match" | "become",
     targetPosition: number,
@@ -234,7 +221,7 @@ function DroppableRuleSide({
 function NewRuleDropZone({
   onCreateNewRule,
 }: {
-  onCreateNewRule: (sourceInfo: RuleBlockDragItem | AliasBlockDragItem) => void;
+  onCreateNewRule: (item: BlockDragItem) => void;
 }) {
   const dropRef = useRef<HTMLDivElement>(null);
   const [{ isOver }, drop] = useDrop({
@@ -274,15 +261,13 @@ type RuleProps = {
   aliases: Aliases;
   palette: Palette;
   onMoveRuleBlock?: (
-    sourceRuleIndex: number,
-    sourceSide: "match" | "become",
-    sourcePosition: number,
+    sourceItem: RuleBlockDragItem,
     targetRuleIndex: number,
     targetSide: "match" | "become",
     targetPosition?: number,
   ) => void;
   onCopyAliasToRule?: (
-    symbol: string,
+    sourceItem: AliasBlockDragItem,
     targetRuleIndex: number,
     targetSide: "match" | "become",
     targetPosition: number,

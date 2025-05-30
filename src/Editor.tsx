@@ -73,37 +73,35 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
   );
 
   const handleMoveRuleBlock = (
-    sourceRuleIndex: number,
-    sourceSide: "match" | "become",
-    sourcePosition: number,
+    sourceItem: RuleBlockDragItem,
     targetRuleIndex: number,
     targetSide: "match" | "become",
     targetPosition?: number,
   ) => {
     const newRules = [...rules];
 
-    const sourceRule = newRules[sourceRuleIndex];
+    const sourceRule = newRules[sourceItem.sourceRuleIndex];
     const targetRule = newRules[targetRuleIndex];
 
-    const sourceString = sourceRule[sourceSide];
-    const symbolToMove = sourceString[sourcePosition];
+    const sourceString = sourceRule[sourceItem.sourceSide];
+    const symbolToMove = sourceString[sourceItem.sourcePosition];
 
     let adjustedTargetPosition =
       targetPosition ?? targetRule[targetSide].length;
 
     // If moving within the same rule side, adjust target position for removal
-    if (sourceRuleIndex === targetRuleIndex && sourceSide === targetSide) {
-      if (sourcePosition < adjustedTargetPosition) {
+    if (sourceItem.sourceRuleIndex === targetRuleIndex && sourceItem.sourceSide === targetSide) {
+      if (sourceItem.sourcePosition < adjustedTargetPosition) {
         adjustedTargetPosition--;
       }
     }
 
     const newSourceString =
-      sourceString.slice(0, sourcePosition) +
-      sourceString.slice(sourcePosition + 1);
-    newRules[sourceRuleIndex] = {
+      sourceString.slice(0, sourceItem.sourcePosition) +
+      sourceString.slice(sourceItem.sourcePosition + 1);
+    newRules[sourceItem.sourceRuleIndex] = {
       ...sourceRule,
-      [sourceSide]: newSourceString,
+      [sourceItem.sourceSide as keyof Rule]: newSourceString,
     };
 
     const targetString = newRules[targetRuleIndex][targetSide];
@@ -120,7 +118,7 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
   };
 
   const handleCopyAliasToRule = (
-    symbol: string,
+    sourceItem: AliasBlockDragItem,
     targetRuleIndex: number,
     targetSide: "match" | "become",
     targetPosition: number,
@@ -131,7 +129,7 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
 
     const newTargetString =
       targetString.slice(0, targetPosition) +
-      symbol +
+      sourceItem.symbol +
       targetString.slice(targetPosition);
 
     newRules[targetRuleIndex] = {
