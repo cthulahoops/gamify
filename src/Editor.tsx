@@ -146,6 +146,10 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
     item: AliasBlockDragItem,
     targetAlias: string,
   ) => {
+    if (item.sourceAlias === targetAlias) {
+      return;
+    }
+
     const newAliases = aliases.clone();
 
     if (item.sourceIndex < 0) {

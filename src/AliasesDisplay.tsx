@@ -35,9 +35,7 @@ function DroppableRHS({
   const [{ isOver }, drop] = useDrop({
     accept: "ALIAS_BLOCK",
     drop: (item: AliasBlockDragItem) => {
-      if (item.sourceAlias !== alias) {
-        onAddBlockToAlias(item, alias);
-      }
+      onAddBlockToAlias(item, alias);
     },
     collect: (monitor) => ({
       isOver: monitor.isOver(),
