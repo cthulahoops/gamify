@@ -8,7 +8,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 
 import { Aliases } from "./aliases";
 import type { Palette, ColorCode, Color } from "./palette";
-import type { Rule, DragItem, AliasDragItem, RuleDragItem } from "./types";
+import type { Rule, DragItem, AliasBlockDragItem, RuleBlockDragItem } from "./types";
 import type { GameDesign } from "./types";
 
 import { DeleteZone } from "./DeleteZone";
@@ -195,7 +195,7 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
     setAliases(newAliases);
   };
 
-  const handleCreateNewRule = (sourceInfo?: AliasDragItem | RuleDragItem) => {
+  const handleCreateNewRule = (sourceInfo?: AliasBlockDragItem | RuleBlockDragItem) => {
     const newRules = [...rules];
 
     // Create new rule with the symbol after the ">" in match

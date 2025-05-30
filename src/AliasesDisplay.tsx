@@ -4,13 +4,13 @@ import { useDrop } from "react-dnd";
 
 import type { Aliases } from "./aliases";
 import type { Palette } from "./palette";
-import type { AliasDragItem, RuleDragItem } from "./types";
+import type { AliasBlockDragItem, RuleBlockDragItem } from "./types";
 import type { ColorCode, Color } from "./palette";
 import { RuleSquare } from "./RuleSquare";
 
 import { Draggable } from "./Draggable";
 
-type AllDragItems = AliasDragItem | RuleDragItem;
+type AllDragItems = AliasBlockDragItem | RuleBlockDragItem;
 
 type AliasDisplayProps = {
   aliases: Aliases;
@@ -56,7 +56,7 @@ function DroppableRHS({
   const dropRef = useRef<HTMLDivElement>(null);
   const [{ isOver }, drop] = useDrop({
     accept: "ALIAS_BLOCK",
-    drop: (item: AliasDragItem) => {
+    drop: (item: AliasBlockDragItem) => {
       if (onMoveBlock && item.sourceAlias !== alias) {
         onMoveBlock(item.sourceAlias, item.sourceIndex, alias);
       }

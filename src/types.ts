@@ -39,7 +39,7 @@ export type Point = {
   y: number;
 };
 
-export type RuleDragItem = {
+export type RuleBlockDragItem = {
   type: "RULE_BLOCK";
   sourceRuleIndex: number;
   sourceSide: "match" | "become";
@@ -47,16 +47,16 @@ export type RuleDragItem = {
   symbol: string;
 };
 
-export type AliasDragItem = {
+export type AliasBlockDragItem = {
   type: "ALIAS_BLOCK";
   sourceAlias: string;
   sourceIndex: number;
   symbol: string;
 };
 
-export type RuleReorderDragItem = {
+export type RuleDragItem = {
   type: "RULE_REORDER";
   sourceRuleIndex: number;
 };
 
-export type DragItem = RuleDragItem | AliasDragItem | RuleReorderDragItem;
+export type DragItem = RuleBlockDragItem | AliasBlockDragItem | RuleDragItem;

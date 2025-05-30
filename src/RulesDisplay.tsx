@@ -2,11 +2,11 @@ import React from "react";
 import { useRef } from "react";
 import { useDrop } from "react-dnd";
 
-import type { Rule, DragItem, RuleReorderDragItem } from "./types";
+import type { Rule, DragItem, RuleDragItem } from "./types";
 import type { Palette } from "./palette";
 import type { Aliases } from "./aliases";
 import { RuleSquare } from "./RuleSquare";
-import type { RuleDragItem, AliasDragItem } from "./types";
+import type { RuleBlockDragItem, AliasBlockDragItem } from "./types";
 import { Draggable } from "./Draggable";
 
 type RulesDisplayProps = {
@@ -27,7 +27,7 @@ type RulesDisplayProps = {
     targetSide: "match" | "become",
     targetPosition: number,
   ) => void;
-  onCreateNewRule: (item: RuleDragItem | AliasDragItem) => void;
+  onCreateNewRule: (item: RuleBlockDragItem | AliasBlockDragItem) => void;
   onReorderRule?: (sourceIndex: number, targetIndex: number) => void;
   onDeleteRuleBlock?: (
     ruleIndex: number,
@@ -82,7 +82,7 @@ function RuleDropZone({
   const dropRef = useRef<HTMLDivElement>(null);
   const [{ isOver }, drop] = useDrop({
     accept: "RULE_REORDER",
-    drop: (item: RuleReorderDragItem) => {
+    drop: (item: RuleDragItem) => {
       if (onReorderRule && item.sourceRuleIndex !== targetRuleIndex) {
         onReorderRule(item.sourceRuleIndex, targetRuleIndex);
       }
@@ -234,7 +234,7 @@ function DroppableRuleSide({
 function NewRuleDropZone({
   onCreateNewRule,
 }: {
-  onCreateNewRule: (sourceInfo: RuleDragItem | AliasDragItem) => void;
+  onCreateNewRule: (sourceInfo: RuleBlockDragItem | AliasBlockDragItem) => void;
 }) {
   const dropRef = useRef<HTMLDivElement>(null);
   const [{ isOver }, drop] = useDrop({
