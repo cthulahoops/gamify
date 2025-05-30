@@ -79,7 +79,7 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
       side: targetSide,
       position: targetPosition,
     } = target;
-    const newRules = [...rules];
+    let newRules = [...rules];
     const targetRule = newRules[targetRuleIndex];
     const targetString = targetRule[targetSide];
 
@@ -88,9 +88,6 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
 
     // If it's a rule block, we need to remove it from the source
     if (item.type === "RULE_BLOCK") {
-      const sourceRule = newRules[item.source.ruleIndex];
-      const sourceString = sourceRule[item.source.side];
-
       // If moving within the same rule side, adjust target position for removal
       if (
         item.source.ruleIndex === targetRuleIndex &&
@@ -102,13 +99,7 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
       }
 
       // Remove from source
-      const newSourceString =
-        sourceString.slice(0, item.source.position) +
-        sourceString.slice(item.source.position + 1);
-      newRules[item.source.ruleIndex] = {
-        ...sourceRule,
-        [item.source.side as keyof Rule]: newSourceString,
-      };
+      newRules = removeBlockFromRules(newRules, item.source);
     }
 
     // Add to target
@@ -157,17 +148,7 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
 
     // If it's a rule block, remove it from its original position in rules
     if (item.type === "RULE_BLOCK") {
-      const newRules = [...rules];
-      const sourceRule = newRules[item.source.ruleIndex];
-      const sourceString = sourceRule[item.source.side];
-      const newSourceString =
-        sourceString.slice(0, item.source.position) +
-        sourceString.slice(item.source.position + 1);
-
-      newRules[item.source.ruleIndex] = {
-        ...sourceRule,
-        [item.source.side as keyof Rule]: newSourceString,
-      };
+      const newRules = removeBlockFromRules([...rules], item.source);
 
       setRules(newRules);
     }
@@ -178,7 +159,7 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
   const handleCreateNewRule = (
     item: AliasBlockDragItem | RuleBlockDragItem,
   ) => {
-    const newRules = [...rules];
+    let newRules = [...rules];
 
     const newRule = {
       match: ">" + item.symbol,
@@ -188,17 +169,7 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
     newRules.push(newRule);
 
     if (item.type === "RULE_BLOCK" && item.source.ruleIndex !== undefined) {
-      const source = item.source;
-      const sourceRule = newRules[source.ruleIndex];
-      const sourceString = sourceRule[source.side];
-      const newSourceString =
-        sourceString.slice(0, source.position!) +
-        sourceString.slice(source.position! + 1);
-
-      newRules[source.ruleIndex] = {
-        ...sourceRule,
-        [source.side!]: newSourceString,
-      };
+      newRules = removeBlockFromRules(newRules, item.source);
     }
 
     setRules(newRules);
@@ -300,4 +271,20 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
       </div>
     </DndProvider>
   );
+}
+
+function removeBlockFromRules(rules: Rule[], source: RuleLocation): Rule[] {
+  const sourceRule = rules[source.ruleIndex];
+  const sourceString = sourceRule[source.side];
+  const newSourceString =
+    sourceString.slice(0, source.position) +
+    sourceString.slice(source.position + 1);
+
+  const newRules = [...rules];
+  newRules[source.ruleIndex] = {
+    ...sourceRule,
+    [source.side as keyof Rule]: newSourceString,
+  };
+
+  return newRules;
 }
