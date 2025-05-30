@@ -15,17 +15,7 @@ type AliasDisplayProps = {
   palette: Palette;
   setColor: (symbol: ColorCode, color: Color) => void;
   onAddBlockToAlias: (item: AliasBlockDragItem, targetAlias: string) => void;
-  onCreateNewAlias: (
-    symbol: string,
-    sourceInfo?: {
-      type: "RULE_BLOCK" | "ALIAS_BLOCK";
-      sourceRuleIndex?: number;
-      sourceSide?: "match" | "become";
-      sourcePosition?: number;
-      sourceAlias?: string;
-      sourceIndex?: number;
-    },
-  ) => void;
+  onCreateNewAlias: (item: BlockDragItem) => void;
 };
 
 function DroppableRHS({
@@ -84,37 +74,14 @@ function DroppableRHS({
 function NewAliasDropZone({
   onCreateNewAlias,
 }: {
-  onCreateNewAlias?: (
-    symbol: string,
-    sourceInfo?: {
-      type: "RULE_BLOCK" | "ALIAS_BLOCK";
-      sourceRuleIndex?: number;
-      sourceSide?: "match" | "become";
-      sourcePosition?: number;
-      sourceAlias?: string;
-      sourceIndex?: number;
-    },
-  ) => void;
+  onCreateNewAlias?: (item: BlockDragItem) => void;
 }) {
   const dropRef = useRef<HTMLDivElement>(null);
   const [{ isOver }, drop] = useDrop({
     accept: ["RULE_BLOCK", "ALIAS_BLOCK"],
     drop: (item: BlockDragItem) => {
       if (onCreateNewAlias) {
-        if (item.type === "RULE_BLOCK") {
-          onCreateNewAlias(item.symbol, {
-            type: "RULE_BLOCK",
-            sourceRuleIndex: item.sourceRuleIndex,
-            sourceSide: item.sourceSide,
-            sourcePosition: item.sourcePosition,
-          });
-        } else {
-          onCreateNewAlias(item.symbol, {
-            type: "ALIAS_BLOCK",
-            sourceAlias: item.sourceAlias,
-            sourceIndex: item.sourceIndex,
-          });
-        }
+        onCreateNewAlias(item);
       }
     },
     collect: (monitor) => ({

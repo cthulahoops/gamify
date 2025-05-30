@@ -11,9 +11,9 @@ import type { Palette, ColorCode, Color } from "./palette";
 import type {
   Rule,
   DragItem,
-  BlockDragItem,
   AliasBlockDragItem,
   RuleBlockDragItem,
+  BlockDragItem,
 } from "./types";
 import type { GameDesign } from "./types";
 
@@ -165,35 +165,22 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
     setAliases(newAliases);
   };
 
-  const handleCreateNewAlias = (
-    symbol: string,
-    sourceInfo?: {
-      type: "RULE_BLOCK" | "ALIAS_BLOCK";
-      sourceRuleIndex?: number;
-      sourceSide?: "match" | "become";
-      sourcePosition?: number;
-      sourceAlias?: string;
-      sourceIndex?: number;
-    },
-  ) => {
+  const handleCreateNewAlias = (item: BlockDragItem) => {
     const newAliases = aliases.clone();
-    newAliases.addAlias(undefined, symbol);
+    newAliases.addAlias(undefined, item.symbol);
 
     // If it's a rule block, remove it from its original position in rules
-    if (
-      sourceInfo?.type === "RULE_BLOCK" &&
-      sourceInfo.sourceRuleIndex !== undefined
-    ) {
+    if (item.type === "RULE_BLOCK") {
       const newRules = [...rules];
-      const sourceRule = newRules[sourceInfo.sourceRuleIndex];
-      const sourceString = sourceRule[sourceInfo.sourceSide!];
+      const sourceRule = newRules[item.sourceRuleIndex];
+      const sourceString = sourceRule[item.sourceSide];
       const newSourceString =
-        sourceString.slice(0, sourceInfo.sourcePosition!) +
-        sourceString.slice(sourceInfo.sourcePosition! + 1);
+        sourceString.slice(0, item.sourcePosition) +
+        sourceString.slice(item.sourcePosition + 1);
 
-      newRules[sourceInfo.sourceRuleIndex] = {
+      newRules[item.sourceRuleIndex] = {
         ...sourceRule,
-        [sourceInfo.sourceSide!]: newSourceString,
+        [item.sourceSide as keyof Rule]: newSourceString,
       };
 
       setRules(newRules);
