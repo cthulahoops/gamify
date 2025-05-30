@@ -6,21 +6,15 @@ import type { Rule, DragItem, RuleDragItem, BlockDragItem } from "./types";
 import type { Palette } from "./palette";
 import type { Aliases } from "./aliases";
 import { RuleSquare } from "./RuleSquare";
-import type { RuleBlockDragItem, AliasBlockDragItem } from "./types";
+
 import { Draggable } from "./Draggable";
 
 type RulesDisplayProps = {
   rules: Rule[];
   aliases: Aliases;
   palette: Palette;
-  onMoveRuleBlock?: (
-    sourceItem: RuleBlockDragItem,
-    targetRuleIndex: number,
-    targetSide: "match" | "become",
-    targetPosition?: number,
-  ) => void;
-  onCopyAliasToRule?: (
-    sourceItem: AliasBlockDragItem,
+  onAddBlockToRule?: (
+    sourceItem: BlockDragItem,
     targetRuleIndex: number,
     targetSide: "match" | "become",
     targetPosition: number,
@@ -108,20 +102,13 @@ function BlockDropZone({
   ruleIndex,
   side,
   position,
-  onMoveRuleBlock,
-  onCopyAliasToRule,
+  onAddBlockToRule,
 }: {
   ruleIndex: number;
   side: "match" | "become";
   position: number;
-  onMoveRuleBlock?: (
-    sourceItem: RuleBlockDragItem,
-    targetRuleIndex: number,
-    targetSide: "match" | "become",
-    targetPosition?: number,
-  ) => void;
-  onCopyAliasToRule?: (
-    sourceItem: AliasBlockDragItem,
+  onAddBlockToRule?: (
+    sourceItem: BlockDragItem,
     targetRuleIndex: number,
     targetSide: "match" | "become",
     targetPosition: number,
@@ -131,10 +118,11 @@ function BlockDropZone({
   const [{ isOver }, drop] = useDrop({
     accept: ["RULE_BLOCK", "ALIAS_BLOCK"],
     drop: (item: DragItem) => {
-      if (item.type === "RULE_BLOCK" && onMoveRuleBlock) {
-        onMoveRuleBlock(item, ruleIndex, side, position);
-      } else if (item.type === "ALIAS_BLOCK" && onCopyAliasToRule) {
-        onCopyAliasToRule(item, ruleIndex, side, position);
+      if (
+        (item.type === "RULE_BLOCK" || item.type === "ALIAS_BLOCK") &&
+        onAddBlockToRule
+      ) {
+        onAddBlockToRule(item, ruleIndex, side, position);
       }
     },
     collect: (monitor) => ({
@@ -163,22 +151,15 @@ function DroppableRuleSide({
   symbols,
   ruleIndex,
   side,
-  onMoveRuleBlock,
-  onCopyAliasToRule,
+  onAddBlockToRule,
 }: {
   aliases: Aliases;
   palette: Palette;
   symbols: string;
   ruleIndex: number;
   side: "match" | "become";
-  onMoveRuleBlock?: (
-    sourceItem: RuleBlockDragItem,
-    targetRuleIndex: number,
-    targetSide: "match" | "become",
-    targetPosition?: number,
-  ) => void;
-  onCopyAliasToRule?: (
-    sourceItem: AliasBlockDragItem,
+  onAddBlockToRule?: (
+    sourceItem: BlockDragItem,
     targetRuleIndex: number,
     targetSide: "match" | "become",
     targetPosition: number,
@@ -192,8 +173,7 @@ function DroppableRuleSide({
         ruleIndex={ruleIndex}
         side={side}
         position={0}
-        onMoveRuleBlock={onMoveRuleBlock}
-        onCopyAliasToRule={onCopyAliasToRule}
+        onAddBlockToRule={onAddBlockToRule}
       />
       {symbolsArray.map((symbol, position) => (
         <React.Fragment key={position}>
@@ -209,8 +189,7 @@ function DroppableRuleSide({
             ruleIndex={ruleIndex}
             side={side}
             position={position + 1}
-            onMoveRuleBlock={onMoveRuleBlock}
-            onCopyAliasToRule={onCopyAliasToRule}
+            onAddBlockToRule={onAddBlockToRule}
           />
         </React.Fragment>
       ))}
@@ -260,14 +239,8 @@ type RuleProps = {
   rule: Rule;
   aliases: Aliases;
   palette: Palette;
-  onMoveRuleBlock?: (
-    sourceItem: RuleBlockDragItem,
-    targetRuleIndex: number,
-    targetSide: "match" | "become",
-    targetPosition?: number,
-  ) => void;
-  onCopyAliasToRule?: (
-    sourceItem: AliasBlockDragItem,
+  onAddBlockToRule?: (
+    sourceItem: BlockDragItem,
     targetRuleIndex: number,
     targetSide: "match" | "become",
     targetPosition: number,
@@ -293,8 +266,7 @@ export function RulesDisplay({
   rules,
   aliases,
   palette,
-  onMoveRuleBlock,
-  onCopyAliasToRule,
+  onAddBlockToRule,
   onCreateNewRule,
   onReorderRule,
 }: RulesDisplayProps) {
@@ -310,8 +282,7 @@ export function RulesDisplay({
               rule={rule}
               aliases={aliases}
               palette={palette}
-              onMoveRuleBlock={onMoveRuleBlock}
-              onCopyAliasToRule={onCopyAliasToRule}
+              onAddBlockToRule={onAddBlockToRule}
             >
               <DroppableRuleSide
                 aliases={aliases}
@@ -319,8 +290,7 @@ export function RulesDisplay({
                 symbols={rule.match}
                 ruleIndex={ruleIndex}
                 side="match"
-                onMoveRuleBlock={onMoveRuleBlock}
-                onCopyAliasToRule={onCopyAliasToRule}
+                onAddBlockToRule={onAddBlockToRule}
               />
               <Arrow />
               <DroppableRuleSide
@@ -329,8 +299,7 @@ export function RulesDisplay({
                 symbols={rule.become}
                 ruleIndex={ruleIndex}
                 side="become"
-                onMoveRuleBlock={onMoveRuleBlock}
-                onCopyAliasToRule={onCopyAliasToRule}
+                onAddBlockToRule={onAddBlockToRule}
               />
             </Rule>
             <RuleDropZone

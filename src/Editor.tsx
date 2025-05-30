@@ -72,53 +72,8 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
     [gameDesign, setGameDesign],
   );
 
-  const handleMoveRuleBlock = (
-    sourceItem: RuleBlockDragItem,
-    targetRuleIndex: number,
-    targetSide: "match" | "become",
-    targetPosition?: number,
-  ) => {
-    const newRules = [...rules];
-
-    const sourceRule = newRules[sourceItem.sourceRuleIndex];
-    const targetRule = newRules[targetRuleIndex];
-
-    const sourceString = sourceRule[sourceItem.sourceSide];
-    const symbolToMove = sourceString[sourceItem.sourcePosition];
-
-    let adjustedTargetPosition =
-      targetPosition ?? targetRule[targetSide].length;
-
-    // If moving within the same rule side, adjust target position for removal
-    if (sourceItem.sourceRuleIndex === targetRuleIndex && sourceItem.sourceSide === targetSide) {
-      if (sourceItem.sourcePosition < adjustedTargetPosition) {
-        adjustedTargetPosition--;
-      }
-    }
-
-    const newSourceString =
-      sourceString.slice(0, sourceItem.sourcePosition) +
-      sourceString.slice(sourceItem.sourcePosition + 1);
-    newRules[sourceItem.sourceRuleIndex] = {
-      ...sourceRule,
-      [sourceItem.sourceSide as keyof Rule]: newSourceString,
-    };
-
-    const targetString = newRules[targetRuleIndex][targetSide];
-    const newTargetString =
-      targetString.slice(0, adjustedTargetPosition) +
-      symbolToMove +
-      targetString.slice(adjustedTargetPosition);
-    newRules[targetRuleIndex] = {
-      ...newRules[targetRuleIndex],
-      [targetSide]: newTargetString,
-    };
-
-    setRules(newRules);
-  };
-
-  const handleCopyAliasToRule = (
-    sourceItem: AliasBlockDragItem,
+  const handleAddBlockToRule = (
+    sourceItem: BlockDragItem,
     targetRuleIndex: number,
     targetSide: "match" | "become",
     targetPosition: number,
@@ -127,14 +82,39 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
     const targetRule = newRules[targetRuleIndex];
     const targetString = targetRule[targetSide];
 
-    const newTargetString =
-      targetString.slice(0, targetPosition) +
-      sourceItem.symbol +
-      targetString.slice(targetPosition);
+    let adjustedTargetPosition = targetPosition;
+    let symbolToAdd = sourceItem.symbol;
 
+    // If it's a rule block, we need to remove it from the source
+    if (sourceItem.type === "RULE_BLOCK") {
+      const sourceRule = newRules[sourceItem.sourceRuleIndex];
+      const sourceString = sourceRule[sourceItem.sourceSide];
+
+      // If moving within the same rule side, adjust target position for removal
+      if (sourceItem.sourceRuleIndex === targetRuleIndex && sourceItem.sourceSide === targetSide) {
+        if (sourceItem.sourcePosition < adjustedTargetPosition) {
+          adjustedTargetPosition--;
+        }
+      }
+
+      // Remove from source
+      const newSourceString =
+        sourceString.slice(0, sourceItem.sourcePosition) +
+        sourceString.slice(sourceItem.sourcePosition + 1);
+      newRules[sourceItem.sourceRuleIndex] = {
+        ...sourceRule,
+        [sourceItem.sourceSide as keyof Rule]: newSourceString,
+      };
+    }
+
+    // Add to target
+    const newTargetString =
+      targetString.slice(0, adjustedTargetPosition) +
+      symbolToAdd +
+      targetString.slice(adjustedTargetPosition);
     newRules[targetRuleIndex] = {
       ...targetRule,
-      [targetSide]: newTargetString,
+      [targetSide as keyof Rule]: newTargetString,
     };
 
     setRules(newRules);
@@ -289,8 +269,7 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
               rules={rules}
               aliases={aliases}
               palette={palette}
-              onMoveRuleBlock={handleMoveRuleBlock}
-              onCopyAliasToRule={handleCopyAliasToRule}
+              onAddBlockToRule={handleAddBlockToRule}
               onCreateNewRule={handleCreateNewRule}
               onReorderRule={handleReorderRule}
             />
