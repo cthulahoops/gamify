@@ -74,24 +74,19 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
   );
 
   const handleAddBlockToRule = (item: BlockDragItem, target: RuleLocation) => {
-    const {
-      ruleIndex: targetRuleIndex,
-      side: targetSide,
-      position: targetPosition,
-    } = target;
     let newRules = [...rules];
-    const targetRule = newRules[targetRuleIndex];
-    const targetString = targetRule[targetSide];
+    const targetRule = newRules[target.ruleIndex];
+    const targetString = targetRule[target.side];
 
-    let adjustedTargetPosition = targetPosition;
+    let adjustedTargetPosition = target.position;
     const symbolToAdd = item.symbol;
 
     // If it's a rule block, we need to remove it from the source
     if (item.type === "RULE_BLOCK") {
       // If moving within the same rule side, adjust target position for removal
       if (
-        item.source.ruleIndex === targetRuleIndex &&
-        item.source.side === targetSide
+        item.source.ruleIndex === target.ruleIndex &&
+        item.source.side === target.side
       ) {
         if (item.source.position < adjustedTargetPosition) {
           adjustedTargetPosition--;
@@ -107,9 +102,9 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
       targetString.slice(0, adjustedTargetPosition) +
       symbolToAdd +
       targetString.slice(adjustedTargetPosition);
-    newRules[targetRuleIndex] = {
+    newRules[target.ruleIndex] = {
       ...targetRule,
-      [targetSide as keyof Rule]: newTargetString,
+      [target.side as keyof Rule]: newTargetString,
     };
 
     setRules(newRules);
@@ -182,19 +177,6 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
     setRules(newRules);
   };
 
-  const handleDeleteRuleBlock = (
-    ruleIndex: number,
-    side: "match" | "become",
-    position: number,
-  ) => {
-    const newRules = [...rules];
-    const rule = newRules[ruleIndex];
-    const newSideString =
-      rule[side].slice(0, position) + rule[side].slice(position + 1);
-    newRules[ruleIndex] = { ...rule, [side]: newSideString };
-    setRules(newRules);
-  };
-
   const handleDeleteRule = (ruleIndex: number) => {
     const newRules = [...rules];
     newRules.splice(ruleIndex, 1);
@@ -209,8 +191,7 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
 
   const handleDelete = (item: DragItem) => {
     if (item.type === "RULE_BLOCK") {
-      const source = item.source;
-      handleDeleteRuleBlock(source.ruleIndex, source.side, source.position);
+      setRules(removeBlockFromRules(rules, item.source));
     } else if (item.type === "RULE_REORDER") {
       handleDeleteRule(item.sourceRuleIndex);
     } else if (item.type === "ALIAS_BLOCK") {
