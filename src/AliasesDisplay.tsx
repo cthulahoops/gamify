@@ -1,12 +1,14 @@
 import React from "react";
 import { useRef } from "react";
-import { useDrag, useDrop } from "react-dnd";
+import { useDrop } from "react-dnd";
 
 import type { Aliases } from "./aliases";
 import type { Palette } from "./palette";
 import type { AliasDragItem, RuleDragItem } from "./types";
 import type { ColorCode, Color } from "./palette";
 import { RuleSquare } from "./RuleSquare";
+
+import { Draggable } from "./Draggable";
 
 type AllDragItems = AliasDragItem | RuleDragItem;
 
@@ -32,43 +34,6 @@ type AliasDisplayProps = {
     },
   ) => void;
 };
-
-function DraggableBlock({
-  aliases,
-  palette,
-  symbol,
-  sourceAlias,
-  sourceIndex,
-}: {
-  aliases: Aliases;
-  palette: Palette;
-  symbol: string;
-  sourceAlias: string;
-  sourceIndex: number;
-}) {
-  const dragRef = useRef<HTMLDivElement>(null);
-  const [{ isDragging }, drag] = useDrag({
-    type: "ALIAS_BLOCK",
-    item: { type: "ALIAS_BLOCK", sourceAlias, sourceIndex, symbol },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
-
-  drag(dragRef);
-
-  return (
-    <div
-      ref={dragRef}
-      style={{
-        opacity: isDragging ? 0.5 : 1,
-        cursor: "move",
-      }}
-    >
-      <RuleSquare aliases={aliases} palette={palette} symbol={symbol} />
-    </div>
-  );
-}
 
 function DroppableRHS({
   aliases,
@@ -112,14 +77,17 @@ function DroppableRHS({
       }}
     >
       {codes.map((symbol, idx) => (
-        <DraggableBlock
-          key={idx}
-          aliases={aliases}
-          palette={palette}
-          symbol={symbol}
-          sourceAlias={alias}
-          sourceIndex={idx}
-        />
+        <Draggable
+          item={{
+            type: "ALIAS_BLOCK",
+            sourceAlias: alias,
+            sourceIndex: idx,
+            symbol,
+          }}
+          key={symbol}
+        >
+          <RuleSquare aliases={aliases} palette={palette} symbol={symbol} />
+        </Draggable>
       ))}
     </div>
   );
@@ -200,13 +168,16 @@ export function AliasesDisplay({
       {palette.map((color: Color, symbol: ColorCode) => (
         <React.Fragment key={symbol}>
           <div className="rules-side" key={symbol}>
-            <DraggableBlock
-              aliases={aliases}
-              palette={palette}
-              symbol={symbol}
-              sourceAlias={symbol}
-              sourceIndex={-1}
-            />
+            <Draggable
+              item={{
+                type: "ALIAS_BLOCK",
+                sourceAlias: symbol,
+                sourceIndex: -1,
+                symbol: symbol,
+              }}
+            >
+              <RuleSquare aliases={aliases} palette={palette} symbol={symbol} />
+            </Draggable>
           </div>
           <div className="rule-arrow">=</div>
           <input
@@ -220,13 +191,16 @@ export function AliasesDisplay({
       {aliases.map((alias, codes) => (
         <React.Fragment key={alias}>
           <div className="rules-side">
-            <DraggableBlock
-              aliases={aliases}
-              palette={palette}
-              symbol={alias}
-              sourceAlias={alias}
-              sourceIndex={-1}
-            />
+            <Draggable
+              item={{
+                type: "ALIAS_BLOCK",
+                sourceAlias: alias,
+                sourceIndex: -1,
+                symbol: alias,
+              }}
+            >
+              <RuleSquare aliases={aliases} palette={palette} symbol={alias} />
+            </Draggable>
           </div>
           <div className="rule-arrow">=</div>
           <DroppableRHS

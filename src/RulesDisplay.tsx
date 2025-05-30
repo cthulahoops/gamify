@@ -6,6 +6,7 @@ import type { Rule, DragItem, RuleReorderDragItem } from "./types";
 import type { Palette } from "./palette";
 import type { Aliases } from "./aliases";
 import { RuleSquare } from "./RuleSquare";
+import type { RuleDragItem, AliasDragItem } from "./types";
 
 type RulesDisplayProps = {
   rules: Rule[];
@@ -25,7 +26,7 @@ type RulesDisplayProps = {
     targetSide: "match" | "become",
     targetPosition: number,
   ) => void;
-  onCreateNewRule?: (symbol: string) => void;
+  onCreateNewRule: (item: RuleDragItem | AliasDragItem) => void;
   onReorderRule?: (sourceIndex: number, targetIndex: number) => void;
   onDeleteRuleBlock?: (
     ruleIndex: number,
@@ -247,33 +248,16 @@ function DroppableRuleSide({
 function NewRuleDropZone({
   onCreateNewRule,
 }: {
-  onCreateNewRule?: (
-    symbol: string,
-    sourceInfo?: {
-      type: "RULE_BLOCK" | "ALIAS_BLOCK";
-      sourceRuleIndex?: number;
-      sourceSide?: "match" | "become";
-      sourcePosition?: number;
-    },
-  ) => void;
+  onCreateNewRule: (sourceInfo: RuleDragItem | AliasDragItem) => void;
 }) {
   const dropRef = useRef<HTMLDivElement>(null);
   const [{ isOver }, drop] = useDrop({
     accept: ["RULE_BLOCK", "ALIAS_BLOCK"],
     drop: (item: DragItem) => {
-      if (onCreateNewRule) {
-        if (item.type === "RULE_BLOCK") {
-          onCreateNewRule(item.symbol, {
-            type: "RULE_BLOCK",
-            sourceRuleIndex: item.sourceRuleIndex,
-            sourceSide: item.sourceSide,
-            sourcePosition: item.sourcePosition,
-          });
-        } else if (item.type === "ALIAS_BLOCK") {
-          onCreateNewRule(item.symbol, {
-            type: "ALIAS_BLOCK",
-          });
-        }
+      if (item.type === "RULE_BLOCK") {
+        onCreateNewRule(item);
+      } else if (item.type === "ALIAS_BLOCK") {
+        onCreateNewRule(item);
       }
     },
     collect: (monitor) => ({
