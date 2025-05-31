@@ -23,6 +23,10 @@ export function DeleteZone({
       className={isOver ? "drop-zone isOver delete" : "drop-zone delete"}
       style={{
         height: "2rem",
+        width: "2rem",
+        position: "absolute",
+        top: "0",
+        right: "0",
       }}
     >
       ❌

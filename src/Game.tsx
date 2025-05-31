@@ -58,42 +58,64 @@ export function Game({ creationUrl, localImage }: GameProps) {
     return "Loading...";
   }
 
+  const pondiverseToolUrl =
+    "https://pondiverse.com/tool?creation=" + creationUrl ? creationUrl : null;
+
   return (
     <>
-      <GameCanvas gameState={gameState} ref={canvasRef} />
-      <button id="reset" onClick={resetGame}>
-        Reset
-      </button>
+      <main>
+        <div className="game-container">
+          <GameCanvas gameState={gameState} ref={canvasRef} />
+          <button id="reset" onClick={resetGame}>
+            Reset
+          </button>
+          <p>
+            Use arrow keys to move the red player.
+            <br />
+            Add <code>?creation=YOUR_ID</code> to the URL to play on a
+            Pondiverse grid.
+          </p>
+        </div>
 
-      <Editor gameDesign={gameState.design} setGameDesign={setGameDesign} gameState={gameState} />
-
-      <div className="game-footer">
-        <a href="" id="original">
-          View Original
-        </a>
-        <p>
-          Use arrow keys to move the red player.
-          <br />
-          Add <code>?creation=YOUR_ID</code> to the URL to play on a Pondiverse
-          grid.
-        </p>
-        <PondiverseButton
-          getPondiverseCreation={() => {
-            const gameStateSaved: GameStateDTO = {
-              palette: gameState.design.palette.toJSON(),
-              aliases: gameState.design.aliases.toJSON(),
-              rules: gameState.design.rules,
-              grid: gameState.design.originalGrid.toJSON(),
-              player: gameState.design.playerSpawnPosition,
-            };
-            return {
-              type: "gamified",
-              data: JSON.stringify(gameStateSaved),
-              image: canvasRef?.current?.toDataURL() ?? "",
-            };
-          }}
+        <Editor
+          gameDesign={gameState.design}
+          setGameDesign={setGameDesign}
+          gameState={gameState}
         />
-      </div>
+      </main>
+
+      <footer className="game-footer">
+        <a href="/">New Creation</a>
+        {pondiverseToolUrl && (
+          <a href={pondiverseToolUrl} target="_blank" rel="noopener noreferrer">
+            View On Pondiverse Tool
+          </a>
+        )}
+        <a
+          href="https://github.com/cthulahoops/gamify"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View Source Code
+        </a>
+      </footer>
+
+      <PondiverseButton
+        getPondiverseCreation={() => {
+          const gameStateSaved: GameStateDTO = {
+            palette: gameState.design.palette.toJSON(),
+            aliases: gameState.design.aliases.toJSON(),
+            rules: gameState.design.rules,
+            grid: gameState.design.originalGrid.toJSON(),
+            player: gameState.design.playerSpawnPosition,
+          };
+          return {
+            type: "gamified",
+            data: JSON.stringify(gameStateSaved),
+            image: canvasRef?.current?.toDataURL() ?? "",
+          };
+        }}
+      />
     </>
   );
 }

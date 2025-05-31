@@ -1,4 +1,11 @@
-#game-canvas {
+main {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+canvas {
   border: 1px solid #888;
   image-rendering: pixelated;
 }
@@ -10,6 +17,13 @@
   width: fit-content;
   row-gap: 0.25rem;
 }
+
+.game-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
 
 .rule-square {
   width: 1.25rem;
@@ -74,8 +88,6 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  max-width: 1200px;
-  margin: 2rem 0;
   padding: 1.5rem;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -90,6 +102,7 @@
 
 .editor-section {
   width: 100%;
+  position: relative;
 }
 
 .editor-section h3 {
@@ -145,27 +158,22 @@
 }
 
 /* Game footer styles */
-.game-footer {
+footer {
   margin-top: 2rem;
   padding-top: 1rem;
   border-top: 1px solid #e0e0e0;
   text-align: center;
 }
 
-.game-footer a {
+footer a {
   color: #0066cc;
   text-decoration: none;
-  margin-bottom: 1rem;
+  margin: 1rem;
   display: inline-block;
 }
 
-.game-footer a:hover {
+footer a:hover {
   text-decoration: underline;
-}
-
-.game-footer p {
-  color: #666;
-  margin: 1rem 0;
 }
 
 /* Creations list styles */
@@ -231,4 +239,9 @@
 
 .isOver.delete {
     background-color: rgba(255, 192, 192, 0.4);
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
 }

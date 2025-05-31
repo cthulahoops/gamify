@@ -1,7 +1,6 @@
 import { useCallback } from "react";
 import { PaletteDisplay } from "./PaletteDisplay";
 import { RulesDisplay } from "./RulesDisplay";
-import { RulesTextarea } from "./RulesTextArea";
 import { PlayerSpawnPosition } from "./PlayerSpawnPosition";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -219,6 +218,7 @@ export function Editor({ gameDesign, setGameDesign, gameState }: EditorProps) {
             </button>
           </div>
           <div className="editor-section">
+            <h3>Player Spawn Position</h3>
             <PlayerSpawnPosition
               grid={gameDesign.originalGrid}
               aliases={aliases}
@@ -237,6 +237,7 @@ export function Editor({ gameDesign, setGameDesign, gameState }: EditorProps) {
               onCreateNewRule={handleCreateNewRule}
               onReorderRule={handleReorderRule}
             />
+            <DeleteZone onDelete={handleDelete} />
           </div>
 
           <div className="editor-section">
@@ -253,21 +254,8 @@ export function Editor({ gameDesign, setGameDesign, gameState }: EditorProps) {
                 setPalette(palette);
               }}
             />
+            <DeleteZone onDelete={handleDelete} />
           </div>
-
-          <DeleteZone onDelete={handleDelete} />
-        </div>
-
-        <div className="editor-text">
-          <h3>Rule Editor</h3>
-          <RulesTextarea
-            aliases={aliases}
-            rules={rules}
-            setRules={setRules}
-            setAliases={setAliases}
-            palette={palette}
-            setPalette={setPalette}
-          />
         </div>
       </div>
     </DndProvider>

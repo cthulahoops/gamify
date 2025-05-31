@@ -18,7 +18,7 @@ export function PlayerSpawnPosition({
   setPosition,
 }: PlayerSpawnPositionProps) {
   return (
-    <>
+    <div className="flex-column">
       <label>
         X:{" "}
         <input
@@ -46,9 +46,9 @@ export function PlayerSpawnPosition({
         />
       </label>
       <button onClick={() => setPosition(findRandomEmpty(aliases, grid))}>
-        Random Empty Position
+        Select Random
       </button>
-    </>
+    </div>
   );
 }
 
