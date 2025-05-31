@@ -40,3 +40,11 @@ export function isSimilar(color1: Color, color2: Color, threshold = 150) {
     Math.abs(r1 - r2) + Math.abs(g1 - g2) + Math.abs(b1 - b2);
   return manhattanDistance < threshold;
 }
+
+export function generateRandomColor(): Color {
+  // Generate random 24-bit color (0xFFFFFF = 16777215)
+  const randomHex = Math.floor(Math.random() * 0xffffff)
+    .toString(16)
+    .padStart(6, "0");
+  return `#${randomHex}` as Color;
+}

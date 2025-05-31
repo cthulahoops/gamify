@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { AliasesDisplay } from "./AliasesDisplay";
+import { PaletteDisplay } from "./PaletteDisplay";
 import { RulesDisplay } from "./RulesDisplay";
 import { RulesTextarea } from "./RulesTextArea";
 import { PlayerSpawnPosition } from "./PlayerSpawnPosition";
@@ -18,6 +18,7 @@ import type {
 } from "./types";
 import type { GameDesign } from "./types";
 
+import { generateRandomColor } from "./colors";
 import { DeleteZone } from "./DeleteZone";
 
 type EditorProps = {
@@ -226,12 +227,17 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
 
           <div className="editor-section">
             <h3>Palette</h3>
-            <AliasesDisplay
+            <PaletteDisplay
               aliases={aliases}
               palette={palette}
               onAddBlockToAlias={handleAddBlockToAlias}
               onCreateNewAlias={handleCreateNewAlias}
               setColor={onPaletteChange}
+              onAddColor={() => {
+                const randomColor = generateRandomColor();
+                palette.getColorCode(randomColor);
+                setPalette(palette);
+              }}
             />
           </div>
 

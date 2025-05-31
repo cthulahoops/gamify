@@ -10,21 +10,23 @@ import { RuleSquare } from "./RuleSquare";
 
 import { Draggable } from "./Draggable";
 
-type AliasDisplayProps = {
+type PaletteDisplayProps = {
   aliases: Aliases;
   palette: Palette;
   setColor: (symbol: ColorCode, color: Color) => void;
   onAddBlockToAlias: (item: AliasBlockDragItem, targetAlias: string) => void;
   onCreateNewAlias: (item: BlockDragItem) => void;
+  onAddColor: () => void;
 };
 
-export function AliasesDisplay({
+export function PaletteDisplay({
   aliases,
   palette,
   onAddBlockToAlias,
   onCreateNewAlias,
   setColor,
-}: AliasDisplayProps) {
+  onAddColor,
+}: PaletteDisplayProps) {
   return (
     <div id="aliases-display">
       {palette.map((color: Color, symbol: ColorCode) => (
@@ -50,6 +52,13 @@ export function AliasesDisplay({
           />
         </React.Fragment>
       ))}
+      <button 
+        onClick={onAddColor}
+        className="add-color-button"
+        style={{ gridColumn: "span 3", margin: "0.5rem 0" }}
+      >
+        Add Color
+      </button>
       {aliases.map((alias, codes) => (
         <React.Fragment key={alias}>
           <div className="rules-side">
