@@ -208,12 +208,22 @@ export function Editor({ gameDesign, setGameDesign, gameState }: EditorProps) {
     });
   }, [gameDesign, setGameDesign, gameState]);
 
+  const handleSavePlayerPosition = useCallback(() => {
+    if (gameState.playState.playerPosition) {
+      setGameDesign({
+        ...gameDesign,
+        playerSpawnPosition: gameState.playState.playerPosition,
+      });
+    }
+  }, [gameDesign, setGameDesign, gameState]);
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="editor">
         <div className="editor-visual">
           <div className="editor-section">
             <button onClick={handleSaveGrid}>Save Grid</button>
+            <button onClick={handleSavePlayerPosition}>Save Player Position</button>
           </div>
           <div className="editor-section">
             <PlayerSpawnPosition
