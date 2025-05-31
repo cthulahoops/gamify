@@ -80,7 +80,6 @@ export function Editor({ gameDesign, setGameDesign, gameState }: EditorProps) {
     let adjustedTargetPosition = target.position;
     const symbolToAdd = item.symbol;
 
-    // If it's a rule block, we need to remove it from the source
     if (item.type === "RULE_BLOCK") {
       // If moving within the same rule side, adjust target position for removal
       if (
@@ -92,22 +91,14 @@ export function Editor({ gameDesign, setGameDesign, gameState }: EditorProps) {
         }
       }
 
-      // Remove from source
       newRules = removeBlockFromRules(newRules, item.source);
     }
 
-    const targetRule = newRules[target.ruleIndex];
-    const targetString = targetRule[target.side];
-
-    // Add to target
-    const newTargetString =
-      targetString.slice(0, adjustedTargetPosition) +
-      symbolToAdd +
-      targetString.slice(adjustedTargetPosition);
-    newRules[target.ruleIndex] = {
-      ...targetRule,
-      [target.side as keyof Rule]: newTargetString,
-    };
+    newRules = insertBlockIntoRules(
+      newRules,
+      { ...target, position: adjustedTargetPosition },
+      symbolToAdd,
+    );
 
     setRules(newRules);
   };
@@ -223,7 +214,9 @@ export function Editor({ gameDesign, setGameDesign, gameState }: EditorProps) {
         <div className="editor-visual">
           <div className="editor-section">
             <button onClick={handleSaveGrid}>Save Grid</button>
-            <button onClick={handleSavePlayerPosition}>Save Player Position</button>
+            <button onClick={handleSavePlayerPosition}>
+              Save Player Position
+            </button>
           </div>
           <div className="editor-section">
             <PlayerSpawnPosition
@@ -279,6 +272,27 @@ export function Editor({ gameDesign, setGameDesign, gameState }: EditorProps) {
       </div>
     </DndProvider>
   );
+}
+
+function insertBlockIntoRules(
+  rules: Rule[],
+  target: RuleLocation,
+  symbol: string,
+): Rule[] {
+  const targetRule = rules[target.ruleIndex];
+  const targetString = targetRule[target.side];
+  const newTargetString =
+    targetString.slice(0, target.position) +
+    symbol +
+    targetString.slice(target.position);
+
+  const newRules = [...rules];
+  newRules[target.ruleIndex] = {
+    ...targetRule,
+    [target.side as keyof Rule]: newTargetString,
+  };
+
+  return newRules;
 }
 
 function removeBlockFromRules(rules: Rule[], source: RuleLocation): Rule[] {
