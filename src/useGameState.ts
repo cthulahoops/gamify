@@ -83,7 +83,7 @@ function loadCreation(creation: Creation): GameState {
   const data = JSON.parse(creation.data || "{}") as GameStateDTO;
   const grid = Grid.fromJSON(data.grid);
   const palette = Palette.fromJSON(data.palette);
-  const aliases = getInitialAliases(grid, palette);
+  const aliases = Aliases.fromJSON(data.aliases);
 
   const design: GameDesign = {
     originalGrid: grid,
