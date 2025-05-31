@@ -16,7 +16,7 @@ import type {
   BlockDragItem,
   RuleLocation,
 } from "./types";
-import type { GameDesign } from "./types";
+import type { GameDesign, GameState } from "./types";
 
 import { generateRandomColor } from "./colors";
 import { DeleteZone } from "./DeleteZone";
@@ -24,9 +24,10 @@ import { DeleteZone } from "./DeleteZone";
 type EditorProps = {
   gameDesign: GameDesign;
   setGameDesign: (design: GameDesign) => void;
+  gameState: GameState;
 };
 
-export function Editor({ gameDesign, setGameDesign }: EditorProps) {
+export function Editor({ gameDesign, setGameDesign, gameState }: EditorProps) {
   const palette = gameDesign.palette;
   const aliases = gameDesign.aliases;
   const rules = gameDesign.rules;
@@ -200,10 +201,20 @@ export function Editor({ gameDesign, setGameDesign }: EditorProps) {
     }
   };
 
+  const handleSaveGrid = useCallback(() => {
+    setGameDesign({
+      ...gameDesign,
+      originalGrid: gameState.playState.currentGrid.clone(),
+    });
+  }, [gameDesign, setGameDesign, gameState]);
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="editor">
         <div className="editor-visual">
+          <div className="editor-section">
+            <button onClick={handleSaveGrid}>Save Grid</button>
+          </div>
           <div className="editor-section">
             <PlayerSpawnPosition
               grid={gameDesign.originalGrid}

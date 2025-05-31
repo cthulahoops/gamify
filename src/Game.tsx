@@ -65,7 +65,7 @@ export function Game({ creationUrl, localImage }: GameProps) {
         Reset
       </button>
 
-      <Editor gameDesign={gameState.design} setGameDesign={setGameDesign} />
+      <Editor gameDesign={gameState.design} setGameDesign={setGameDesign} gameState={gameState} />
 
       <div className="game-footer">
         <a href="" id="original">
