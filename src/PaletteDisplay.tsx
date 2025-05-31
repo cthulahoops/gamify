@@ -19,6 +19,20 @@ type PaletteDisplayProps = {
   onAddColor: () => void;
 };
 
+type ColorsDisplayProps = {
+  aliases: Aliases;
+  palette: Palette;
+  setColor: (symbol: ColorCode, color: Color) => void;
+  onAddColor: () => void;
+};
+
+type AliasesDisplayProps = {
+  aliases: Aliases;
+  palette: Palette;
+  onAddBlockToAlias: (item: AliasBlockDragItem, targetAlias: string) => void;
+  onCreateNewAlias: (item: BlockDragItem) => void;
+};
+
 export function PaletteDisplay({
   aliases,
   palette,
@@ -29,6 +43,30 @@ export function PaletteDisplay({
 }: PaletteDisplayProps) {
   return (
     <div id="aliases-display">
+      <AliasesDisplay
+        aliases={aliases}
+        palette={palette}
+        onAddBlockToAlias={onAddBlockToAlias}
+        onCreateNewAlias={onCreateNewAlias}
+      />
+      <ColorsDisplay
+        aliases={aliases}
+        palette={palette}
+        setColor={setColor}
+        onAddColor={onAddColor}
+      />
+    </div>
+  );
+}
+
+function ColorsDisplay({
+  aliases,
+  palette,
+  setColor,
+  onAddColor,
+}: ColorsDisplayProps) {
+  return (
+    <>
       {palette.map((color: Color, symbol: ColorCode) => (
         <React.Fragment key={symbol}>
           <div className="rules-side" key={symbol}>
@@ -52,13 +90,25 @@ export function PaletteDisplay({
           />
         </React.Fragment>
       ))}
-      <button 
+      <button
         onClick={onAddColor}
         className="add-color-button"
         style={{ gridColumn: "span 3", margin: "0.5rem 0" }}
       >
         Add Color
       </button>
+    </>
+  );
+}
+
+function AliasesDisplay({
+  aliases,
+  palette,
+  onAddBlockToAlias,
+  onCreateNewAlias,
+}: AliasesDisplayProps) {
+  return (
+    <>
       {aliases.map((alias, codes) => (
         <React.Fragment key={alias}>
           <div className="rules-side">
@@ -96,7 +146,7 @@ export function PaletteDisplay({
         </React.Fragment>
       ))}
       <NewAliasDropZone onCreateNewAlias={onCreateNewAlias} />
-    </div>
+    </>
   );
 }
 
